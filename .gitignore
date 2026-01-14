@@ -56,3 +56,4 @@ application-prod.yml
 *.zip
 *.tar.gz
 *.rar
+*.md

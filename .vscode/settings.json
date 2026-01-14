@@ -1,0 +1,18 @@
+{
+    "java.project.sourcePaths": [
+        "titanium-clause-api/src/main/java",
+        "titanium-clause-application/src/main/java",
+        "titanium-clause-bootstrap/src/main/java",
+        "titanium-clause-common/src/main/java",
+        "titanium-clause-domain/src/main/java",
+        "titanium-clause-infrastructure/src/main/java",
+        "titanium-clause-web/src/main/java"
+    ],
+    "java.project.outputPath": "target/classes",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar"
+    ],
+    "java.import.gradle.enabled": false,
+    "java.import.maven.enabled": true,
+    "java.configuration.updateBuildConfiguration": "automatic"
+}

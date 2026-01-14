@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Annotation profile for titanium-clause" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/Repo/titanium-Repo/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="titanium-clause-bootstrap" />
+        <module name="titanium-clause-domain" />
+        <module name="titanium-clause-api" />
+        <module name="titanium-clause-common" />
+        <module name="titanium-clause-infrastructure" />
+        <module name="titanium-clause-application" />
+        <module name="titanium-clause-web" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="titanium-clause" options="-parameters" />
+      <module name="titanium-clause-api" options="-parameters" />
+      <module name="titanium-clause-application" options="-parameters" />
+      <module name="titanium-clause-bootstrap" options="-parameters" />
+      <module name="titanium-clause-common" options="-parameters" />
+      <module name="titanium-clause-domain" options="-parameters" />
+      <module name="titanium-clause-infrastructure" options="-parameters" />
+      <module name="titanium-clause-web" options="-parameters" />
+    </option>
+  </component>
+</project>

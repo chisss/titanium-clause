@@ -1,6 +1,6 @@
 # Maven构建输出
 /target/
-/!/.mvn/wrapper/maven-wrapper.jar
+.mvn/
 
 # IDE文件
 .idea/
@@ -10,6 +10,7 @@
 .classpath
 .project
 .settings/
+.vscode/
 *.swp
 *.swo
 *~
@@ -55,4 +56,3 @@ application-prod.yml
 *.zip
 *.tar.gz
 *.rar
-*.md

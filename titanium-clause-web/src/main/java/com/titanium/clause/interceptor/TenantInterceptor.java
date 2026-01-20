@@ -1,7 +1,7 @@
 package com.titanium.clause.interceptor;
 
-import com.titanium.clause.constant.ClauseConstants;
-import com.titanium.clause.config.TenantContext;
+import com.titanium.clause.common.constant.ClauseConstants;
+import com.titanium.clause.infrastructure.config.TenantContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;

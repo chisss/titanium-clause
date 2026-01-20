@@ -1,7 +1,10 @@
 package com.titanium.clause.infrastructure.mapper;
 
-import com.titanium.clause.aggregate.Clause;
-import com.titanium.clause.entity.ClauseEntity;
+import com.titanium.clause.domain.aggregate.Clause;
+import com.titanium.clause.domain.valueobject.ClauseCode;
+import com.titanium.clause.domain.valueobject.ClauseId;
+import com.titanium.clause.domain.valueobject.ClauseName;
+import com.titanium.clause.infrastructure.entity.ClauseEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -46,8 +49,8 @@ public interface ClauseEntityMapper {
      * @return ClauseId对象
      */
     @Named("toClauseId")
-    default com.titanium.clause.valueobject.ClauseId toClauseId(String id) {
-        return id != null ? com.titanium.clause.valueobject.ClauseId.fromString(id) : null;
+    default ClauseId toClauseId(String id) {
+        return id != null ? ClauseId.fromString(id) : null;
     }
 
     /**
@@ -56,8 +59,8 @@ public interface ClauseEntityMapper {
      * @return ClauseCode对象
      */
     @Named("toClauseCode")
-    default com.titanium.clause.valueobject.ClauseCode toClauseCode(String code) {
-        return code != null ? com.titanium.clause.valueobject.ClauseCode.fromString(code) : null;
+    default ClauseCode toClauseCode(String code) {
+        return code != null ? ClauseCode.fromString(code) : null;
     }
 
     /**
@@ -66,7 +69,7 @@ public interface ClauseEntityMapper {
      * @return ClauseName对象
      */
     @Named("toClauseName")
-    default com.titanium.clause.valueobject.ClauseName toClauseName(String name) {
-        return name != null ? com.titanium.clause.valueobject.ClauseName.fromString(name) : null;
+    default ClauseName toClauseName(String name) {
+        return name != null ? ClauseName.fromString(name) : null;
     }
 }

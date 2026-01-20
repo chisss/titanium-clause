@@ -3,8 +3,8 @@ package com.titanium.clause.infrastructure.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.titanium.clause.entity.ClaimRule;
-import com.titanium.clause.entity.ClaimRuleEntity;
+import com.titanium.clause.domain.entity.ClaimRule;
+import com.titanium.clause.infrastructure.entity.ClaimRuleEntity;
 
 /**
  * 理赔规则映射器

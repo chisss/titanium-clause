@@ -1,7 +1,7 @@
 package com.titanium.clause.infrastructure.mapper;
 
-import com.titanium.clause.entity.PremiumRule;
-import com.titanium.clause.entity.PremiumRuleEntity;
+import com.titanium.clause.domain.entity.PremiumRule;
+import com.titanium.clause.infrastructure.entity.PremiumRuleEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

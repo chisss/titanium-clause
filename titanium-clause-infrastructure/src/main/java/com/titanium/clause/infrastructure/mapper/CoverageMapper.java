@@ -4,9 +4,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import com.titanium.clause.entity.Coverage;
-import com.titanium.clause.entity.InsuranceLiabilityEntity;
-import com.titanium.clause.valueobject.CoverageId;
+import com.titanium.clause.domain.entity.Coverage;
+import com.titanium.clause.infrastructure.entity.InsuranceLiabilityEntity;
+import com.titanium.clause.domain.valueobject.CoverageId;
 
 /**
  * 保险责任映射器

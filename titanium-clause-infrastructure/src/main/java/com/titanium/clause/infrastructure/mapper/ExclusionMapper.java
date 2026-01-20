@@ -1,8 +1,8 @@
 package com.titanium.clause.infrastructure.mapper;
 
-import com.titanium.clause.entity.Exclusion;
-import com.titanium.clause.entity.InsuranceExclusionEntity;
-import com.titanium.clause.valueobject.ExclusionId;
+import com.titanium.clause.domain.entity.Exclusion;
+import com.titanium.clause.infrastructure.entity.InsuranceExclusionEntity;
+import com.titanium.clause.domain.valueobject.ExclusionId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

@@ -6,11 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import com.titanium.clause.aggregate.Clause;
-import com.titanium.clause.event.ClauseCreatedEvent;
-import com.titanium.clause.event.ClauseStatusChangedEvent;
-import com.titanium.clause.event.ClauseUpdatedEvent;
-import com.titanium.clause.repository.ClauseRepository;
+import com.titanium.clause.domain.aggregate.Clause;
+import com.titanium.clause.domain.event.ClauseCreatedEvent;
+import com.titanium.clause.domain.event.ClauseStatusChangedEvent;
+import com.titanium.clause.domain.event.ClauseUpdatedEvent;
+import com.titanium.clause.domain.repository.ClauseRepository;
 
 import lombok.RequiredArgsConstructor;
 

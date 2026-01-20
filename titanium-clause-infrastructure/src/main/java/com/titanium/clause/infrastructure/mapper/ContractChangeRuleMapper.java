@@ -1,7 +1,7 @@
 package com.titanium.clause.infrastructure.mapper;
 
-import com.titanium.clause.entity.ContractChangeRule;
-import com.titanium.clause.entity.ContractChangeRuleEntity;
+import com.titanium.clause.domain.entity.ContractChangeRule;
+import com.titanium.clause.infrastructure.entity.ContractChangeRuleEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

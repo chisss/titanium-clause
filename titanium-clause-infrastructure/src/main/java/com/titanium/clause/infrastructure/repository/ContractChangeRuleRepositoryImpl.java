@@ -1,6 +1,7 @@
 package com.titanium.clause.infrastructure.repository;
 
 import com.titanium.clause.domain.entity.ContractChangeRule;
+import com.titanium.clause.domain.enums.RenewalType;
 import com.titanium.clause.domain.repository.ContractChangeRuleRepository;
 import com.titanium.clause.infrastructure.entity.ContractChangeRuleEntity;
 import com.titanium.clause.infrastructure.mapper.ContractChangeRuleMapper;
@@ -36,7 +37,7 @@ public class ContractChangeRuleRepositoryImpl implements ContractChangeRuleRepos
     }
 
     @Override
-    public List<ContractChangeRule> findByRenewalType(String renewalType, String tenantId) {
+    public List<ContractChangeRule> findByRenewalType(RenewalType renewalType, String tenantId) {
         return contractChangeRuleJpaRepository.findByRenewalTypeAndTenantId(renewalType, tenantId)
                 .stream()
                 .map(contractChangeRuleMapper::toContractChangeRule)

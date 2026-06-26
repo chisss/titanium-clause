@@ -1,6 +1,8 @@
 package com.titanium.clause.domain.entity;
 
 import com.titanium.clause.domain.valueobject.ExclusionId;
+import com.titanium.clause.domain.enums.ExclusionType;
+import com.titanium.metadata.enums.CommonStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,11 +19,13 @@ public class Exclusion {
 
     private String        description;
 
-    private String        status;
+    private CommonStatus  status;
     // 免责类型（故意行为/既往症/违法行为）
-    private String        type;
+    private ExclusionType type;
     // 免责规则描述（关联标准化规则库）
     private String        exclusionRuleCode;
+    // 规则引擎规则集编码（可选）：复杂免责判定委托规则引擎(SpEL)，常规走 exclusionRuleCode 文本匹配
+    private String        ruleSetCode;
     // 是否法定免责（不可修改）
     private Boolean       isMandatory;
 

@@ -1,16 +1,16 @@
 package com.titanium.clause.domain.command;
 
+import com.titanium.clause.domain.entity.PremiumRule;
 import com.titanium.clause.domain.valueobject.ClauseId;
-import com.titanium.metadata.enums.clause.ClauseEnum;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 /**
- * 变更条款状态命令
+ * 设置缴费规则命令
  */
-public record ChangeClauseStatusCommand(
+public record SetPremiumRuleCommand(
         @TargetAggregateIdentifier
         ClauseId clauseId,
-        ClauseEnum.ClauseStatus newStatus,
+        PremiumRule premiumRule,
         String updatedBy
 ) {
 }

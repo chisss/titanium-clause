@@ -1,5 +1,6 @@
 package com.titanium.clause.infrastructure.repository.jpa;
 
+import com.titanium.clause.domain.enums.RenewalType;
 import com.titanium.clause.infrastructure.entity.ContractChangeRuleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +18,7 @@ public interface ContractChangeRuleJpaRepository extends JpaRepository<ContractC
      * @param tenantId 租户ID
      * @return 合同变更规则实体列表
      */
-    List<ContractChangeRuleEntity> findByRenewalTypeAndTenantId(String renewalType, String tenantId);
+    List<ContractChangeRuleEntity> findByRenewalTypeAndTenantId(RenewalType renewalType, String tenantId);
 
     /**
      * 根据租户ID查找所有合同变更规则

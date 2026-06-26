@@ -1,17 +1,11 @@
 package com.titanium.clause.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.titanium.clause.api.dto.ClauseDTO;
 import com.titanium.clause.api.request.ActivateClauseRequest;
@@ -27,7 +21,10 @@ import com.titanium.clause.domain.query.GetClauseByIdQuery;
 import com.titanium.clause.domain.query.GetClausesByStatusQuery;
 import com.titanium.clause.domain.query.GetClausesByTypeQuery;
 import com.titanium.clause.domain.valueobject.ClauseId;
+import com.titanium.clause.domain.enums.ApprovalType;
 import com.titanium.clause.infrastructure.config.TenantContext;
+import com.titanium.metadata.enums.InsuranceType;
+import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,22 +36,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ClauseController {
     private final ClauseApplicationService clauseApplicationService;
-
     private final ClauseQueryService       clauseQueryService;
 
     /**
      * 创建条款
-     *
-     * @param request 创建条款请求
-     * @return 创建的条款DTO
      */
     @PostMapping
     public ResponseEntity<ClauseDTO> createClause(@RequestBody CreateClauseRequest request) {
         String tenantId = TenantContext.getCurrentTenant();
-        ClauseId clauseId = clauseApplicationService.createClause(request.getClauseCode(), request.getClauseName(),
-                request.getClauseType(), request.getContent(), request.getDescription(), request.getEffectiveDate(),
-                request.getExpiryDate(), request.getCreatedBy(), tenantId);
-        // 查询创建后的条款
+        ClauseId clauseId = clauseApplicationService.createClause(
+                request.getClauseCode(), request.getClauseName(), request.getClauseType(),
+                request.getContent(), request.getDescription(), request.getInsuranceType(),
+                request.getEffectiveDate(), request.getExpiryDate(), request.getCreatedBy(), tenantId);
         var clause = clauseQueryService.handle(new GetClauseByIdQuery(clauseId, tenantId))
                 .orElseThrow(() -> new RuntimeException("创建条款失败"));
         return new ResponseEntity<>(toDTO(clause), HttpStatus.CREATED);
@@ -62,9 +55,6 @@ public class ClauseController {
 
     /**
      * 根据ID查询条款
-     *
-     * @param clauseId 条款ID
-     * @return 条款DTO
      */
     @GetMapping("/{clauseId}")
     public ResponseEntity<ClauseDTO> getClauseById(@PathVariable String clauseId) {
@@ -76,9 +66,6 @@ public class ClauseController {
 
     /**
      * 根据条款代码查询条款
-     *
-     * @param clauseCode 条款代码
-     * @return 条款DTO
      */
     @GetMapping("/code/{clauseCode}")
     public ResponseEntity<ClauseDTO> getClauseByCode(@PathVariable String clauseCode) {
@@ -90,19 +77,14 @@ public class ClauseController {
 
     /**
      * 更新条款
-     *
-     * @param clauseId 条款ID
-     * @param request 更新条款请求
-     * @return 更新后的条款DTO
      */
     @PutMapping("/{clauseId}")
     public ResponseEntity<ClauseDTO> updateClause(@PathVariable String clauseId,
                                                   @RequestBody UpdateClauseRequest request) {
         String tenantId = TenantContext.getCurrentTenant();
         clauseApplicationService.updateClause(clauseId, request.getClauseName(), request.getClauseType(),
-                request.getContent(), request.getDescription(), request.getEffectiveDate(), request.getExpiryDate(),
-                request.getUpdatedBy(), tenantId);
-        // 查询更新后的条款
+                request.getContent(), request.getDescription(), request.getInsuranceType(),
+                request.getEffectiveDate(), request.getExpiryDate(), request.getUpdatedBy(), tenantId);
         var clause = clauseQueryService.handle(new GetClauseByIdQuery(new ClauseId(clauseId), tenantId))
                 .orElseThrow(() -> new RuntimeException("条款不存在"));
         return ResponseEntity.ok(toDTO(clause));
@@ -110,10 +92,6 @@ public class ClauseController {
 
     /**
      * 激活条款
-     *
-     * @param clauseId 条款ID
-     * @param request 激活条款请求
-     * @return 响应实体
      */
     @PutMapping("/{clauseId}/activate")
     public ResponseEntity<Void> activateClause(@PathVariable String clauseId,
@@ -125,10 +103,6 @@ public class ClauseController {
 
     /**
      * 停用条款
-     *
-     * @param clauseId 条款ID
-     * @param request 停用条款请求
-     * @return 响应实体
      */
     @PutMapping("/{clauseId}/inactivate")
     public ResponseEntity<Void> inactivateClause(@PathVariable String clauseId,
@@ -139,15 +113,70 @@ public class ClauseController {
     }
 
     /**
+     * 提交条款审批
+     */
+    @PutMapping("/{clauseId}/submit-approval")
+    public ResponseEntity<Void> submitForApproval(@PathVariable String clauseId,
+                                                  @RequestBody Map<String, String> request) {
+        String tenantId = TenantContext.getCurrentTenant();
+        clauseApplicationService.submitForApproval(clauseId, request.get("submittedBy"), tenantId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 审批通过条款
+     */
+    @PutMapping("/{clauseId}/approve")
+    public ResponseEntity<Void> approveClause(@PathVariable String clauseId,
+                                              @RequestBody Map<String, String> request) {
+        String tenantId = TenantContext.getCurrentTenant();
+        clauseApplicationService.approveClause(clauseId, ApprovalType.fromCode(request.get("approvalType")),
+                request.get("approverId"), request.get("approverName"), request.get("comment"), tenantId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 审批驳回条款
+     */
+    @PutMapping("/{clauseId}/reject")
+    public ResponseEntity<Void> rejectClause(@PathVariable String clauseId,
+                                             @RequestBody Map<String, String> request) {
+        String tenantId = TenantContext.getCurrentTenant();
+        clauseApplicationService.rejectClause(clauseId, ApprovalType.fromCode(request.get("approvalType")),
+                request.get("approverId"), request.get("approverName"), request.get("comment"), tenantId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 条款修订（基于当前版本创建新DRAFT版本）
+     */
+    @PostMapping("/{clauseId}/revise")
+    public ResponseEntity<Map<String, String>> reviseClause(@PathVariable String clauseId,
+                                                            @RequestBody Map<String, String> request) {
+        String tenantId = TenantContext.getCurrentTenant();
+        ClauseId newClauseId = clauseApplicationService.reviseClause(clauseId, request.get("revisedBy"), tenantId);
+        return new ResponseEntity<>(Map.of("newClauseId", newClauseId.getValue()), HttpStatus.CREATED);
+    }
+
+    /**
+     * 条款归档
+     */
+    @PutMapping("/{clauseId}/archive")
+    public ResponseEntity<Void> archiveClause(@PathVariable String clauseId,
+                                              @RequestBody Map<String, String> request) {
+        String tenantId = TenantContext.getCurrentTenant();
+        clauseApplicationService.archiveClause(clauseId, request.get("archivedBy"), tenantId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * 根据状态查询条款列表
-     *
-     * @param status 条款状态
-     * @return 条款DTO列表
      */
     @GetMapping("/status/{status}")
     public ResponseEntity<List<ClauseDTO>> getClausesByStatus(@PathVariable String status) {
         String tenantId = TenantContext.getCurrentTenant();
-        var clauses = clauseQueryService.queryClausesByStatus(new GetClausesByStatusQuery(status, tenantId))
+        var clauses = clauseQueryService.queryClausesByStatus(
+                        new GetClausesByStatusQuery(ClauseEnum.ClauseStatus.fromCode(status), tenantId))
                 .orElseThrow(() -> new RuntimeException("条款不存在"));
         var clauseDTOs = clauses.stream().map(this::toDTO).toList();
         return ResponseEntity.ok(clauseDTOs);
@@ -155,14 +184,12 @@ public class ClauseController {
 
     /**
      * 根据类型查询条款列表
-     *
-     * @param clauseType 条款类型
-     * @return 条款DTO列表
      */
     @GetMapping("/type/{clauseType}")
     public ResponseEntity<List<ClauseDTO>> getClausesByType(@PathVariable String clauseType) {
         String tenantId = TenantContext.getCurrentTenant();
-        var clauses = clauseQueryService.queryClausesByType(new GetClausesByTypeQuery(clauseType, tenantId))
+        var clauses = clauseQueryService.queryClausesByType(
+                        new GetClausesByTypeQuery(InsuranceType.fromCode(clauseType), tenantId))
                 .orElseThrow(() -> new RuntimeException("条款不存在"));
         var clauseDTOs = clauses.stream().map(this::toDTO).toList();
         return ResponseEntity.ok(clauseDTOs);
@@ -170,8 +197,6 @@ public class ClauseController {
 
     /**
      * 查询所有条款
-     *
-     * @return 条款DTO列表
      */
     @GetMapping
     public ResponseEntity<List<ClauseDTO>> getAllClauses() {
@@ -184,9 +209,6 @@ public class ClauseController {
 
     /**
      * 删除条款
-     *
-     * @param clauseId 条款ID
-     * @return 响应实体
      */
     @DeleteMapping("/{clauseId}")
     public ResponseEntity<Void> deleteClause(@PathVariable String clauseId) {
@@ -197,9 +219,6 @@ public class ClauseController {
 
     /**
      * 将领域对象转换为DTO
-     *
-     * @param clause 领域对象
-     * @return DTO对象
      */
     private ClauseDTO toDTO(Clause clause) {
         ClauseDTO dto = new ClauseDTO();
@@ -210,6 +229,9 @@ public class ClauseController {
         dto.setContent(clause.getContent());
         dto.setDescription(clause.getDescription());
         dto.setStatus(clause.getStatus());
+        dto.setVersion(clause.getVersion() != null ? clause.getVersion().getValue() : null);
+        dto.setInsuranceType(clause.getInsuranceType());
+        dto.setParentClauseId(clause.getParentClauseId() != null ? clause.getParentClauseId().getValue() : null);
         dto.setEffectiveDate(clause.getEffectiveDate());
         dto.setExpiryDate(clause.getExpiryDate());
         dto.setCreatedBy(clause.getCreatedBy());

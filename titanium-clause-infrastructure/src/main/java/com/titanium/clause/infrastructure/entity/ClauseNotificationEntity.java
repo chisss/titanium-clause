@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.titanium.metadata.enums.CommonStatus;
+
 import java.time.LocalDateTime;
 
 /**
@@ -36,8 +38,9 @@ public class ClauseNotificationEntity {
     @Column(name = "notification_content", columnDefinition = "TEXT", nullable = false)
     private String notificationContent;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 32, nullable = false)
-    private String status;
+    private CommonStatus status;
 
     @Column(name = "create_time", nullable = false, updatable = false)
     private LocalDateTime createTime;

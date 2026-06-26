@@ -3,6 +3,8 @@ package com.titanium.clause.domain.repository;
 import com.titanium.clause.domain.valueobject.ClauseId;
 import com.titanium.clause.domain.valueobject.ClauseCode;
 import com.titanium.clause.domain.aggregate.Clause;
+import com.titanium.metadata.enums.InsuranceType;
+import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,15 +42,15 @@ public interface ClauseRepository {
      * @param tenantId 租户ID
      * @return 条款列表
      */
-    List<Clause> findByStatus(String status, String tenantId);
+    List<Clause> findByStatus(ClauseEnum.ClauseStatus status, String tenantId);
 
     /**
-     * 根据类型查找条款
-     * @param clauseType 条款类型
+     * 根据险种类型查找条款
+     * @param insuranceType 险种类型
      * @param tenantId 租户ID
      * @return 条款列表
      */
-    List<Clause> findByType(String clauseType, String tenantId);
+    List<Clause> findByType(InsuranceType insuranceType, String tenantId);
 
     /**
      * 查找所有条款

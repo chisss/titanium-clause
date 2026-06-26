@@ -6,16 +6,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import com.titanium.clause.common.constant.ClauseConstants;
 import com.titanium.clause.domain.aggregate.Clause;
+import com.titanium.clause.domain.event.ClauseApprovedEvent;
+import com.titanium.clause.domain.event.ClauseArchivedEvent;
 import com.titanium.clause.domain.event.ClauseCreatedEvent;
+import com.titanium.clause.domain.event.ClauseRejectedEvent;
 import com.titanium.clause.domain.event.ClauseStatusChangedEvent;
+import com.titanium.clause.domain.event.ClauseSubmittedForApprovalEvent;
 import com.titanium.clause.domain.event.ClauseUpdatedEvent;
 import com.titanium.clause.domain.repository.ClauseRepository;
+import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import lombok.RequiredArgsConstructor;
 
 /**
  * 条款投影处理器
+ * <p>
+ * 负责将领域事件投影到读模型（数据库），同时发布Kafka事件供其他域消费。
+ * </p>
  */
 @Component
 @RequiredArgsConstructor
@@ -27,14 +36,10 @@ public class ClauseProjection {
 
     /**
      * 处理条款创建事件
-     * 
-     * @param event 条款创建事件
      */
     @EventHandler
     public void handle(ClauseCreatedEvent event) {
         logger.info("处理条款创建事件: {}", event.clauseId());
-
-        // 使用Mapper转换，将领域对象转换为JPA实体
 
         Clause clause = new Clause();
         clause.setClauseId(event.clauseId());
@@ -43,68 +48,136 @@ public class ClauseProjection {
         clause.setClauseType(event.clauseType());
         clause.setContent(event.content());
         clause.setDescription(event.description());
+        clause.setInsuranceType(event.insuranceType());
+        clause.setVersion(event.version());
+        clause.setParentClauseId(event.parentClauseId());
         clause.setEffectiveDate(event.effectiveDate());
         clause.setExpiryDate(event.expiryDate());
-        clause.setStatus(event.status());
+        clause.setStatus(ClauseEnum.ClauseStatus.DRAFT);
         clause.setCreatedBy(event.createdBy());
         clause.setCreatedAt(event.createdAt());
         clause.setTenantId(event.tenantId());
 
-        // 保存到数据库
         clauseRepository.save(clause);
     }
 
     /**
      * 处理条款更新事件
-     * 
-     * @param event 条款更新事件
      */
     @EventHandler
     public void handle(ClauseUpdatedEvent event) {
         logger.info("处理条款更新事件: {}", event.clauseCode());
 
-        // 查找条款
         var clauseOptional = clauseRepository.findById(event.clauseId(), event.tenantId());
         if (clauseOptional.isPresent()) {
             Clause clause = clauseOptional.get();
-
-            // 更新条款信息
             clause.setClauseName(event.clauseName());
             clause.setClauseType(event.clauseType());
             clause.setContent(event.content());
             clause.setDescription(event.description());
+            clause.setInsuranceType(event.insuranceType());
             clause.setEffectiveDate(event.effectiveDate());
             clause.setExpiryDate(event.expiryDate());
             clause.setUpdatedBy(event.updatedBy());
             clause.setUpdatedAt(event.updatedAt());
 
-            // 保存到数据库
             clauseRepository.save(clause);
         }
     }
 
     /**
      * 处理条款状态变更事件
-     * 
-     * @param event 条款状态变更事件
      */
     @EventHandler
     public void handle(ClauseStatusChangedEvent event) {
-        logger.info("处理条款状态变更事件: {}, 从 {} 变更为 {}", event.clauseId(), null, event.newStatus());
+        logger.info("处理条款状态变更事件: {}, 新状态: {}", event.clauseId(), event.newStatus());
 
-        // 查找条款
         var clauseOptional = clauseRepository.findById(event.clauseId(), null);
         if (clauseOptional.isPresent()) {
             Clause clause = clauseOptional.get();
-
-            // 更新条款状态
             clause.setStatus(event.newStatus());
             clause.setUpdatedBy(event.updatedBy());
             clause.setUpdatedAt(event.updatedAt());
 
-            // 保存到数据库
             clauseRepository.save(clause);
 
+            // 发布Kafka事件供其他域消费
+            kafkaTemplate.send(ClauseConstants.TOPIC_CLAUSE_STATUS_CHANGED, event);
+        }
+    }
+
+    /**
+     * 处理条款提交审批事件
+     */
+    @EventHandler
+    public void handle(ClauseSubmittedForApprovalEvent event) {
+        logger.info("处理条款提交审批事件: {}", event.clauseId());
+
+        var clauseOptional = clauseRepository.findById(event.clauseId(), null);
+        if (clauseOptional.isPresent()) {
+            Clause clause = clauseOptional.get();
+            clause.setStatus(ClauseEnum.ClauseStatus.PENDING_APPROVAL);
+            clause.setUpdatedBy(event.submittedBy());
+            clause.setUpdatedAt(event.submittedAt());
+
+            clauseRepository.save(clause);
+        }
+    }
+
+    /**
+     * 处理条款审批通过事件
+     */
+    @EventHandler
+    public void handle(ClauseApprovedEvent event) {
+        logger.info("处理条款审批通过事件: {}", event.clauseId());
+
+        var clauseOptional = clauseRepository.findById(event.clauseId(), null);
+        if (clauseOptional.isPresent()) {
+            Clause clause = clauseOptional.get();
+            clause.setStatus(ClauseEnum.ClauseStatus.ACTIVE);
+            clause.setUpdatedBy(event.approverId());
+            clause.setUpdatedAt(event.approvedAt());
+
+            clauseRepository.save(clause);
+
+            // 发布条款激活Kafka事件
+            kafkaTemplate.send(ClauseConstants.TOPIC_CLAUSE_STATUS_CHANGED, event);
+        }
+    }
+
+    /**
+     * 处理条款审批驳回事件
+     */
+    @EventHandler
+    public void handle(ClauseRejectedEvent event) {
+        logger.info("处理条款审批驳回事件: {}", event.clauseId());
+
+        var clauseOptional = clauseRepository.findById(event.clauseId(), null);
+        if (clauseOptional.isPresent()) {
+            Clause clause = clauseOptional.get();
+            clause.setStatus(ClauseEnum.ClauseStatus.DRAFT);
+            clause.setUpdatedBy(event.rejectedBy());
+            clause.setUpdatedAt(event.rejectedAt());
+
+            clauseRepository.save(clause);
+        }
+    }
+
+    /**
+     * 处理条款归档事件
+     */
+    @EventHandler
+    public void handle(ClauseArchivedEvent event) {
+        logger.info("处理条款归档事件: {}", event.clauseId());
+
+        var clauseOptional = clauseRepository.findById(event.clauseId(), null);
+        if (clauseOptional.isPresent()) {
+            Clause clause = clauseOptional.get();
+            clause.setStatus(ClauseEnum.ClauseStatus.ARCHIVED);
+            clause.setUpdatedBy(event.archivedBy());
+            clause.setUpdatedAt(event.archivedAt());
+
+            clauseRepository.save(clause);
         }
     }
 }

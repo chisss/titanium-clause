@@ -1,5 +1,6 @@
 package com.titanium.clause.infrastructure.repository.jpa;
 
+import com.titanium.clause.domain.enums.SignTemplateType;
 import com.titanium.clause.infrastructure.entity.ClauseSignTemplateEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,7 +27,7 @@ public interface ClauseSignTemplateJpaRepository extends JpaRepository<ClauseSig
      * @param tenantId 租户ID
      * @return 签约模板实体列表
      */
-    List<ClauseSignTemplateEntity> findByTemplateTypeAndTenantId(String templateType, String tenantId);
+    List<ClauseSignTemplateEntity> findByTemplateTypeAndTenantId(SignTemplateType templateType, String tenantId);
 
     /**
      * 根据状态和租户ID查找签约模板
@@ -59,7 +60,7 @@ public interface ClauseSignTemplateJpaRepository extends JpaRepository<ClauseSig
      * @param tenantId 租户ID
      * @return 签约模板实体列表
      */
-    List<ClauseSignTemplateEntity> findByTemplateTypeAndStatusAndTenantId(String templateType, String status, String tenantId);
+    List<ClauseSignTemplateEntity> findByTemplateTypeAndStatusAndTenantId(SignTemplateType templateType, String status, String tenantId);
 
     /**
      * 根据ID和租户ID删除签约模板

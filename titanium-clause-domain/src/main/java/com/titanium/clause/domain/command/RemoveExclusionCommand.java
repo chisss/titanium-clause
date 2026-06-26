@@ -1,16 +1,16 @@
 package com.titanium.clause.domain.command;
 
 import com.titanium.clause.domain.valueobject.ClauseId;
-import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.clause.domain.valueobject.ExclusionId;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 /**
- * 变更条款状态命令
+ * 移除责任免除命令
  */
-public record ChangeClauseStatusCommand(
+public record RemoveExclusionCommand(
         @TargetAggregateIdentifier
         ClauseId clauseId,
-        ClauseEnum.ClauseStatus newStatus,
+        ExclusionId exclusionId,
         String updatedBy
 ) {
 }

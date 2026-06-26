@@ -1,5 +1,7 @@
 package com.titanium.clause.api.request;
 
+import com.titanium.metadata.enums.InsuranceType;
+import com.titanium.metadata.enums.clause.ClauseEnum;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -11,27 +13,32 @@ public class UpdateClauseRequest {
     /**
      * 条款名称
      */
-    private String        clauseName;
+    private String                clauseName;
 
     /**
      * 条款代码
      */
-    private String        clauseCode;
+    private String                clauseCode;
 
     /**
      * 条款类型
      */
-    private String        clauseType;
+    private ClauseEnum.ClauseType clauseType;
 
     /**
      * 条款内容
      */
-    private String        content;
+    private String                content;
 
     /**
      * 条款描述
      */
-    private String        description;
+    private String                description;
+
+    /**
+     * 险种类型
+     */
+    private InsuranceType         insuranceType;
 
     /**
      * 生效日期

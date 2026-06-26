@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.titanium.clause.domain.enums.SignTemplateType;
+import com.titanium.metadata.enums.CommonStatus;
+
 import java.time.LocalDateTime;
 
 /**
@@ -30,14 +33,16 @@ public class ClauseSignTemplateEntity {
     @Column(name = "template_name", length = 128, nullable = false)
     private String templateName;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "template_type", length = 32, nullable = false)
-    private String templateType;
+    private SignTemplateType templateType;
 
     @Column(name = "template_content", columnDefinition = "TEXT", nullable = false)
     private String templateContent;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 32, nullable = false)
-    private String status;
+    private CommonStatus status;
 
     @Column(name = "create_time", nullable = false, updatable = false)
     private LocalDateTime createTime;

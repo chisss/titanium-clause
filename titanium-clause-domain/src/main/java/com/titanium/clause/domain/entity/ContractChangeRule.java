@@ -2,6 +2,8 @@ package com.titanium.clause.domain.entity;
 
 import java.time.LocalDateTime;
 
+import com.titanium.clause.domain.enums.RenewalType;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +16,7 @@ public class ContractChangeRule {
     // 退保现金价值规则
     private String        surrenderCashValueRule;
     // 续保类型（保证续保/不保证续保）
-    private String        renewalType;
+    private RenewalType   renewalType;
     // 复效条件
     private String        reinstatementCondition;
     // 等待期天数

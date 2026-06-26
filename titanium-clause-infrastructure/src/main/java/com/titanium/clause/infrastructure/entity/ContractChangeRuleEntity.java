@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.titanium.clause.domain.enums.RenewalType;
+
 import java.time.LocalDateTime;
 
 /**
@@ -25,8 +27,9 @@ public class ContractChangeRuleEntity {
     @Column(name = "surrender_cash_value_rule", columnDefinition = "TEXT")
     private String surrenderCashValueRule;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "renewal_type", length = 32, nullable = false)
-    private String renewalType;
+    private RenewalType renewalType;
 
     @Column(name = "reinstatement_condition", columnDefinition = "TEXT")
     private String reinstatementCondition;

@@ -1,16 +1,16 @@
 package com.titanium.clause.domain.command;
 
+import com.titanium.clause.domain.entity.ClauseSignTemplate;
 import com.titanium.clause.domain.valueobject.ClauseId;
-import com.titanium.metadata.enums.clause.ClauseEnum;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 /**
- * 变更条款状态命令
+ * 设置签署模板命令
  */
-public record ChangeClauseStatusCommand(
+public record SetSignTemplateCommand(
         @TargetAggregateIdentifier
         ClauseId clauseId,
-        ClauseEnum.ClauseStatus newStatus,
+        ClauseSignTemplate signTemplate,
         String updatedBy
 ) {
 }

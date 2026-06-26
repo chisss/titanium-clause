@@ -1,16 +1,16 @@
 package com.titanium.clause.domain.command;
 
+import com.titanium.clause.domain.entity.Coverage;
 import com.titanium.clause.domain.valueobject.ClauseId;
-import com.titanium.metadata.enums.clause.ClauseEnum;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 /**
- * 变更条款状态命令
+ * 添加保险责任到条款命令
  */
-public record ChangeClauseStatusCommand(
+public record AddCoverageCommand(
         @TargetAggregateIdentifier
         ClauseId clauseId,
-        ClauseEnum.ClauseStatus newStatus,
+        Coverage coverage,
         String updatedBy
 ) {
 }

@@ -10,10 +10,11 @@ import com.titanium.clause.domain.valueobject.ClauseCode;
 import com.titanium.clause.domain.valueobject.ClauseName;
 import com.titanium.clause.domain.valueobject.CoverageId;
 import com.titanium.clause.domain.valueobject.ExclusionId;
+import com.titanium.metadata.enums.InsuranceType;
+import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 条款更新事件
@@ -22,13 +23,13 @@ public record ClauseUpdatedEvent(
         ClauseId clauseId,
         ClauseCode clauseCode,
         ClauseName clauseName,
-        String clauseType,
+        ClauseEnum.ClauseType clauseType,
         String content,
-        String status,
+        ClauseEnum.ClauseStatus status,
         String description,
+        InsuranceType insuranceType,
         LocalDateTime effectiveDate,
         LocalDateTime expiryDate,
-        Set<String> productIds,
         Map<CoverageId, Coverage> coverages,
         Map<ExclusionId, Exclusion> exclusions,
         PremiumRule premiumRule,

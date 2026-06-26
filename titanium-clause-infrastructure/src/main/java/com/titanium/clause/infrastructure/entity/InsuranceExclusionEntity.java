@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.titanium.clause.domain.enums.ExclusionType;
+import com.titanium.metadata.enums.CommonStatus;
+
 import java.time.LocalDateTime;
 
 /**
@@ -25,8 +28,9 @@ public class InsuranceExclusionEntity {
     @Column(name = "id", length = 32, nullable = false)
     private String id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", length = 32, nullable = false)
-    private String type;
+    private ExclusionType type;
 
     @Column(name = "exclusion_rule_code", length = 50, nullable = false)
     private String exclusionRuleCode;
@@ -37,8 +41,9 @@ public class InsuranceExclusionEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 32, nullable = false)
-    private String status;
+    private CommonStatus status;
 
     @Column(name = "tenant_id", length = 32, nullable = false)
     private String tenantId;

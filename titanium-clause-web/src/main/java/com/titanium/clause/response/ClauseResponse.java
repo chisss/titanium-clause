@@ -1,5 +1,6 @@
 package com.titanium.clause.response;
 
+import com.titanium.metadata.enums.clause.ClauseEnum;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,7 @@ public class ClauseResponse {
     /**
      * 条款类型
      */
-    private String clauseType;
+    private ClauseEnum.ClauseType clauseType;
 
     /**
      * 条款内容
@@ -42,7 +43,7 @@ public class ClauseResponse {
     /**
      * 状态
      */
-    private String status;
+    private ClauseEnum.ClauseStatus status;
 
     /**
      * 生效日期

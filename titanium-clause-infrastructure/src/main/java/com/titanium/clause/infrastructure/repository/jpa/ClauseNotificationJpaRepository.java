@@ -1,6 +1,7 @@
 package com.titanium.clause.infrastructure.repository.jpa;
 
 import com.titanium.clause.infrastructure.entity.ClauseNotificationEntity;
+import com.titanium.metadata.enums.CommonStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,7 +35,7 @@ public interface ClauseNotificationJpaRepository extends JpaRepository<ClauseNot
      * @param tenantId 租户ID
      * @return 条款告知书实体列表
      */
-    List<ClauseNotificationEntity> findByStatusAndTenantId(String status, String tenantId);
+    List<ClauseNotificationEntity> findByStatusAndTenantId(CommonStatus status, String tenantId);
 
     /**
      * 根据租户ID和是否删除查找条款告知书

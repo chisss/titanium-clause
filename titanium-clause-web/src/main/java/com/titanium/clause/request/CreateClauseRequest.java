@@ -1,5 +1,6 @@
 package com.titanium.clause.request;
 
+import com.titanium.metadata.enums.clause.ClauseEnum;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -21,7 +22,7 @@ public class CreateClauseRequest {
     /**
      * 条款类型
      */
-    private String clauseType;
+    private ClauseEnum.ClauseType clauseType;
 
     /**
      * 条款内容

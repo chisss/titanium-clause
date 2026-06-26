@@ -1,16 +1,14 @@
 package com.titanium.clause.domain.command;
 
 import com.titanium.clause.domain.valueobject.ClauseId;
-import com.titanium.metadata.enums.clause.ClauseEnum;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 /**
- * 变更条款状态命令
+ * 条款归档命令
  */
-public record ChangeClauseStatusCommand(
+public record ArchiveClauseCommand(
         @TargetAggregateIdentifier
         ClauseId clauseId,
-        ClauseEnum.ClauseStatus newStatus,
-        String updatedBy
+        String archivedBy
 ) {
 }

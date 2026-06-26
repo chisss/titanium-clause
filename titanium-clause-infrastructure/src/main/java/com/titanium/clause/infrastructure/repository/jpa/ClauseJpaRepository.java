@@ -1,6 +1,8 @@
 package com.titanium.clause.infrastructure.repository.jpa;
 
 import com.titanium.clause.infrastructure.entity.ClauseEntity;
+import com.titanium.metadata.enums.InsuranceType;
+import com.titanium.metadata.enums.clause.ClauseEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -35,7 +37,7 @@ public interface ClauseJpaRepository extends JpaRepository<ClauseEntity, String>
      * @param tenantId 租户ID
      * @return 条款实体列表
      */
-    List<ClauseEntity> findByStatusAndTenantId(String status, String tenantId);
+    List<ClauseEntity> findByStatusAndTenantId(ClauseEnum.ClauseStatus status, String tenantId);
 
     /**
      * 根据险种类型和租户ID查找条款
@@ -43,7 +45,7 @@ public interface ClauseJpaRepository extends JpaRepository<ClauseEntity, String>
      * @param tenantId 租户ID
      * @return 条款实体列表
      */
-    List<ClauseEntity> findByInsuranceTypeAndTenantId(String insuranceType, String tenantId);
+    List<ClauseEntity> findByInsuranceTypeAndTenantId(InsuranceType insuranceType, String tenantId);
 
     /**
      * 根据租户ID查找所有条款

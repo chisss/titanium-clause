@@ -1,7 +1,9 @@
 package com.titanium.clause.domain.repository;
 
 import com.titanium.clause.domain.entity.Exclusion;
+import com.titanium.clause.domain.enums.ExclusionType;
 import com.titanium.clause.domain.valueobject.ExclusionId;
+import com.titanium.metadata.enums.CommonStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +33,7 @@ public interface ExclusionRepository {
      * @param tenantId 租户ID
      * @return 责任免除列表
      */
-    List<Exclusion> findByType(String type, String tenantId);
+    List<Exclusion> findByType(ExclusionType type, String tenantId);
 
     /**
      * 根据状态查找责任免除
@@ -39,7 +41,7 @@ public interface ExclusionRepository {
      * @param tenantId 租户ID
      * @return 责任免除列表
      */
-    List<Exclusion> findByStatus(String status, String tenantId);
+    List<Exclusion> findByStatus(CommonStatus status, String tenantId);
 
     /**
      * 查找所有责任免除

@@ -1,11 +1,13 @@
 package com.titanium.clause.infrastructure.repository;
 
 import com.titanium.clause.domain.entity.Exclusion;
+import com.titanium.clause.domain.enums.ExclusionType;
 import com.titanium.clause.domain.repository.ExclusionRepository;
 import com.titanium.clause.infrastructure.entity.InsuranceExclusionEntity;
 import com.titanium.clause.infrastructure.mapper.ExclusionMapper;
 import com.titanium.clause.infrastructure.repository.jpa.InsuranceExclusionJpaRepository;
 import com.titanium.clause.domain.valueobject.ExclusionId;
+import com.titanium.metadata.enums.CommonStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -37,7 +39,7 @@ public class ExclusionRepositoryImpl implements ExclusionRepository {
     }
 
     @Override
-    public List<Exclusion> findByType(String type, String tenantId) {
+    public List<Exclusion> findByType(ExclusionType type, String tenantId) {
         return exclusionJpaRepository.findByTypeAndTenantId(type, tenantId)
                 .stream()
                 .map(exclusionMapper::toExclusion)
@@ -45,7 +47,7 @@ public class ExclusionRepositoryImpl implements ExclusionRepository {
     }
 
     @Override
-    public List<Exclusion> findByStatus(String status, String tenantId) {
+    public List<Exclusion> findByStatus(CommonStatus status, String tenantId) {
         return exclusionJpaRepository.findByStatusAndTenantId(status, tenantId)
                 .stream()
                 .map(exclusionMapper::toExclusion)

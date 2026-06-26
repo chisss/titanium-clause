@@ -1,6 +1,7 @@
 package com.titanium.clause.domain.repository;
 
 import com.titanium.clause.domain.entity.ContractChangeRule;
+import com.titanium.clause.domain.enums.RenewalType;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +31,7 @@ public interface ContractChangeRuleRepository {
      * @param tenantId 租户ID
      * @return 合同变更规则列表
      */
-    List<ContractChangeRule> findByRenewalType(String renewalType, String tenantId);
+    List<ContractChangeRule> findByRenewalType(RenewalType renewalType, String tenantId);
 
     /**
      * 查找所有合同变更规则

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.titanium.metadata.enums.CommonStatus;
+
 import java.time.LocalDateTime;
 
 /**
@@ -39,8 +41,9 @@ public class InsuranceLiabilityEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 32, nullable = false)
-    private String status;
+    private CommonStatus status;
 
     @Column(name = "tenant_id", length = 32, nullable = false)
     private String tenantId;

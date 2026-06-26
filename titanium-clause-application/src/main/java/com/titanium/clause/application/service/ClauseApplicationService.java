@@ -2,7 +2,6 @@ package com.titanium.clause.application.service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Set;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.stereotype.Component;
@@ -12,20 +11,27 @@ import com.titanium.clause.common.exception.ClauseDuplicateException;
 import com.titanium.clause.common.exception.ClauseInvalidStatusException;
 import com.titanium.clause.common.exception.ClauseNotFoundException;
 import com.titanium.clause.domain.aggregate.Clause;
-import com.titanium.clause.domain.command.ActivateClauseCommand;
-import com.titanium.clause.domain.command.CreateClauseCommand;
-import com.titanium.clause.domain.command.InactivateClauseCommand;
-import com.titanium.clause.domain.command.UpdateClauseCommand;
+import com.titanium.clause.domain.command.*;
+import com.titanium.clause.domain.entity.*;
 import com.titanium.clause.domain.repository.ClauseRepository;
 import com.titanium.clause.domain.service.ClauseDomainService;
 import com.titanium.clause.domain.valueobject.ClauseCode;
 import com.titanium.clause.domain.valueobject.ClauseId;
 import com.titanium.clause.domain.valueobject.ClauseName;
+import com.titanium.clause.domain.valueobject.CoverageId;
+import com.titanium.clause.domain.valueobject.ExclusionId;
+import com.titanium.clause.domain.valueobject.Version;
+import com.titanium.clause.domain.enums.ApprovalType;
+import com.titanium.metadata.enums.InsuranceType;
+import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import lombok.RequiredArgsConstructor;
 
 /**
  * 条款应用服务
+ * <p>
+ * 负责编排条款相关的命令操作，协调领域服务和命令网关。
+ * </p>
  */
 @Component
 @RequiredArgsConstructor
@@ -36,156 +42,258 @@ public class ClauseApplicationService {
 
     /**
      * 创建条款
-     *
-     * @param clauseCode 条款代码
-     * @param clauseName 条款名称
-     * @param clauseType 条款类型
-     * @param content 条款内容
-     * @param description 条款描述
-     * @param effectiveDate 生效日期
-     * @param expiryDate 失效日期
-     * @param createdBy 创建人
-     * @param tenantId 租户ID
-     * @return 条款ID
      */
     @Transactional
-    public ClauseId createClause(String clauseCode, String clauseName, String clauseType, String content,
-                                 String description, LocalDateTime effectiveDate, LocalDateTime expiryDate,
-                                 String createdBy, String tenantId) {
-        // 检查条款代码是否已存在
+    public ClauseId createClause(String clauseCode, String clauseName, ClauseEnum.ClauseType clauseType, String content,
+                                 String description, InsuranceType insuranceType, LocalDateTime effectiveDate,
+                                 LocalDateTime expiryDate, String createdBy, String tenantId) {
         Optional<Clause> existingClause = clauseRepository.findByCode(ClauseCode.fromString(clauseCode), tenantId);
         if (existingClause.isPresent()) {
             throw new ClauseDuplicateException("条款代码已存在: " + clauseCode);
         }
 
-        // 验证条款数据
         clauseDomainService.validateClauseData(clauseCode, clauseName, clauseType, content, effectiveDate, expiryDate);
 
-        // 创建条款ID
         ClauseId clauseId = ClauseId.create();
 
-        // 发布创建条款命令
-        CreateClauseCommand command = new CreateClauseCommand(clauseId, ClauseCode.fromString(clauseCode),
-                ClauseName.fromString(clauseName), clauseType, content, description, effectiveDate, expiryDate,
-                Set.of(), tenantId, createdBy);
+        CreateClauseCommand command = new CreateClauseCommand(
+                clauseId, ClauseCode.fromString(clauseCode), ClauseName.fromString(clauseName),
+                clauseType, content, description, insuranceType,
+                Version.of("V1.0"), effectiveDate, expiryDate, tenantId, createdBy
+        );
 
         commandGateway.sendAndWait(command);
-
         return clauseId;
     }
 
     /**
      * 更新条款
-     *
-     * @param clauseId 条款ID
-     * @param clauseName 条款名称
-     * @param clauseType 条款类型
-     * @param content 条款内容
-     * @param description 条款描述
-     * @param effectiveDate 生效日期
-     * @param expiryDate 失效日期
-     * @param updatedBy 更新人
-     * @param tenantId 租户ID
      */
     @Transactional
-    public void updateClause(String clauseId, String clauseName, String clauseType, String content, String description,
-                             LocalDateTime effectiveDate, LocalDateTime expiryDate, String updatedBy, String tenantId) {
-        // 验证条款是否存在
+    public void updateClause(String clauseId, String clauseName, ClauseEnum.ClauseType clauseType, String content,
+                             String description, InsuranceType insuranceType, LocalDateTime effectiveDate,
+                             LocalDateTime expiryDate, String updatedBy, String tenantId) {
         ClauseId id = ClauseId.fromString(clauseId);
-        Optional<Clause> clauseOptional = clauseRepository.findById(id, tenantId);
-        if (clauseOptional.isEmpty()) {
-            throw new ClauseNotFoundException("条款不存在: " + clauseId);
-        }
+        Clause clause = findClauseOrThrow(id, tenantId);
 
-        Clause clause = clauseOptional.get();
-
-        // 验证条款状态是否允许更新
         clauseDomainService.validateClauseUpdateStatus(clause.getStatus());
-
-        // 验证条款数据
         clauseDomainService.validateClauseData(clause.getClauseCode().getValue(), clauseName, clauseType, content,
                 effectiveDate, expiryDate);
 
-        // 发布更新条款命令
-        UpdateClauseCommand command = new UpdateClauseCommand(id, clause.getClauseCode(),
-                ClauseName.fromString(clauseName), clauseType, content, description, effectiveDate, expiryDate,
-                Set.of(), tenantId, updatedBy);
+        UpdateClauseCommand command = new UpdateClauseCommand(
+                id, clause.getClauseCode(), ClauseName.fromString(clauseName),
+                clauseType, content, description, insuranceType,
+                effectiveDate, expiryDate, tenantId, updatedBy
+        );
 
         commandGateway.sendAndWait(command);
     }
 
     /**
      * 激活条款
-     *
-     * @param clauseId 条款ID
-     * @param activatedBy 激活人
-     * @param tenantId 租户ID
      */
     @Transactional
     public void activateClause(String clauseId, String activatedBy, String tenantId) {
-        // 验证条款是否存在
         ClauseId id = ClauseId.fromString(clauseId);
-        Optional<Clause> clauseOptional = clauseRepository.findById(id, tenantId);
-        if (clauseOptional.isEmpty()) {
-            throw new ClauseNotFoundException("条款不存在: " + clauseId);
-        }
+        Clause clause = findClauseOrThrow(id, tenantId);
 
-        Clause clause = clauseOptional.get();
-
-        // 验证条款是否可以激活
         if (!clauseDomainService.canActivateClause(clause)) {
             throw new ClauseInvalidStatusException("条款状态不允许激活: " + clause.getStatus());
         }
 
-        // 发布激活条款命令
-        ActivateClauseCommand command = new ActivateClauseCommand(id, activatedBy);
-        commandGateway.sendAndWait(command);
+        commandGateway.sendAndWait(new ActivateClauseCommand(id, activatedBy));
     }
 
     /**
      * 停用条款
-     *
-     * @param clauseId 条款ID
-     * @param inactivatedBy 停用人人
-     * @param tenantId 租户ID
      */
     @Transactional
     public void inactivateClause(String clauseId, String inactivatedBy, String tenantId) {
-        // 验证条款是否存在
         ClauseId id = ClauseId.fromString(clauseId);
-        Optional<Clause> clauseOptional = clauseRepository.findById(id, tenantId);
-        if (clauseOptional.isEmpty()) {
-            throw new ClauseNotFoundException("条款不存在: " + clauseId);
-        }
+        findClauseOrThrow(id, tenantId);
 
-        // 发布停用条款命令
-        InactivateClauseCommand command = new InactivateClauseCommand(id, inactivatedBy);
-        commandGateway.sendAndWait(command);
+        commandGateway.sendAndWait(new InactivateClauseCommand(id, inactivatedBy));
+    }
+
+    /**
+     * 提交条款审批
+     */
+    @Transactional
+    public void submitForApproval(String clauseId, String submittedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new SubmitClauseForApprovalCommand(id, submittedBy));
+    }
+
+    /**
+     * 审批通过条款
+     */
+    @Transactional
+    public void approveClause(String clauseId, ApprovalType approvalType, String approverId,
+                              String approverName, String comment, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new ApproveClauseCommand(id, approvalType, approverId, approverName, comment));
+    }
+
+    /**
+     * 审批驳回条款
+     */
+    @Transactional
+    public void rejectClause(String clauseId, ApprovalType approvalType, String approverId,
+                             String approverName, String comment, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new RejectClauseCommand(id, approvalType, approverId, approverName, comment));
+    }
+
+    /**
+     * 条款修订（基于当前ACTIVE版本创建新的DRAFT版本）
+     */
+    @Transactional
+    public ClauseId reviseClause(String clauseId, String revisedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        ClauseId newClauseId = ClauseId.create();
+        commandGateway.sendAndWait(new ReviseClauseCommand(id, newClauseId, revisedBy));
+
+        return newClauseId;
+    }
+
+    /**
+     * 条款归档
+     */
+    @Transactional
+    public void archiveClause(String clauseId, String archivedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new ArchiveClauseCommand(id, archivedBy));
+    }
+
+    /**
+     * 添加保险责任
+     */
+    @Transactional
+    public void addCoverage(String clauseId, Coverage coverage, String updatedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new AddCoverageCommand(id, coverage, updatedBy));
+    }
+
+    /**
+     * 移除保险责任
+     */
+    @Transactional
+    public void removeCoverage(String clauseId, String coverageId, String updatedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new RemoveCoverageCommand(id, CoverageId.fromString(coverageId), updatedBy));
+    }
+
+    /**
+     * 添加责任免除
+     */
+    @Transactional
+    public void addExclusion(String clauseId, Exclusion exclusion, String updatedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new AddExclusionCommand(id, exclusion, updatedBy));
+    }
+
+    /**
+     * 移除责任免除
+     */
+    @Transactional
+    public void removeExclusion(String clauseId, String exclusionId, String updatedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new RemoveExclusionCommand(id, ExclusionId.fromString(exclusionId), updatedBy));
+    }
+
+    /**
+     * 设置缴费规则
+     */
+    @Transactional
+    public void setPremiumRule(String clauseId, PremiumRule premiumRule, String updatedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new SetPremiumRuleCommand(id, premiumRule, updatedBy));
+    }
+
+    /**
+     * 设置理赔规则
+     */
+    @Transactional
+    public void setClaimRule(String clauseId, ClaimRule claimRule, String updatedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new SetClaimRuleCommand(id, claimRule, updatedBy));
+    }
+
+    /**
+     * 设置合同变更规则
+     */
+    @Transactional
+    public void setContractChangeRule(String clauseId, ContractChangeRule contractChangeRule,
+                                      String updatedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new SetContractChangeRuleCommand(id, contractChangeRule, updatedBy));
+    }
+
+    /**
+     * 添加条款告知
+     */
+    @Transactional
+    public void addNotification(String clauseId, ClauseNotification notification, String updatedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new AddNotificationCommand(id, notification, updatedBy));
+    }
+
+    /**
+     * 设置签署模板
+     */
+    @Transactional
+    public void setSignTemplate(String clauseId, ClauseSignTemplate signTemplate, String updatedBy, String tenantId) {
+        ClauseId id = ClauseId.fromString(clauseId);
+        findClauseOrThrow(id, tenantId);
+
+        commandGateway.sendAndWait(new SetSignTemplateCommand(id, signTemplate, updatedBy));
     }
 
     /**
      * 删除条款
-     *
-     * @param clauseId 条款ID
-     * @param tenantId 租户ID
      */
     @Transactional
     public void deleteClause(String clauseId, String tenantId) {
-        // 验证条款是否存在
         ClauseId id = ClauseId.fromString(clauseId);
-        Optional<Clause> clauseOptional = clauseRepository.findById(id, tenantId);
-        if (clauseOptional.isEmpty()) {
-            throw new ClauseNotFoundException("条款不存在: " + clauseId);
-        }
+        Clause clause = findClauseOrThrow(id, tenantId);
 
-        Clause clause = clauseOptional.get();
-
-        // 验证条款是否可以删除
         if (!clauseDomainService.canDeleteClause(clause)) {
             throw new ClauseInvalidStatusException("条款状态不允许删除: " + clause.getStatus());
         }
 
-        // 执行删除操作
         clauseRepository.deleteById(id, tenantId);
+    }
+
+    // ===== 私有方法 =====
+
+    private Clause findClauseOrThrow(ClauseId clauseId, String tenantId) {
+        return clauseRepository.findById(clauseId, tenantId)
+                .orElseThrow(() -> new ClauseNotFoundException("条款不存在: " + clauseId.getValue()));
     }
 }

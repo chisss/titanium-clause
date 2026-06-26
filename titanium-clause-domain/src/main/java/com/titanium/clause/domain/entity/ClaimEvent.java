@@ -1,5 +1,7 @@
 package com.titanium.clause.domain.entity;
 
+import com.titanium.metadata.enums.claim.ClaimEnum;
+
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,16 +12,16 @@ import java.time.LocalDateTime;
 @Data
 public class ClaimEvent {
     // 理赔事件ID
-    private String        id;
+    private String              id;
     // 触发条件
-    private String        triggerCondition;
+    private String              triggerCondition;
     // 理赔金额
-    private String        claimAmount;
+    private String              claimAmount;
     // 理赔类型
-    private String        claimType;
+    private ClaimEnum.ClaimType claimType;
     // 其他理赔相关信息
-    private String        otherInfo;
+    private String              otherInfo;
     // 理赔时间
-    private LocalDateTime claimTime;
+    private LocalDateTime       claimTime;
 
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.titanium.metadata.enums.billing.BillingEnum;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -32,8 +34,9 @@ public class PremiumRuleEntity {
     @Column(name = "premium_rate", precision = 18, scale = 6)
     private BigDecimal premiumRate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", length = 32, nullable = false)
-    private String paymentMethod;
+    private BillingEnum.PaymentMethod paymentMethod;
 
     @Column(name = "payment_term")
     private Integer paymentTerm;

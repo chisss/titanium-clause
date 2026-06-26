@@ -1,6 +1,8 @@
 package com.titanium.clause.infrastructure.repository.jpa;
 
+import com.titanium.clause.domain.enums.ExclusionType;
 import com.titanium.clause.infrastructure.entity.InsuranceExclusionEntity;
+import com.titanium.metadata.enums.CommonStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +19,7 @@ public interface InsuranceExclusionJpaRepository extends JpaRepository<Insurance
      * @param tenantId 租户ID
      * @return 责任免除实体列表
      */
-    List<InsuranceExclusionEntity> findByTypeAndTenantId(String type, String tenantId);
+    List<InsuranceExclusionEntity> findByTypeAndTenantId(ExclusionType type, String tenantId);
 
     /**
      * 根据状态和租户ID查找责任免除
@@ -25,7 +27,7 @@ public interface InsuranceExclusionJpaRepository extends JpaRepository<Insurance
      * @param tenantId 租户ID
      * @return 责任免除实体列表
      */
-    List<InsuranceExclusionEntity> findByStatusAndTenantId(String status, String tenantId);
+    List<InsuranceExclusionEntity> findByStatusAndTenantId(CommonStatus status, String tenantId);
 
     /**
      * 根据租户ID查找所有责任免除

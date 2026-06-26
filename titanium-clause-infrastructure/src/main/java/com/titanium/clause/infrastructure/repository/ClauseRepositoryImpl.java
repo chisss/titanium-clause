@@ -7,6 +7,8 @@ import com.titanium.clause.infrastructure.entity.ClauseEntity;
 import com.titanium.clause.infrastructure.repository.jpa.ClauseJpaRepository;
 import com.titanium.clause.domain.valueobject.ClauseId;
 import com.titanium.clause.domain.valueobject.ClauseCode;
+import com.titanium.metadata.enums.InsuranceType;
+import com.titanium.metadata.enums.clause.ClauseEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -46,7 +48,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public List<Clause> findByStatus(String status, String tenantId) {
+    public List<Clause> findByStatus(ClauseEnum.ClauseStatus status, String tenantId) {
         return clauseJpaRepository.findByStatusAndTenantId(status, tenantId)
                 .stream()
                 .map(this::toDomain)
@@ -54,8 +56,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public List<Clause> findByType(String clauseType, String tenantId) {
-        return clauseJpaRepository.findByInsuranceTypeAndTenantId(clauseType, tenantId)
+    public List<Clause> findByType(InsuranceType insuranceType, String tenantId) {
+        return clauseJpaRepository.findByInsuranceTypeAndTenantId(insuranceType, tenantId)
                 .stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
@@ -84,7 +86,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         entity.setId(clause.getClauseId().getValue());
         entity.setClauseCode(clause.getClauseCode().getValue());
         entity.setClauseName(clause.getClauseName().getValue());
-        entity.setInsuranceType(clause.getClauseType());
+        entity.setClauseType(clause.getClauseType());
+        entity.setInsuranceType(clause.getInsuranceType());
         entity.setVersion("1.0"); // 默认版本
         entity.setContent(clause.getContent());
         entity.setStatus(clause.getStatus());
@@ -109,7 +112,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         clause.setClauseId(ClauseId.fromString(entity.getId()));
         clause.setClauseCode(ClauseCode.fromString(entity.getClauseCode()));
         clause.setClauseName(ClauseName.fromString(entity.getClauseName()));
-        clause.setClauseType(entity.getInsuranceType());
+        clause.setClauseType(entity.getClauseType());
+        clause.setInsuranceType(entity.getInsuranceType());
         clause.setContent(entity.getContent());
         clause.setStatus(entity.getStatus());
         clause.setDescription(null); // 数据库中没有该字段

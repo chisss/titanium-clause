@@ -13,21 +13,6 @@ public class ClauseConstants {
     public static final String TOPIC_CLAUSE_STATUS_CHANGED = "clause-status-changed";
 
     /**
-     * 条款状态常量
-     */
-    public static final String CLAUSE_STATUS_DRAFT = "DRAFT";
-    public static final String CLAUSE_STATUS_ACTIVE = "ACTIVE";
-    public static final String CLAUSE_STATUS_INACTIVE = "INACTIVE";
-    public static final String CLAUSE_STATUS_EXPIRED = "EXPIRED";
-
-    /**
-     * 条款类型常量
-     */
-    public static final String CLAUSE_TYPE_MAIN = "MAIN";
-    public static final String CLAUSE_TYPE_ADDITIONAL = "ADDITIONAL";
-    public static final String CLAUSE_TYPE_EXCLUSION = "EXCLUSION";
-
-    /**
      * 请求头常量
      */
     public static final String HEADER_TENANT_ID = "X-Tenant-ID";

@@ -1,0 +1,7 @@
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseOperationNotAllowedException.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseExpiredException.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/constant/ClauseConstants.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseNotFoundException.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseDuplicateException.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseInvalidStatusException.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseException.java

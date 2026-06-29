@@ -35,7 +35,7 @@ public class KafkaConfig {
 
     /**
      * 创建Kafka生产者配置
-     * 
+     *
      * @return 生产者配置
      */
     @Bean
@@ -49,7 +49,7 @@ public class KafkaConfig {
 
     /**
      * 创建Kafka模板
-     * 
+     *
      * @return Kafka模板
      */
     @Bean
@@ -59,7 +59,7 @@ public class KafkaConfig {
 
     /**
      * 创建Kafka消费者配置
-     * 
+     *
      * @return 消费者配置
      */
     @Bean
@@ -76,7 +76,7 @@ public class KafkaConfig {
 
     /**
      * 创建Kafka监听器容器工厂
-     * 
+     *
      * @return 监听器容器工厂
      */
     @Bean
@@ -88,7 +88,7 @@ public class KafkaConfig {
 
     /**
      * 创建条款创建事件主题
-     * 
+     *
      * @return 主题对象
      */
     @Bean
@@ -98,7 +98,7 @@ public class KafkaConfig {
 
     /**
      * 创建条款更新事件主题
-     * 
+     *
      * @return 主题对象
      */
     @Bean
@@ -108,7 +108,7 @@ public class KafkaConfig {
 
     /**
      * 创建条款状态变更事件主题
-     * 
+     *
      * @return 主题对象
      */
     @Bean
@@ -118,7 +118,7 @@ public class KafkaConfig {
 
     /**
      * 创建条款删除事件主题
-     * 
+     *
      * @return 主题对象
      */
     @Bean

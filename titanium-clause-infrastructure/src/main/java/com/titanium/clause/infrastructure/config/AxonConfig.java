@@ -1,12 +1,13 @@
 package com.titanium.clause.infrastructure.config;
 
-import com.titanium.clause.domain.aggregate.Clause;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.eventsourcing.EventSourcingRepository;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.titanium.clause.domain.aggregate.Clause;
 
 /**
  * Axon Framework配置类

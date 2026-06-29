@@ -1,9 +1,9 @@
 package com.titanium.clause.domain.event;
 
+import java.time.LocalDateTime;
+
 import com.titanium.clause.domain.entity.PremiumRule;
 import com.titanium.clause.domain.valueobject.ClauseId;
-
-import java.time.LocalDateTime;
 
 /**
  * 缴费规则已设置事件

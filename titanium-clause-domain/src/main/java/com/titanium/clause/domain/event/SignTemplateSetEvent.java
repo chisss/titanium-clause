@@ -1,9 +1,9 @@
 package com.titanium.clause.domain.event;
 
+import java.time.LocalDateTime;
+
 import com.titanium.clause.domain.entity.ClauseSignTemplate;
 import com.titanium.clause.domain.valueobject.ClauseId;
-
-import java.time.LocalDateTime;
 
 /**
  * 签署模板已设置事件

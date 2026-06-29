@@ -1,13 +1,14 @@
 package com.titanium.clause.infrastructure.repository.jpa;
 
-import com.titanium.clause.infrastructure.entity.ClauseNotificationEntity;
-import com.titanium.metadata.enums.CommonStatus;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-import java.util.Optional;
+import com.titanium.clause.infrastructure.entity.ClauseNotificationEntity;
+import com.titanium.metadata.enums.CommonStatus;
 
 /**
  * 条款告知书JPA仓储接口

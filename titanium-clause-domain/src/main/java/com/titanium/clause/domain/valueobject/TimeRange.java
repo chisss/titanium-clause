@@ -1,8 +1,8 @@
 package com.titanium.clause.domain.valueobject;
 
-import lombok.Value;
-
 import java.time.LocalDateTime;
+
+import lombok.Value;
 
 /**
  * 时间范围值对象

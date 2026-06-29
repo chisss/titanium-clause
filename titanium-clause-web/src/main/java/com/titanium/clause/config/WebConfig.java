@@ -1,10 +1,12 @@
 package com.titanium.clause.config;
 
-import com.titanium.clause.interceptor.TenantInterceptor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.titanium.clause.interceptor.TenantInterceptor;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Web配置类

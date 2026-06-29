@@ -1,5 +1,9 @@
 package com.titanium.clause.domain.event;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
 import com.titanium.clause.domain.entity.ClaimRule;
 import com.titanium.clause.domain.entity.ClauseNotification;
 import com.titanium.clause.domain.entity.ClauseSignTemplate;
@@ -15,10 +19,6 @@ import com.titanium.clause.domain.valueobject.ExclusionId;
 import com.titanium.clause.domain.valueobject.Version;
 import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 条款已修订事件（新版本创建）

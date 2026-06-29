@@ -1,13 +1,14 @@
 package com.titanium.clause.domain.command;
 
-import com.titanium.clause.domain.valueobject.ClauseId;
+import java.time.LocalDateTime;
+
+import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
 import com.titanium.clause.domain.valueobject.ClauseCode;
+import com.titanium.clause.domain.valueobject.ClauseId;
 import com.titanium.clause.domain.valueobject.ClauseName;
 import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
-import org.axonframework.modelling.command.TargetAggregateIdentifier;
-
-import java.time.LocalDateTime;
 
 /**
  * 更新条款命令

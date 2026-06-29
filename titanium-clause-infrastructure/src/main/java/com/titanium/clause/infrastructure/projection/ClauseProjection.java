@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class ClauseProjection {
-    private static final Logger                 logger = LoggerFactory.getLogger(ClauseProjection.class);
+    private static final Logger                 LOGGER = LoggerFactory.getLogger(ClauseProjection.class);
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final ClauseRepository              clauseRepository;
@@ -39,7 +39,7 @@ public class ClauseProjection {
      */
     @EventHandler
     public void handle(ClauseCreatedEvent event) {
-        logger.info("处理条款创建事件: {}", event.clauseId());
+        LOGGER.info("处理条款创建事件: {}", event.clauseId());
 
         Clause clause = new Clause();
         clause.setClauseId(event.clauseId());
@@ -66,7 +66,7 @@ public class ClauseProjection {
      */
     @EventHandler
     public void handle(ClauseUpdatedEvent event) {
-        logger.info("处理条款更新事件: {}", event.clauseCode());
+        LOGGER.info("处理条款更新事件: {}", event.clauseCode());
 
         var clauseOptional = clauseRepository.findById(event.clauseId(), event.tenantId());
         if (clauseOptional.isPresent()) {
@@ -90,7 +90,7 @@ public class ClauseProjection {
      */
     @EventHandler
     public void handle(ClauseStatusChangedEvent event) {
-        logger.info("处理条款状态变更事件: {}, 新状态: {}", event.clauseId(), event.newStatus());
+        LOGGER.info("处理条款状态变更事件: {}, 新状态: {}", event.clauseId(), event.newStatus());
 
         var clauseOptional = clauseRepository.findById(event.clauseId(), null);
         if (clauseOptional.isPresent()) {
@@ -111,7 +111,7 @@ public class ClauseProjection {
      */
     @EventHandler
     public void handle(ClauseSubmittedForApprovalEvent event) {
-        logger.info("处理条款提交审批事件: {}", event.clauseId());
+        LOGGER.info("处理条款提交审批事件: {}", event.clauseId());
 
         var clauseOptional = clauseRepository.findById(event.clauseId(), null);
         if (clauseOptional.isPresent()) {
@@ -129,7 +129,7 @@ public class ClauseProjection {
      */
     @EventHandler
     public void handle(ClauseApprovedEvent event) {
-        logger.info("处理条款审批通过事件: {}", event.clauseId());
+        LOGGER.info("处理条款审批通过事件: {}", event.clauseId());
 
         var clauseOptional = clauseRepository.findById(event.clauseId(), null);
         if (clauseOptional.isPresent()) {
@@ -150,7 +150,7 @@ public class ClauseProjection {
      */
     @EventHandler
     public void handle(ClauseRejectedEvent event) {
-        logger.info("处理条款审批驳回事件: {}", event.clauseId());
+        LOGGER.info("处理条款审批驳回事件: {}", event.clauseId());
 
         var clauseOptional = clauseRepository.findById(event.clauseId(), null);
         if (clauseOptional.isPresent()) {
@@ -168,7 +168,7 @@ public class ClauseProjection {
      */
     @EventHandler
     public void handle(ClauseArchivedEvent event) {
-        logger.info("处理条款归档事件: {}", event.clauseId());
+        LOGGER.info("处理条款归档事件: {}", event.clauseId());
 
         var clauseOptional = clauseRepository.findById(event.clauseId(), null);
         if (clauseOptional.isPresent()) {

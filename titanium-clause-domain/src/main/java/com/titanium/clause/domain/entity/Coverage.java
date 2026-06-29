@@ -3,10 +3,10 @@ package com.titanium.clause.domain.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.titanium.clause.domain.enums.CoverageType;
 import com.titanium.clause.domain.valueobject.CoverageId;
 import com.titanium.clause.domain.valueobject.CoverageTrigger;
 import com.titanium.clause.domain.valueobject.PayoutRule;
-import com.titanium.clause.domain.enums.CoverageType;
 import com.titanium.metadata.enums.CommonStatus;
 import com.titanium.metadata.enums.clause.CoverageTriggerType;
 

@@ -1,10 +1,10 @@
 package com.titanium.clause.domain.valueobject;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
 import java.io.Serializable;
 import java.util.UUID;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /**
  * 条款ID值对象

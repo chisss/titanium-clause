@@ -1,16 +1,16 @@
 package com.titanium.clause.application.mapper;
 
-import com.titanium.clause.domain.command.CreateClauseCommand;
-import com.titanium.clause.domain.command.UpdateClauseCommand;
-
-import com.titanium.clause.api.request.CreateClauseRequest;
-import com.titanium.clause.api.request.UpdateClauseRequest;
-import com.titanium.clause.domain.valueobject.ClauseId;
-import com.titanium.clause.domain.valueobject.ClauseCode;
-import com.titanium.clause.domain.valueobject.ClauseName;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+
+import com.titanium.clause.api.request.CreateClauseRequest;
+import com.titanium.clause.api.request.UpdateClauseRequest;
+import com.titanium.clause.domain.command.CreateClauseCommand;
+import com.titanium.clause.domain.command.UpdateClauseCommand;
+import com.titanium.clause.domain.valueobject.ClauseCode;
+import com.titanium.clause.domain.valueobject.ClauseId;
+import com.titanium.clause.domain.valueobject.ClauseName;
 
 /**
  * 条款映射器

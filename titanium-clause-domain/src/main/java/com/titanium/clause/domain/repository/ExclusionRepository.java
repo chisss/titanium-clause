@@ -1,12 +1,12 @@
 package com.titanium.clause.domain.repository;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.titanium.clause.domain.entity.Exclusion;
 import com.titanium.clause.domain.enums.ExclusionType;
 import com.titanium.clause.domain.valueobject.ExclusionId;
 import com.titanium.metadata.enums.CommonStatus;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * 责任免除仓储接口

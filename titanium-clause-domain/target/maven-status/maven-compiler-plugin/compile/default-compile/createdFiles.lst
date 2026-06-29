@@ -68,6 +68,7 @@ com/titanium/clause/domain/event/ExclusionAddedEvent.class
 com/titanium/clause/domain/entity/ContractChangeRule.class
 com/titanium/clause/domain/repository/ContractChangeRuleRepository.class
 com/titanium/clause/domain/aggregate/ClauseApprovalProcess.class
+com/titanium/clause/domain/enums/CoverageType.class
 com/titanium/clause/domain/command/AddExclusionCommand.class
 com/titanium/clause/domain/event/SignTemplateSetEvent.class
 com/titanium/clause/domain/command/UpdateClauseCommand.class
@@ -84,3 +85,4 @@ com/titanium/clause/domain/event/ClauseCreatedEvent.class
 com/titanium/clause/domain/command/UpdateCoverageCommand.class
 com/titanium/clause/domain/service/ClauseRuleValidationService.class
 com/titanium/clause/domain/command/ApproveClauseCommand.class
+com/titanium/clause/domain/enums/ExclusionType.class

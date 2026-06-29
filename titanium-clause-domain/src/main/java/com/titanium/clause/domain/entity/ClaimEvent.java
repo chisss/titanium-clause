@@ -1,10 +1,10 @@
 package com.titanium.clause.domain.entity;
 
+import java.time.LocalDateTime;
+
 import com.titanium.metadata.enums.claim.ClaimEnum;
 
 import lombok.Data;
-
-import java.time.LocalDateTime;
 
 /**
  * 理赔事件实体类

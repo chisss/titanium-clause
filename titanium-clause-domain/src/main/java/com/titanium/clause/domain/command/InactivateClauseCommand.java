@@ -1,7 +1,8 @@
 package com.titanium.clause.domain.command;
 
-import com.titanium.clause.domain.valueobject.ClauseId;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
+import com.titanium.clause.domain.valueobject.ClauseId;
 
 /**
  * 停用条款命令

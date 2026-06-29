@@ -1,17 +1,19 @@
 package com.titanium.clause.infrastructure.repository;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
 import com.titanium.clause.domain.entity.ContractChangeRule;
 import com.titanium.clause.domain.enums.RenewalType;
 import com.titanium.clause.domain.repository.ContractChangeRuleRepository;
 import com.titanium.clause.infrastructure.entity.ContractChangeRuleEntity;
 import com.titanium.clause.infrastructure.mapper.ContractChangeRuleMapper;
 import com.titanium.clause.infrastructure.repository.jpa.ContractChangeRuleJpaRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 合同变更规则仓储实现类

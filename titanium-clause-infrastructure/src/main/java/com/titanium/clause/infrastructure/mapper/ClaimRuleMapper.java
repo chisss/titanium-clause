@@ -14,7 +14,7 @@ public interface ClaimRuleMapper {
 
     /**
      * 将领域对象转换为数据库实体
-     * 
+     *
      * @param claimRule 领域对象
      * @return 数据库实体
      */
@@ -29,7 +29,7 @@ public interface ClaimRuleMapper {
 
     /**
      * 将数据库实体转换为领域对象
-     * 
+     *
      * @param entity 数据库实体
      * @return 领域对象
      */

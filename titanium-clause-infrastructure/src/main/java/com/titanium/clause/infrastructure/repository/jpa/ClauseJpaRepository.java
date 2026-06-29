@@ -1,14 +1,15 @@
 package com.titanium.clause.infrastructure.repository.jpa;
 
-import com.titanium.clause.infrastructure.entity.ClauseEntity;
-import com.titanium.metadata.enums.InsuranceType;
-import com.titanium.metadata.enums.clause.ClauseEnum;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-import java.util.Optional;
+import com.titanium.clause.infrastructure.entity.ClauseEntity;
+import com.titanium.metadata.enums.InsuranceType;
+import com.titanium.metadata.enums.clause.ClauseEnum;
 
 /**
  * 条款JPA仓储接口

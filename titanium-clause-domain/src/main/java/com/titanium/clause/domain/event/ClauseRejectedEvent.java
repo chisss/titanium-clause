@@ -1,9 +1,9 @@
 package com.titanium.clause.domain.event;
 
+import java.time.LocalDateTime;
+
 import com.titanium.clause.domain.entity.ApprovalRecord;
 import com.titanium.clause.domain.valueobject.ClauseId;
-
-import java.time.LocalDateTime;
 
 /**
  * 条款审批驳回事件

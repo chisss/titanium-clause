@@ -1,20 +1,22 @@
 package com.titanium.clause.infrastructure.repository;
 
-import com.titanium.clause.domain.aggregate.Clause;
-import com.titanium.clause.domain.repository.ClauseRepository;
-import com.titanium.clause.domain.valueobject.ClauseName;
-import com.titanium.clause.infrastructure.entity.ClauseEntity;
-import com.titanium.clause.infrastructure.repository.jpa.ClauseJpaRepository;
-import com.titanium.clause.domain.valueobject.ClauseId;
-import com.titanium.clause.domain.valueobject.ClauseCode;
-import com.titanium.metadata.enums.InsuranceType;
-import com.titanium.metadata.enums.clause.ClauseEnum;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
+import com.titanium.clause.domain.aggregate.Clause;
+import com.titanium.clause.domain.repository.ClauseRepository;
+import com.titanium.clause.domain.valueobject.ClauseCode;
+import com.titanium.clause.domain.valueobject.ClauseId;
+import com.titanium.clause.domain.valueobject.ClauseName;
+import com.titanium.clause.infrastructure.entity.ClauseEntity;
+import com.titanium.clause.infrastructure.repository.jpa.ClauseJpaRepository;
+import com.titanium.metadata.enums.InsuranceType;
+import com.titanium.metadata.enums.clause.ClauseEnum;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * 条款仓储实现类

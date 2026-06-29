@@ -1,9 +1,11 @@
 package com.titanium.clause.api.request;
 
+import java.time.LocalDateTime;
+
 import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+
 import lombok.Data;
-import java.time.LocalDateTime;
 
 /**
  * 创建条款请求DTO

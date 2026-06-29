@@ -1,13 +1,14 @@
 package com.titanium.clause.infrastructure.repository.jpa;
 
-import com.titanium.clause.domain.enums.SignTemplateType;
-import com.titanium.clause.infrastructure.entity.ClauseSignTemplateEntity;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-import java.util.Optional;
+import com.titanium.clause.domain.enums.SignTemplateType;
+import com.titanium.clause.infrastructure.entity.ClauseSignTemplateEntity;
 
 /**
  * 签约模板JPA仓储接口

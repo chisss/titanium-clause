@@ -20,7 +20,7 @@ public class ClauseRuleValidationService {
 
     /**
      * 校验理赔事件是否符合条款规则
-     * 
+     *
      * @param clauseId 条款ID
      * @param tenantId 租户ID
      * @param claimEvent 理赔事件
@@ -37,7 +37,7 @@ public class ClauseRuleValidationService {
 
     /**
      * 校验理赔事件是否命中保险责任
-     * 
+     *
      * @param clauseId 条款ID
      * @param tenantId 租户ID
      * @param claimEvent 理赔事件
@@ -54,7 +54,7 @@ public class ClauseRuleValidationService {
 
     /**
      * 校验理赔事件是否命中责任免除
-     * 
+     *
      * @param clauseId 条款ID
      * @param tenantId 租户ID
      * @param claimEvent 理赔事件

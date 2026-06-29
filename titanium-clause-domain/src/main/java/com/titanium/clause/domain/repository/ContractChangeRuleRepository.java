@@ -1,10 +1,10 @@
 package com.titanium.clause.domain.repository;
 
-import com.titanium.clause.domain.entity.ContractChangeRule;
-import com.titanium.clause.domain.enums.RenewalType;
-
 import java.util.List;
 import java.util.Optional;
+
+import com.titanium.clause.domain.entity.ContractChangeRule;
+import com.titanium.clause.domain.enums.RenewalType;
 
 /**
  * 合同变更规则仓储接口

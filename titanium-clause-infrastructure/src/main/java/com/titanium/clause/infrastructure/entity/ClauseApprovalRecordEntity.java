@@ -1,13 +1,19 @@
 package com.titanium.clause.infrastructure.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 import com.titanium.clause.domain.enums.ApprovalStatus;
 import com.titanium.clause.domain.enums.ApprovalType;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 条款审批记录实体类

@@ -1,9 +1,9 @@
 package com.titanium.clause.domain.repository;
 
-import com.titanium.clause.domain.entity.PremiumRule;
-
 import java.util.List;
 import java.util.Optional;
+
+import com.titanium.clause.domain.entity.PremiumRule;
 
 /**
  * 缴费规则仓储接口

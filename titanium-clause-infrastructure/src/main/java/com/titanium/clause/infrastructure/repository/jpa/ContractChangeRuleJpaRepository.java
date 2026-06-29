@@ -1,12 +1,13 @@
 package com.titanium.clause.infrastructure.repository.jpa;
 
-import com.titanium.clause.domain.enums.RenewalType;
-import com.titanium.clause.infrastructure.entity.ContractChangeRuleEntity;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import com.titanium.clause.domain.enums.RenewalType;
+import com.titanium.clause.infrastructure.entity.ContractChangeRuleEntity;
 
 /**
  * 合同变更规则JPA仓储接口

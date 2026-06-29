@@ -1,13 +1,15 @@
 package com.titanium.clause.infrastructure.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
 import com.titanium.clause.domain.aggregate.Clause;
 import com.titanium.clause.domain.valueobject.ClauseCode;
 import com.titanium.clause.domain.valueobject.ClauseId;
 import com.titanium.clause.domain.valueobject.ClauseName;
+import com.titanium.clause.domain.valueobject.Version;
 import com.titanium.clause.infrastructure.entity.ClauseEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 
 /**
  * 条款实体映射器
@@ -25,6 +27,8 @@ public interface ClauseEntityMapper {
     @Mapping(source = "clauseName.value", target = "clauseName")
     @Mapping(source = "clauseType", target = "clauseType")
     @Mapping(source = "insuranceType", target = "insuranceType")
+    @Mapping(source = "version.value", target = "version")
+    @Mapping(source = "parentClauseId.value", target = "parentClauseId")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "createdAt", target = "createTime")
     @Mapping(source = "updatedAt", target = "updateTime")
@@ -40,6 +44,8 @@ public interface ClauseEntityMapper {
     @Mapping(source = "clauseName", target = "clauseName", qualifiedByName = "toClauseName")
     @Mapping(source = "clauseType", target = "clauseType")
     @Mapping(source = "insuranceType", target = "insuranceType")
+    @Mapping(source = "version", target = "version", qualifiedByName = "toVersion")
+    @Mapping(source = "parentClauseId", target = "parentClauseId", qualifiedByName = "toClauseId")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "createTime", target = "createdAt")
     @Mapping(source = "updateTime", target = "updatedAt")
@@ -73,5 +79,15 @@ public interface ClauseEntityMapper {
     @Named("toClauseName")
     default ClauseName toClauseName(String name) {
         return name != null ? ClauseName.fromString(name) : null;
+    }
+
+    /**
+     * 将字符串转换为Version
+     * @param version 版本字符串
+     * @return Version对象
+     */
+    @Named("toVersion")
+    default Version toVersion(String version) {
+        return version != null ? Version.fromString(version) : null;
     }
 }

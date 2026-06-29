@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="10.20.1">
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/PremiumRuleRepositoryImpl.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/ExclusionRepositoryImpl.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/jpa/ClauseNotificationJpaRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/jpa/InsuranceExclusionJpaRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/jpa/ClauseJpaRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/jpa/ClauseSignTemplateJpaRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/jpa/ClaimRuleJpaRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/jpa/ContractChangeRuleJpaRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/jpa/PremiumRuleJpaRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/ContractChangeRuleRepositoryImpl.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/ClaimRuleRepositoryImpl.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/ClauseRepositoryImpl.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/config/TenantContext.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/config/KafkaConfig.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/config/AxonConfig.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/entity/ClauseSnapshotEntity.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/entity/InsuranceLiabilityEntity.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/entity/ClauseSignTemplateEntity.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/entity/ClauseApprovalRecordEntity.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/entity/InsuranceExclusionEntity.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/entity/ClauseNotificationEntity.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/entity/ClaimRuleEntity.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/entity/ClauseEntity.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/entity/PremiumRuleEntity.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/entity/ContractChangeRuleEntity.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/mapper/ClaimRuleMapper.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/mapper/PremiumRuleMapper.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/mapper/ContractChangeRuleMapper.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/mapper/CoverageMapper.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/mapper/ClauseEntityMapper.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/mapper/ExclusionMapper.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/projection/ClauseProjection.java">
+</file>
+</checkstyle>

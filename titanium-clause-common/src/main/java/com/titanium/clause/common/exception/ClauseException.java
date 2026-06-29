@@ -1,7 +1,8 @@
 package com.titanium.clause.common.exception;
 
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+
+import lombok.Getter;
 
 /**
  * 条款服务基础异常类

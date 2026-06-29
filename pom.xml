@@ -5,9 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.1</version>
+        <groupId>com.titanium</groupId>
+        <artifactId>titanium-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath/>
     </parent>
 
     <groupId>com.titanium</groupId>
@@ -17,83 +18,7 @@
     <name>titanium-clause</name>
     <description>Titanium Insurance Clause Service</description>
 
-
-
-    <properties>
-        <java.version>21</java.version>
-        <spring-boot.version>4.0.1</spring-boot.version>
-        <spring-cloud.version>2023.0.1</spring-cloud.version>
-        <axon.version>4.10.0</axon.version>
-        <kafka.version>4.0.1</kafka.version>
-        <liquibase.version>4.26.0</liquibase.version>
-        <mysql.version>9.5.0</mysql.version>
-        <redis.version>3.2.6</redis.version>
-        <lombok.version>1.18.30</lombok.version>
-        <fastjson2.version>2.0.45</fastjson2.version>
-        <commons-lang3.version>3.14.0</commons-lang3.version>
-        <feign.version>3.2.2</feign.version>
-        <mapstruct.version>1.6.3</mapstruct.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- Spring Boot Dependencies -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- Spring Cloud Dependencies -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- Axon Framework -->
-            <dependency>
-                <groupId>org.axonframework</groupId>
-                <artifactId>axon-bom</artifactId>
-                <version>${axon.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- Additional Dependencies -->
-            <dependency>
-                <groupId>com.alibaba.fastjson2</groupId>
-                <artifactId>fastjson2</artifactId>
-                <version>${fastjson2.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
-            </dependency>
-            <!-- MapStruct -->
-            <dependency>
-                <groupId>org.mapstruct</groupId>
-                <artifactId>mapstruct</artifactId>
-                <version>${mapstruct.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mapstruct</groupId>
-                <artifactId>mapstruct-processor</artifactId>
-                <version>${mapstruct.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
-
-        </dependencies>
-    </dependencyManagement>
+    <!-- Spring Boot 4.0.1 / Spring Cloud 2023.0.2 / Axon 4.10.0 / MapStruct 三件套均由 titanium-parent 统一管理 -->
 
     <modules>
         <module>titanium-clause-common</module>
@@ -105,24 +30,17 @@
         <module>titanium-clause-bootstrap</module>
     </modules>
 
+    <!-- 编译器三件套由 titanium-parent 提供；spring-boot-maven-plugin 仅在 bootstrap 启动模块激活 -->
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

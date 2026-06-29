@@ -1,9 +1,10 @@
 package com.titanium.clause.infrastructure.mapper;
 
-import com.titanium.clause.domain.entity.PremiumRule;
-import com.titanium.clause.infrastructure.entity.PremiumRuleEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import com.titanium.clause.domain.entity.PremiumRule;
+import com.titanium.clause.infrastructure.entity.PremiumRuleEntity;
 
 /**
  * 缴费规则映射器

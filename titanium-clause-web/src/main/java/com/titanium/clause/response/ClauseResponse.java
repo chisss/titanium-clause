@@ -1,9 +1,10 @@
 package com.titanium.clause.response;
 
-import com.titanium.metadata.enums.clause.ClauseEnum;
-import lombok.Data;
-
 import java.time.LocalDateTime;
+
+import com.titanium.metadata.enums.clause.ClauseEnum;
+
+import lombok.Data;
 
 /**
  * 条款响应

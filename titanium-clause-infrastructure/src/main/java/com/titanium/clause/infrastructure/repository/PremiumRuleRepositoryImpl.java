@@ -1,16 +1,18 @@
 package com.titanium.clause.infrastructure.repository;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
 import com.titanium.clause.domain.entity.PremiumRule;
 import com.titanium.clause.domain.repository.PremiumRuleRepository;
 import com.titanium.clause.infrastructure.entity.PremiumRuleEntity;
 import com.titanium.clause.infrastructure.mapper.PremiumRuleMapper;
 import com.titanium.clause.infrastructure.repository.jpa.PremiumRuleJpaRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 缴费规则仓储实现类

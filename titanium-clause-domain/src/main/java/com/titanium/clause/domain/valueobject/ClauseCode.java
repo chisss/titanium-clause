@@ -1,9 +1,9 @@
 package com.titanium.clause.domain.valueobject;
 
+import java.io.Serializable;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-
-import java.io.Serializable;
 
 /**
  * 条款代码值对象

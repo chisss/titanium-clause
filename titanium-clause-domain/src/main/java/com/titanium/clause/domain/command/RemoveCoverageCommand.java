@@ -1,8 +1,9 @@
 package com.titanium.clause.domain.command;
 
+import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
 import com.titanium.clause.domain.valueobject.ClauseId;
 import com.titanium.clause.domain.valueobject.CoverageId;
-import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 /**
  * 移除保险责任命令

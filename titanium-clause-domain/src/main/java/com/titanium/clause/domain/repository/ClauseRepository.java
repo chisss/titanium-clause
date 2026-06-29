@@ -1,13 +1,13 @@
 package com.titanium.clause.domain.repository;
 
-import com.titanium.clause.domain.valueobject.ClauseId;
-import com.titanium.clause.domain.valueobject.ClauseCode;
-import com.titanium.clause.domain.aggregate.Clause;
-import com.titanium.metadata.enums.InsuranceType;
-import com.titanium.metadata.enums.clause.ClauseEnum;
-
 import java.util.List;
 import java.util.Optional;
+
+import com.titanium.clause.domain.aggregate.Clause;
+import com.titanium.clause.domain.valueobject.ClauseCode;
+import com.titanium.clause.domain.valueobject.ClauseId;
+import com.titanium.metadata.enums.InsuranceType;
+import com.titanium.metadata.enums.clause.ClauseEnum;
 
 /**
  * 条款仓储接口

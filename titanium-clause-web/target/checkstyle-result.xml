@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="10.20.1">
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/response/ClauseResponse.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/config/WebConfig.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/controller/ClauseController.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/request/InactivateClauseRequest.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/request/CreateClauseRequest.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/request/ActivateClauseRequest.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/request/UpdateClauseRequest.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/interceptor/TenantInterceptor.java">
+</file>
+</checkstyle>

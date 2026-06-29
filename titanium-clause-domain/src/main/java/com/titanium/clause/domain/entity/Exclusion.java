@@ -1,12 +1,13 @@
 package com.titanium.clause.domain.entity;
 
-import com.titanium.clause.domain.valueobject.ExclusionId;
+import java.time.LocalDateTime;
+
 import com.titanium.clause.domain.enums.ExclusionType;
+import com.titanium.clause.domain.valueobject.ExclusionId;
 import com.titanium.metadata.enums.CommonStatus;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 /**
  * 责任免除实体类
@@ -35,7 +36,7 @@ public class Exclusion {
 
     /**
      * 校验理赔事件是否命中免责规则
-     * 
+     *
      * @param claimEvent 理赔事件
      * @return 是否命中免责规则
      */

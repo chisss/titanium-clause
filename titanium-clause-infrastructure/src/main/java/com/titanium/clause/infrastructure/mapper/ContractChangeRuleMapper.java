@@ -1,9 +1,10 @@
 package com.titanium.clause.infrastructure.mapper;
 
-import com.titanium.clause.domain.entity.ContractChangeRule;
-import com.titanium.clause.infrastructure.entity.ContractChangeRuleEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import com.titanium.clause.domain.entity.ContractChangeRule;
+import com.titanium.clause.infrastructure.entity.ContractChangeRuleEntity;
 
 /**
  * 合同变更规则映射器
@@ -30,7 +31,6 @@ public interface ContractChangeRuleMapper {
      * @param entity 数据库实体
      * @return 领域对象
      */
-    @Mapping(source = "id", target = "id")
     @Mapping(source = "surrenderCashValueRule", target = "surrenderCashValueRule")
     @Mapping(source = "renewalType", target = "renewalType")
     @Mapping(source = "reinstatementCondition", target = "reinstatementCondition")

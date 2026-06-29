@@ -1,19 +1,21 @@
 package com.titanium.clause.infrastructure.repository;
 
-import com.titanium.clause.domain.entity.Exclusion;
-import com.titanium.clause.domain.enums.ExclusionType;
-import com.titanium.clause.domain.repository.ExclusionRepository;
-import com.titanium.clause.infrastructure.entity.InsuranceExclusionEntity;
-import com.titanium.clause.infrastructure.mapper.ExclusionMapper;
-import com.titanium.clause.infrastructure.repository.jpa.InsuranceExclusionJpaRepository;
-import com.titanium.clause.domain.valueobject.ExclusionId;
-import com.titanium.metadata.enums.CommonStatus;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
+import com.titanium.clause.domain.entity.Exclusion;
+import com.titanium.clause.domain.enums.ExclusionType;
+import com.titanium.clause.domain.repository.ExclusionRepository;
+import com.titanium.clause.domain.valueobject.ExclusionId;
+import com.titanium.clause.infrastructure.entity.InsuranceExclusionEntity;
+import com.titanium.clause.infrastructure.mapper.ExclusionMapper;
+import com.titanium.clause.infrastructure.repository.jpa.InsuranceExclusionJpaRepository;
+import com.titanium.metadata.enums.CommonStatus;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * 责任免除仓储实现类

@@ -1,9 +1,9 @@
 package com.titanium.clause.domain.event;
 
+import java.time.LocalDateTime;
+
 import com.titanium.clause.domain.entity.ContractChangeRule;
 import com.titanium.clause.domain.valueobject.ClauseId;
-
-import java.time.LocalDateTime;
 
 /**
  * 合同变更规则已设置事件

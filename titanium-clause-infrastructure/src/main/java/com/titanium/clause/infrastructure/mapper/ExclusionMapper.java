@@ -1,11 +1,12 @@
 package com.titanium.clause.infrastructure.mapper;
 
-import com.titanium.clause.domain.entity.Exclusion;
-import com.titanium.clause.infrastructure.entity.InsuranceExclusionEntity;
-import com.titanium.clause.domain.valueobject.ExclusionId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+
+import com.titanium.clause.domain.entity.Exclusion;
+import com.titanium.clause.domain.valueobject.ExclusionId;
+import com.titanium.clause.infrastructure.entity.InsuranceExclusionEntity;
 
 /**
  * 责任免除映射器

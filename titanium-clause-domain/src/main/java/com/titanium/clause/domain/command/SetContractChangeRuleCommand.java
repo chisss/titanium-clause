@@ -1,8 +1,9 @@
 package com.titanium.clause.domain.command;
 
+import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
 import com.titanium.clause.domain.entity.ContractChangeRule;
 import com.titanium.clause.domain.valueobject.ClauseId;
-import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 /**
  * 设置合同变更规则命令

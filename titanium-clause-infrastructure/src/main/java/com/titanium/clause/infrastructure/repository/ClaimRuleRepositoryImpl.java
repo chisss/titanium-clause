@@ -1,16 +1,18 @@
 package com.titanium.clause.infrastructure.repository;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
 import com.titanium.clause.domain.entity.ClaimRule;
 import com.titanium.clause.domain.repository.ClaimRuleRepository;
 import com.titanium.clause.infrastructure.entity.ClaimRuleEntity;
 import com.titanium.clause.infrastructure.mapper.ClaimRuleMapper;
 import com.titanium.clause.infrastructure.repository.jpa.ClaimRuleJpaRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 理赔规则仓储实现类

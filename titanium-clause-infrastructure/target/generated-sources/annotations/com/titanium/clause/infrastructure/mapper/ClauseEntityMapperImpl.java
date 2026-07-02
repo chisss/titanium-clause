@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-29T17:21:52+0800",
+    date = "2026-06-30T12:33:07+0800",
     comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.4 (Amazon.com Inc.)"
 )
 @Component
@@ -33,13 +33,13 @@ public class ClauseEntityMapperImpl implements ClauseEntityMapper {
         clauseEntity.setVersion( clauseVersionValue( clause ) );
         clauseEntity.setParentClauseId( clauseParentClauseIdValue( clause ) );
         clauseEntity.setStatus( clause.getStatus() );
-        clauseEntity.setCreateTime( clause.getCreatedAt() );
-        clauseEntity.setUpdateTime( clause.getUpdatedAt() );
         clauseEntity.setTenantId( clause.getTenantId() );
-        clauseEntity.setContent( clause.getContent() );
-        clauseEntity.setEffectiveDate( clause.getEffectiveDate() );
+        clauseEntity.setCreateTime( clause.getCreateTime() );
+        clauseEntity.setUpdateTime( clause.getUpdateTime() );
         clauseEntity.setCreatedBy( clause.getCreatedBy() );
         clauseEntity.setUpdatedBy( clause.getUpdatedBy() );
+        clauseEntity.setContent( clause.getContent() );
+        clauseEntity.setEffectiveDate( clause.getEffectiveDate() );
         clauseEntity.setDescription( clause.getDescription() );
 
         return clauseEntity;
@@ -51,26 +51,26 @@ public class ClauseEntityMapperImpl implements ClauseEntityMapper {
             return null;
         }
 
-        Clause clause = new Clause();
+        Clause.ClauseBuilder<?, ?> clause = Clause.builder();
 
-        clause.setClauseId( toClauseId( entity.getId() ) );
-        clause.setClauseCode( toClauseCode( entity.getClauseCode() ) );
-        clause.setClauseName( toClauseName( entity.getClauseName() ) );
-        clause.setClauseType( entity.getClauseType() );
-        clause.setInsuranceType( entity.getInsuranceType() );
-        clause.setVersion( toVersion( entity.getVersion() ) );
-        clause.setParentClauseId( toClauseId( entity.getParentClauseId() ) );
-        clause.setStatus( entity.getStatus() );
-        clause.setCreatedAt( entity.getCreateTime() );
-        clause.setUpdatedAt( entity.getUpdateTime() );
-        clause.setContent( entity.getContent() );
-        clause.setDescription( entity.getDescription() );
-        clause.setEffectiveDate( entity.getEffectiveDate() );
-        clause.setTenantId( entity.getTenantId() );
-        clause.setCreatedBy( entity.getCreatedBy() );
-        clause.setUpdatedBy( entity.getUpdatedBy() );
+        clause.clauseId( toClauseId( entity.getId() ) );
+        clause.clauseCode( toClauseCode( entity.getClauseCode() ) );
+        clause.clauseName( toClauseName( entity.getClauseName() ) );
+        clause.clauseType( entity.getClauseType() );
+        clause.insuranceType( entity.getInsuranceType() );
+        clause.version( toVersion( entity.getVersion() ) );
+        clause.parentClauseId( toClauseId( entity.getParentClauseId() ) );
+        clause.status( entity.getStatus() );
+        clause.tenantId( entity.getTenantId() );
+        clause.createTime( entity.getCreateTime() );
+        clause.updateTime( entity.getUpdateTime() );
+        clause.content( entity.getContent() );
+        clause.description( entity.getDescription() );
+        clause.effectiveDate( entity.getEffectiveDate() );
+        clause.createdBy( entity.getCreatedBy() );
+        clause.updatedBy( entity.getUpdatedBy() );
 
-        return clause;
+        return clause.build();
     }
 
     private String clauseClauseIdValue(Clause clause) {

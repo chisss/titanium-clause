@@ -242,9 +242,9 @@ public class ClauseController {
         dto.setEffectiveDate(clause.getEffectiveDate());
         dto.setExpiryDate(clause.getExpiryDate());
         dto.setCreatedBy(clause.getCreatedBy());
-        dto.setCreatedAt(clause.getCreatedAt());
+        dto.setCreatedAt(clause.getCreateTime());
         dto.setUpdatedBy(clause.getUpdatedBy());
-        dto.setUpdatedAt(clause.getUpdatedAt());
+        dto.setUpdatedAt(clause.getUpdateTime());
         dto.setTenantId(clause.getTenantId());
         return dto;
     }

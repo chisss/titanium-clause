@@ -68,12 +68,14 @@ import com.titanium.clause.domain.valueobject.CoverageId;
 import com.titanium.clause.domain.valueobject.ExclusionId;
 import com.titanium.clause.domain.valueobject.TimeRange;
 import com.titanium.clause.domain.valueobject.Version;
+import com.titanium.common.domain.BaseAggregate;
 import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 import com.titanium.metadata.errorcode.ClauseErrorCode;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * 条款聚合根
@@ -85,7 +87,8 @@ import lombok.NoArgsConstructor;
 @Aggregate
 @Data
 @NoArgsConstructor
-public class Clause {
+@SuperBuilder(toBuilder = true)
+public class Clause extends BaseAggregate {
 
     @AggregateIdentifier
     private ClauseId                    clauseId;
@@ -116,11 +119,8 @@ public class Clause {
     private List<ApprovalRecord>        approvalRecords = new ArrayList<>();
 
     // ===== 审计字段 =====
-    private String                      tenantId;
     private String                      createdBy;
-    private LocalDateTime               createdAt;
     private String                      updatedBy;
-    private LocalDateTime               updatedAt;
 
     // ========================== 命令处理器 ==========================
 
@@ -425,9 +425,9 @@ public class Clause {
         this.contractChangeRule = event.contractChangeRule();
         this.tenantId = event.tenantId();
         this.createdBy = event.createdBy();
-        this.createdAt = event.createdAt();
+        this.createTime = event.createdAt();
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     @EventSourcingHandler
@@ -447,21 +447,21 @@ public class Clause {
         this.contractChangeRule = event.contractChangeRule() != null ? event.contractChangeRule()
                 : this.contractChangeRule;
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     @EventSourcingHandler
     public void on(ClauseStatusChangedEvent event) {
         this.status = event.newStatus();
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     @EventSourcingHandler
     public void on(ClauseSubmittedForApprovalEvent event) {
         this.status = ClauseEnum.ClauseStatus.PENDING_APPROVAL;
         this.updatedBy = event.submittedBy();
-        this.updatedAt = event.submittedAt();
+        this.updateTime = event.submittedAt();
     }
 
     @EventSourcingHandler
@@ -473,7 +473,7 @@ public class Clause {
         // 审批通过 → ACTIVE
         this.status = ClauseEnum.ClauseStatus.ACTIVE;
         this.updatedBy = event.approverId();
-        this.updatedAt = event.approvedAt();
+        this.updateTime = event.approvedAt();
     }
 
     @EventSourcingHandler
@@ -485,7 +485,7 @@ public class Clause {
         // 驳回 → 回到DRAFT
         this.status = ClauseEnum.ClauseStatus.DRAFT;
         this.updatedBy = event.rejectedBy();
-        this.updatedAt = event.rejectedAt();
+        this.updateTime = event.rejectedAt();
     }
 
     @EventSourcingHandler
@@ -498,7 +498,7 @@ public class Clause {
     public void on(ClauseArchivedEvent event) {
         this.status = ClauseEnum.ClauseStatus.ARCHIVED;
         this.updatedBy = event.archivedBy();
-        this.updatedAt = event.archivedAt();
+        this.updateTime = event.archivedAt();
     }
 
     @EventSourcingHandler
@@ -508,7 +508,7 @@ public class Clause {
         }
         this.coverages.put(event.coverage().getId(), event.coverage());
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     @EventSourcingHandler
@@ -517,7 +517,7 @@ public class Clause {
             this.coverages.remove(event.coverageId());
         }
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     @EventSourcingHandler
@@ -527,7 +527,7 @@ public class Clause {
         }
         this.exclusions.put(event.exclusion().getId(), event.exclusion());
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     @EventSourcingHandler
@@ -536,28 +536,28 @@ public class Clause {
             this.exclusions.remove(event.exclusionId());
         }
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     @EventSourcingHandler
     public void on(PremiumRuleSetEvent event) {
         this.premiumRule = event.premiumRule();
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     @EventSourcingHandler
     public void on(ClaimRuleSetEvent event) {
         this.claimRule = event.claimRule();
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     @EventSourcingHandler
     public void on(ContractChangeRuleSetEvent event) {
         this.contractChangeRule = event.contractChangeRule();
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     @EventSourcingHandler
@@ -567,14 +567,14 @@ public class Clause {
         }
         this.notifications.add(event.notification());
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     @EventSourcingHandler
     public void on(SignTemplateSetEvent event) {
         this.signTemplate = event.signTemplate();
         this.updatedBy = event.updatedBy();
-        this.updatedAt = event.updatedAt();
+        this.updateTime = event.updatedAt();
     }
 
     // ========================== 业务方法 ==========================

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<checkstyle version="10.20.1">
-<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-application/src/main/java/com/titanium/clause/application/mapper/ClauseMapper.java">
-</file>
-<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-application/src/main/java/com/titanium/clause/application/service/ClauseApplicationService.java">
-</file>
-<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-application/src/main/java/com/titanium/clause/application/query/ClauseQueryService.java">
-</file>
-</checkstyle>

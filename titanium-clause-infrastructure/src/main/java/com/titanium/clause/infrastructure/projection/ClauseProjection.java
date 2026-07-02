@@ -41,7 +41,11 @@ public class ClauseProjection {
     public void handle(ClauseCreatedEvent event) {
         LOGGER.info("处理条款创建事件: {}", event.clauseId());
 
-        Clause clause = new Clause();
+        Clause clause = Clause.builder()
+                .tenantId(event.tenantId())
+                .createTime(event.createdAt())
+                .updateTime(event.createdAt())
+                .build();
         clause.setClauseId(event.clauseId());
         clause.setClauseCode(event.clauseCode());
         clause.setClauseName(event.clauseName());
@@ -55,8 +59,6 @@ public class ClauseProjection {
         clause.setExpiryDate(event.expiryDate());
         clause.setStatus(ClauseEnum.ClauseStatus.DRAFT);
         clause.setCreatedBy(event.createdBy());
-        clause.setCreatedAt(event.createdAt());
-        clause.setTenantId(event.tenantId());
 
         clauseRepository.save(clause);
     }
@@ -79,7 +81,7 @@ public class ClauseProjection {
             clause.setEffectiveDate(event.effectiveDate());
             clause.setExpiryDate(event.expiryDate());
             clause.setUpdatedBy(event.updatedBy());
-            clause.setUpdatedAt(event.updatedAt());
+            clause = clause.toBuilder().updateTime(event.updatedAt()).build();
 
             clauseRepository.save(clause);
         }
@@ -97,7 +99,7 @@ public class ClauseProjection {
             Clause clause = clauseOptional.get();
             clause.setStatus(event.newStatus());
             clause.setUpdatedBy(event.updatedBy());
-            clause.setUpdatedAt(event.updatedAt());
+            clause = clause.toBuilder().updateTime(event.updatedAt()).build();
 
             clauseRepository.save(clause);
 
@@ -118,7 +120,7 @@ public class ClauseProjection {
             Clause clause = clauseOptional.get();
             clause.setStatus(ClauseEnum.ClauseStatus.PENDING_APPROVAL);
             clause.setUpdatedBy(event.submittedBy());
-            clause.setUpdatedAt(event.submittedAt());
+            clause = clause.toBuilder().updateTime(event.submittedAt()).build();
 
             clauseRepository.save(clause);
         }
@@ -136,7 +138,7 @@ public class ClauseProjection {
             Clause clause = clauseOptional.get();
             clause.setStatus(ClauseEnum.ClauseStatus.ACTIVE);
             clause.setUpdatedBy(event.approverId());
-            clause.setUpdatedAt(event.approvedAt());
+            clause = clause.toBuilder().updateTime(event.approvedAt()).build();
 
             clauseRepository.save(clause);
 
@@ -157,7 +159,7 @@ public class ClauseProjection {
             Clause clause = clauseOptional.get();
             clause.setStatus(ClauseEnum.ClauseStatus.DRAFT);
             clause.setUpdatedBy(event.rejectedBy());
-            clause.setUpdatedAt(event.rejectedAt());
+            clause = clause.toBuilder().updateTime(event.rejectedAt()).build();
 
             clauseRepository.save(clause);
         }
@@ -175,7 +177,7 @@ public class ClauseProjection {
             Clause clause = clauseOptional.get();
             clause.setStatus(ClauseEnum.ClauseStatus.ARCHIVED);
             clause.setUpdatedBy(event.archivedBy());
-            clause.setUpdatedAt(event.archivedAt());
+            clause = clause.toBuilder().updateTime(event.archivedAt()).build();
 
             clauseRepository.save(clause);
         }

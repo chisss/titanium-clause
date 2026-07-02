@@ -97,9 +97,9 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         entity.setExpireDate(clause.getExpiryDate());
         entity.setTenantId(clause.getTenantId());
         entity.setCreatedBy(clause.getCreatedBy());
-        entity.setCreateTime(clause.getCreatedAt());
+        entity.setCreateTime(clause.getCreateTime());
         entity.setUpdatedBy(clause.getUpdatedBy());
-        entity.setUpdateTime(clause.getUpdatedAt());
+        entity.setUpdateTime(clause.getUpdateTime());
         entity.setIsDeleted(0); // 默认未删除
         return entity;
     }
@@ -110,7 +110,12 @@ public class ClauseRepositoryImpl implements ClauseRepository {
      * @return 领域对象
      */
     private Clause toDomain(ClauseEntity entity) {
-        Clause clause = new Clause();
+        // 基类审计字段（tenantId/createTime/updateTime）无 setter，经 SuperBuilder 构建
+        Clause clause = Clause.builder()
+                .tenantId(entity.getTenantId())
+                .createTime(entity.getCreateTime())
+                .updateTime(entity.getUpdateTime())
+                .build();
         clause.setClauseId(ClauseId.fromString(entity.getId()));
         clause.setClauseCode(ClauseCode.fromString(entity.getClauseCode()));
         clause.setClauseName(ClauseName.fromString(entity.getClauseName()));
@@ -121,11 +126,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         clause.setDescription(null); // 数据库中没有该字段
         clause.setEffectiveDate(entity.getEffectiveDate());
         clause.setExpiryDate(entity.getExpireDate());
-        clause.setTenantId(entity.getTenantId());
         clause.setCreatedBy(entity.getCreatedBy());
-        clause.setCreatedAt(entity.getCreateTime());
         clause.setUpdatedBy(entity.getUpdatedBy());
-        clause.setUpdatedAt(entity.getUpdateTime());
         return clause;
     }
 }

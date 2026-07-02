@@ -2,6 +2,7 @@ package com.titanium.clause.infrastructure.entity;
 
 import java.time.LocalDateTime;
 
+import com.titanium.common.jpa.BaseEntity;
 import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
@@ -13,11 +14,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 条款实体类
+ * <p>继承 BaseEntity，复用租户ID、创建/更新时间、创建/更新人、逻辑删除等公共审计字段。</p>
  */
 @Entity
 @Table(name = "t_clause",
@@ -32,15 +35,13 @@ import lombok.NoArgsConstructor;
             @Index(name = "idx_parent_clause", columnList = "parent_clause_id")
         }
 )
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-public class ClauseEntity {
+public class ClauseEntity extends BaseEntity {
     @Id
     @Column(name = "id", length = 32, nullable = false)
     private String id;
-
-    @Column(name = "tenant_id", length = 32, nullable = false)
-    private String tenantId;
 
     @Column(name = "clause_code", length = 64, nullable = false)
     private String clauseCode;
@@ -72,24 +73,9 @@ public class ClauseEntity {
     @Column(name = "expire_date")
     private LocalDateTime expireDate;
 
-    @Column(name = "create_time", nullable = false, updatable = false)
-    private LocalDateTime createTime;
-
-    @Column(name = "update_time", nullable = false)
-    private LocalDateTime updateTime;
-
-    @Column(name = "created_by", length = 32, nullable = false)
-    private String createdBy;
-
-    @Column(name = "updated_by", length = 32, nullable = false)
-    private String updatedBy;
-
     @Column(name = "parent_clause_id", length = 32)
     private String parentClauseId;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
-
-    @Column(name = "is_deleted", nullable = false)
-    private Integer isDeleted;
 }

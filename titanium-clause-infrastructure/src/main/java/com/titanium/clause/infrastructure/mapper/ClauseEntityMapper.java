@@ -30,8 +30,6 @@ public interface ClauseEntityMapper {
     @Mapping(source = "version.value", target = "version")
     @Mapping(source = "parentClauseId.value", target = "parentClauseId")
     @Mapping(source = "status", target = "status")
-    @Mapping(source = "createdAt", target = "createTime")
-    @Mapping(source = "updatedAt", target = "updateTime")
     ClauseEntity toClauseEntity(Clause clause);
 
     /**
@@ -47,8 +45,6 @@ public interface ClauseEntityMapper {
     @Mapping(source = "version", target = "version", qualifiedByName = "toVersion")
     @Mapping(source = "parentClauseId", target = "parentClauseId", qualifiedByName = "toClauseId")
     @Mapping(source = "status", target = "status")
-    @Mapping(source = "createTime", target = "createdAt")
-    @Mapping(source = "updateTime", target = "updatedAt")
     Clause toClause(ClauseEntity entity);
 
     /**

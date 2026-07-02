@@ -22,9 +22,11 @@ import com.titanium.clause.domain.event.ClauseApprovalRejectedEvent;
 import com.titanium.clause.domain.event.ClauseApprovalSubmittedEvent;
 import com.titanium.clause.domain.valueobject.ClauseId;
 import com.titanium.clause.domain.valueobject.Version;
+import com.titanium.common.domain.BaseAggregate;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * 条款审批流程聚合根
@@ -41,7 +43,8 @@ import lombok.NoArgsConstructor;
 @Aggregate
 @Data
 @NoArgsConstructor
-public class ClauseApprovalProcess {
+@SuperBuilder(toBuilder = true)
+public class ClauseApprovalProcess extends BaseAggregate {
 
     @AggregateIdentifier
     private String                 approvalId;
@@ -50,7 +53,6 @@ public class ClauseApprovalProcess {
     /** 审批状态：PENDING/APPROVED/REJECTED */
     private ApprovalStatus         status;
     private List<ApprovalRecord>   approvalRecords = new ArrayList<>();
-    private String                 tenantId;
 
     // ========================== 命令处理器 ==========================
 
@@ -96,6 +98,8 @@ public class ClauseApprovalProcess {
         this.clauseVersion = event.clauseVersion();
         this.status = ApprovalStatus.PENDING;
         this.tenantId = event.tenantId();
+        this.createTime = event.submittedAt();
+        this.updateTime = event.submittedAt();
         this.approvalRecords = new ArrayList<>();
     }
 
@@ -103,12 +107,14 @@ public class ClauseApprovalProcess {
     public void on(ClauseApprovalApprovedEvent event) {
         this.approvalRecords.add(event.approvalRecord());
         this.status = ApprovalStatus.APPROVED;
+        this.updateTime = event.approvedAt();
     }
 
     @EventSourcingHandler
     public void on(ClauseApprovalRejectedEvent event) {
         this.approvalRecords.add(event.approvalRecord());
         this.status = ApprovalStatus.REJECTED;
+        this.updateTime = event.rejectedAt();
     }
 
     // ========================== 私有辅助方法 ==========================

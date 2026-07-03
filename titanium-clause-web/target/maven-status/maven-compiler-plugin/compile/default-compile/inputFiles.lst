@@ -1,7 +1,0 @@
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/InactivateClauseRequest.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/controller/ClauseController.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/config/WebConfig.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/ActivateClauseRequest.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/CreateClauseRequest.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/UpdateClauseRequest.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/interceptor/TenantInterceptor.java

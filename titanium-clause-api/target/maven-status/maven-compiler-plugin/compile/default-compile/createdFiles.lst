@@ -1,6 +1,0 @@
-com/titanium/clause/api/request/UpdateClauseRequest.class
-com/titanium/clause/api/request/InactivateClauseRequest.class
-com/titanium/clause/api/ClauseClient.class
-com/titanium/clause/api/dto/ClauseDTO.class
-com/titanium/clause/api/request/CreateClauseRequest.class
-com/titanium/clause/api/request/ActivateClauseRequest.class

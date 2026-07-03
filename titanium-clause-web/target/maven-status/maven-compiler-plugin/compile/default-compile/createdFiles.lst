@@ -1,7 +1,0 @@
-com/titanium/clause/web/request/CreateClauseRequest.class
-com/titanium/clause/web/config/WebConfig.class
-com/titanium/clause/web/request/UpdateClauseRequest.class
-com/titanium/clause/web/interceptor/TenantInterceptor.class
-com/titanium/clause/web/request/InactivateClauseRequest.class
-com/titanium/clause/web/request/ActivateClauseRequest.class
-com/titanium/clause/web/controller/ClauseController.class

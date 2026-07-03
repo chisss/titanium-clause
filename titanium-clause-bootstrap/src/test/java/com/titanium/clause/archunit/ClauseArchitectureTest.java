@@ -1,5 +1,7 @@
 package com.titanium.clause.archunit;
 
+import org.junit.jupiter.api.Test;
+
 import com.titanium.buildtools.archunit.AbstractArchitectureGuardTest;
 
 /**
@@ -12,5 +14,18 @@ class ClauseArchitectureTest extends AbstractArchitectureGuardTest {
     @Override
     protected String basePackage() {
         return "com.titanium.clause";
+    }
+
+    /**
+     * 启用「Web 层不得直接依赖领域命令/聚合根」严格隔离规则。
+     * <p>
+     * 基类默认 {@code @Disabled} 该规则。条款域 Controller 只依赖 api DTO/Web Request+VO 与应用层服务，不直接消费 domain
+     * command/aggregate，故在本子类覆盖启用。
+     * </p>
+     */
+    @Test
+    @Override
+    protected void webShouldNotDependOnDomainCommandsOrAggregates() {
+        super.webShouldNotDependOnDomainCommandsOrAggregates();
     }
 }

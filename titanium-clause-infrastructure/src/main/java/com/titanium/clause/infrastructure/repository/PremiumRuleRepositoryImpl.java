@@ -6,11 +6,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
-import com.titanium.clause.domain.entity.PremiumRule;
-import com.titanium.clause.domain.repository.PremiumRuleRepository;
+import com.titanium.clause.entity.PremiumRule;
 import com.titanium.clause.infrastructure.entity.PremiumRuleEntity;
 import com.titanium.clause.infrastructure.mapper.PremiumRuleMapper;
 import com.titanium.clause.infrastructure.repository.jpa.PremiumRuleJpaRepository;
+import com.titanium.clause.repository.PremiumRuleRepository;
 
 import lombok.RequiredArgsConstructor;
 

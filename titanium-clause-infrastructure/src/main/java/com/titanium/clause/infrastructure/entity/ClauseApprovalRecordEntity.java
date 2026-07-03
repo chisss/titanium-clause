@@ -2,8 +2,8 @@ package com.titanium.clause.infrastructure.entity;
 
 import java.time.LocalDateTime;
 
-import com.titanium.clause.domain.enums.ApprovalStatus;
-import com.titanium.clause.domain.enums.ApprovalType;
+import com.titanium.clause.common.enums.ApprovalStatus;
+import com.titanium.clause.common.enums.ApprovalType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

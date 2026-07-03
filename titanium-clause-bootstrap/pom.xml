@@ -30,6 +30,13 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- CQRS 读侧（组合根装配读模型投影/查询/DLQ） -->
+        <dependency>
+            <groupId>com.titanium</groupId>
+            <artifactId>titanium-clause-query</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -6,12 +6,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
-import com.titanium.clause.domain.entity.ContractChangeRule;
-import com.titanium.clause.domain.enums.RenewalType;
-import com.titanium.clause.domain.repository.ContractChangeRuleRepository;
+import com.titanium.clause.common.enums.RenewalType;
+import com.titanium.clause.entity.ContractChangeRule;
 import com.titanium.clause.infrastructure.entity.ContractChangeRuleEntity;
 import com.titanium.clause.infrastructure.mapper.ContractChangeRuleMapper;
 import com.titanium.clause.infrastructure.repository.jpa.ContractChangeRuleJpaRepository;
+import com.titanium.clause.repository.ContractChangeRuleRepository;
 
 import lombok.RequiredArgsConstructor;
 

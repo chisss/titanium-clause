@@ -1,7 +1,16 @@
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseOperationNotAllowedException.java
 /Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseExpiredException.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/enums/ApprovalStatus.java
 /Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/constant/ClauseConstants.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/enums/NoticeType.java
 /Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseNotFoundException.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/enums/SnapshotBusinessType.java
 /Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseDuplicateException.java
 /Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseInvalidStatusException.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/context/TenantContext.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/enums/CoverageType.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseOperationNotAllowedException.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/enums/SignTemplateType.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/enums/ExclusionType.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/enums/RenewalType.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/enums/ApprovalType.java
 /Users/sunwei/titanium-project/titanium-clause/titanium-clause-common/src/main/java/com/titanium/clause/common/exception/ClauseException.java

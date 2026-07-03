@@ -4,12 +4,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import com.titanium.clause.domain.aggregate.Clause;
-import com.titanium.clause.domain.valueobject.ClauseCode;
-import com.titanium.clause.domain.valueobject.ClauseId;
-import com.titanium.clause.domain.valueobject.ClauseName;
-import com.titanium.clause.domain.valueobject.Version;
+import com.titanium.clause.aggregate.Clause;
 import com.titanium.clause.infrastructure.entity.ClauseEntity;
+import com.titanium.clause.valueobject.ClauseCode;
+import com.titanium.clause.valueobject.ClauseId;
+import com.titanium.clause.valueobject.ClauseName;
+import com.titanium.clause.valueobject.Version;
 
 /**
  * 条款实体映射器

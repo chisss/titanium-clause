@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.titanium.clause.archunit.ClauseArchitectureTest
+-------------------------------------------------------------------------------
+Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.862 s -- in com.titanium.clause.archunit.ClauseArchitectureTest

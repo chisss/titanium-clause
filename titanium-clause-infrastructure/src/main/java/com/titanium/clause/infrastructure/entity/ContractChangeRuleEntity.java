@@ -2,7 +2,7 @@ package com.titanium.clause.infrastructure.entity;
 
 import java.time.LocalDateTime;
 
-import com.titanium.clause.domain.enums.RenewalType;
+import com.titanium.clause.common.enums.RenewalType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

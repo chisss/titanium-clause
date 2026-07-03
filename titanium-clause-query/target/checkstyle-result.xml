@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="10.20.1">
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/handler/query/ClauseQueryHandler.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/handler/projection/ClauseProjectionEventHandler.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/repository/ClauseViewRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/result/ClauseQueryResult.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/view/ClauseView.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/service/impl/ClauseQueryServiceImpl.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/service/ClauseQueryService.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/query/FindClauseByIdQuery.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/query/FindClauseByCodeQuery.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/query/FindAllClausesQuery.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/query/FindClausesByStatusQuery.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/query/FindClausesByTypeQuery.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/scheduled/DeadLetterQueueService.java">
+</file>
+</checkstyle>

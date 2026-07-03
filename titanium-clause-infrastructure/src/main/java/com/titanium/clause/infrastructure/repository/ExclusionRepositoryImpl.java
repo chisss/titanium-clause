@@ -6,13 +6,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
-import com.titanium.clause.domain.entity.Exclusion;
-import com.titanium.clause.domain.enums.ExclusionType;
-import com.titanium.clause.domain.repository.ExclusionRepository;
-import com.titanium.clause.domain.valueobject.ExclusionId;
+import com.titanium.clause.common.enums.ExclusionType;
+import com.titanium.clause.entity.Exclusion;
 import com.titanium.clause.infrastructure.entity.InsuranceExclusionEntity;
 import com.titanium.clause.infrastructure.mapper.ExclusionMapper;
 import com.titanium.clause.infrastructure.repository.jpa.InsuranceExclusionJpaRepository;
+import com.titanium.clause.repository.ExclusionRepository;
+import com.titanium.clause.valueobject.ExclusionId;
 import com.titanium.metadata.enums.CommonStatus;
 
 import lombok.RequiredArgsConstructor;

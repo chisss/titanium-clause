@@ -6,16 +6,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import com.titanium.clause.aggregate.Clause;
 import com.titanium.clause.common.constant.ClauseConstants;
-import com.titanium.clause.domain.aggregate.Clause;
-import com.titanium.clause.domain.event.ClauseApprovedEvent;
-import com.titanium.clause.domain.event.ClauseArchivedEvent;
-import com.titanium.clause.domain.event.ClauseCreatedEvent;
-import com.titanium.clause.domain.event.ClauseRejectedEvent;
-import com.titanium.clause.domain.event.ClauseStatusChangedEvent;
-import com.titanium.clause.domain.event.ClauseSubmittedForApprovalEvent;
-import com.titanium.clause.domain.event.ClauseUpdatedEvent;
-import com.titanium.clause.domain.repository.ClauseRepository;
+import com.titanium.clause.event.ClauseApprovedEvent;
+import com.titanium.clause.event.ClauseArchivedEvent;
+import com.titanium.clause.event.ClauseCreatedEvent;
+import com.titanium.clause.event.ClauseRejectedEvent;
+import com.titanium.clause.event.ClauseStatusChangedEvent;
+import com.titanium.clause.event.ClauseSubmittedForApprovalEvent;
+import com.titanium.clause.event.ClauseUpdatedEvent;
+import com.titanium.clause.repository.ClauseRepository;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import lombok.RequiredArgsConstructor;

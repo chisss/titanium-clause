@@ -1,0 +1,13 @@
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/handler/projection/ClauseProjectionEventHandler.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/service/impl/ClauseQueryServiceImpl.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/handler/query/ClauseQueryHandler.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/service/ClauseQueryService.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/result/ClauseQueryResult.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/query/FindAllClausesQuery.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/query/FindClauseByCodeQuery.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/query/FindClauseByIdQuery.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/view/ClauseView.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/scheduled/DeadLetterQueueService.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/query/FindClausesByTypeQuery.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/query/FindClausesByStatusQuery.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-query/src/main/java/com/titanium/clause/query/repository/ClauseViewRepository.java

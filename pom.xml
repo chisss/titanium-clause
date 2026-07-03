@@ -25,6 +25,7 @@
         <module>titanium-clause-domain</module>
         <module>titanium-clause-infrastructure</module>
         <module>titanium-clause-application</module>
+        <module>titanium-clause-query</module>
         <module>titanium-clause-api</module>
         <module>titanium-clause-web</module>
         <module>titanium-clause-bootstrap</module>

@@ -1,17 +1,17 @@
 package com.titanium.clause.infrastructure.mapper;
 
-import com.titanium.clause.domain.aggregate.Clause;
-import com.titanium.clause.domain.valueobject.ClauseCode;
-import com.titanium.clause.domain.valueobject.ClauseId;
-import com.titanium.clause.domain.valueobject.ClauseName;
-import com.titanium.clause.domain.valueobject.Version;
+import com.titanium.clause.aggregate.Clause;
 import com.titanium.clause.infrastructure.entity.ClauseEntity;
+import com.titanium.clause.valueobject.ClauseCode;
+import com.titanium.clause.valueobject.ClauseId;
+import com.titanium.clause.valueobject.ClauseName;
+import com.titanium.clause.valueobject.Version;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-30T12:33:07+0800",
+    date = "2026-07-03T10:42:17+0800",
     comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.4 (Amazon.com Inc.)"
 )
 @Component

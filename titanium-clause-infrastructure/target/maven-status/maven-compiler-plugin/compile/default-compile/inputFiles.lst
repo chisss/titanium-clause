@@ -28,5 +28,4 @@
 /Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/mapper/ClauseEntityMapper.java
 /Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/entity/ClauseEntity.java
 /Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/ClauseRepositoryImpl.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/config/TenantContext.java
 /Users/sunwei/titanium-project/titanium-clause/titanium-clause-infrastructure/src/main/java/com/titanium/clause/infrastructure/repository/jpa/ClauseNotificationJpaRepository.java

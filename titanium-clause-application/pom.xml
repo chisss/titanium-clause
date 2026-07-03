@@ -22,10 +22,10 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- Infrastructure Module -->
+        <!-- Query Module（CQRS 读侧：读入口经 QueryGateway 派发查询到读侧 QueryHandler） -->
         <dependency>
             <groupId>com.titanium</groupId>
-            <artifactId>titanium-clause-infrastructure</artifactId>
+            <artifactId>titanium-clause-query</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 

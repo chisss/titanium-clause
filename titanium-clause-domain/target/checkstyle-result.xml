@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="10.20.1">
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/ClauseName.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/AgeGenderRate.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/Reimbursement.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/CoverageTrigger.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/PayoutRule.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/TimeRange.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/ClauseId.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/ClauseCode.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/CoverageId.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/ExclusionId.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/Deductible.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/valueobject/Version.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/repository/PremiumRuleRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/repository/ClaimRuleRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/repository/ClauseRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/repository/ExclusionRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/repository/ContractChangeRuleRepository.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/entity/ClauseNotification.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/entity/ClaimEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/entity/ClauseSignTemplate.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/entity/Coverage.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/entity/ContractChangeRule.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/entity/ClaimRule.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/entity/ApprovalRecord.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/entity/Exclusion.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/entity/PremiumRule.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/aggregate/ClauseApprovalProcess.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/aggregate/Clause.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/ApproveClauseCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/UpdateClauseCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/SubmitClauseForApprovalCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/ArchiveClauseCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/SetPremiumRuleCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/ReviseClauseCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/SubmitClauseApprovalCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/SetSignTemplateCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/SetClaimRuleCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/AddNotificationCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/RejectClauseApprovalCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/ApproveClauseApprovalCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/SetContractChangeRuleCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/InactivateClauseCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/ActivateClauseCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/CreateClauseCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/RemoveExclusionCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/UpdateCoverageCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/AddCoverageCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/RejectClauseCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/AddExclusionCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/RemoveCoverageCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/command/ChangeClauseStatusCommand.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/service/ClauseRuleValidationService.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/service/ClauseDomainService.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClauseApprovedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/CoverageAddedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClauseStatusChangedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClauseRevisedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/SignTemplateSetEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/CoverageRemovedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ExclusionAddedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClauseRejectedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ExclusionRemovedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClauseArchivedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/PremiumRuleSetEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClauseApprovalApprovedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClaimRuleSetEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClauseApprovalSubmittedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClauseCreatedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/NotificationAddedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ContractChangeRuleSetEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClauseApprovalRejectedEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClauseSubmittedForApprovalEvent.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-domain/src/main/java/com/titanium/clause/event/ClauseUpdatedEvent.java">
+</file>
+</checkstyle>

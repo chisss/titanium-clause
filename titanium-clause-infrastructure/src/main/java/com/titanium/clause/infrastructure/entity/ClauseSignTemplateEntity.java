@@ -2,7 +2,7 @@ package com.titanium.clause.infrastructure.entity;
 
 import java.time.LocalDateTime;
 
-import com.titanium.clause.domain.enums.SignTemplateType;
+import com.titanium.clause.common.enums.SignTemplateType;
 import com.titanium.metadata.enums.CommonStatus;
 
 import jakarta.persistence.Column;

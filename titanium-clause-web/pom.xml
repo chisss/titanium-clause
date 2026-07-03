@@ -29,6 +29,20 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- Query Module（读入口 VO 组装依赖 ClauseQueryResult 读侧契约） -->
+        <dependency>
+            <groupId>com.titanium</groupId>
+            <artifactId>titanium-clause-query</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Common Module（TenantContext 多租户上下文） -->
+        <dependency>
+            <groupId>com.titanium</groupId>
+            <artifactId>titanium-clause-common</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

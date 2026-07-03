@@ -7,7 +7,7 @@ import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.titanium.clause.domain.aggregate.Clause;
+import com.titanium.clause.aggregate.Clause;
 
 /**
  * Axon Framework配置类

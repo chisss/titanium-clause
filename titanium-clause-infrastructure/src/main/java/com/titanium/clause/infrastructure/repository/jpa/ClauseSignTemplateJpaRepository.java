@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.titanium.clause.domain.enums.SignTemplateType;
+import com.titanium.clause.common.enums.SignTemplateType;
 import com.titanium.clause.infrastructure.entity.ClauseSignTemplateEntity;
 
 /**

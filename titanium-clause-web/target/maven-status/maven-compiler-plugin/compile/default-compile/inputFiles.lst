@@ -1,8 +1,7 @@
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/response/ClauseResponse.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/controller/ClauseController.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/request/ActivateClauseRequest.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/request/UpdateClauseRequest.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/config/WebConfig.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/request/CreateClauseRequest.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/request/InactivateClauseRequest.java
-/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/interceptor/TenantInterceptor.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/InactivateClauseRequest.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/controller/ClauseController.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/config/WebConfig.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/ActivateClauseRequest.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/CreateClauseRequest.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/UpdateClauseRequest.java
+/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/interceptor/TenantInterceptor.java

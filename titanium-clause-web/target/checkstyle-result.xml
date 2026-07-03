@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="10.20.1">
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/config/WebConfig.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/controller/ClauseController.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/InactivateClauseRequest.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/CreateClauseRequest.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/ActivateClauseRequest.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/request/UpdateClauseRequest.java">
+</file>
+<file name="/Users/sunwei/titanium-project/titanium-clause/titanium-clause-web/src/main/java/com/titanium/clause/web/interceptor/TenantInterceptor.java">
+</file>
+</checkstyle>

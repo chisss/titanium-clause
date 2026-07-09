@@ -1,5 +1,7 @@
 package com.titanium.clause.common.enums;
 
+import com.titanium.metadata.enums.BaseEnum;
+
 import lombok.Getter;
 
 /**
@@ -9,7 +11,7 @@ import lombok.Getter;
  * 取值来源于领域实体注释“责任类型（重疾/医疗/意外/身故）”。
  */
 @Getter
-public enum CoverageType {
+public enum CoverageType implements BaseEnum {
     CRITICAL_ILLNESS(1, "CRITICAL_ILLNESS", "重疾", "重大疾病保障责任"),
     MEDICAL(2, "MEDICAL", "医疗", "医疗费用保障责任"),
     ACCIDENT(3, "ACCIDENT", "意外", "意外伤害保障责任"),
@@ -28,14 +30,9 @@ public enum CoverageType {
     }
 
     /**
-     * 根据 code 反查枚举，未匹配返回 null
+     * 根据 code 反查枚举，未匹配返回 null（统一范式入口，委托 {@link BaseEnum}）
      */
     public static CoverageType fromCode(String code) {
-        for (CoverageType type : values()) {
-            if (type.code.equals(code)) {
-                return type;
-            }
-        }
-        return null;
+        return BaseEnum.fromCode(CoverageType.class, code);
     }
 }

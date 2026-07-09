@@ -1,5 +1,7 @@
 package com.titanium.clause.common.enums;
 
+import com.titanium.metadata.enums.BaseEnum;
+
 import lombok.Getter;
 
 /**
@@ -8,7 +10,7 @@ import lombok.Getter;
  * 表示条款签署模板的签署方式，条款域内部使用，不跨微服务复用。
  */
 @Getter
-public enum SignTemplateType {
+public enum SignTemplateType implements BaseEnum {
     E_SIGN(1, "E_SIGN", "电子签名"),
     PAPER_SIGN(2, "PAPER_SIGN", "纸质签署");
 
@@ -23,14 +25,9 @@ public enum SignTemplateType {
     }
 
     /**
-     * 根据 code 反查枚举，未匹配返回 null
+     * 根据 code 反查枚举，未匹配返回 null（统一范式入口，委托 {@link BaseEnum}）
      */
     public static SignTemplateType fromCode(String code) {
-        for (SignTemplateType type : values()) {
-            if (type.code.equals(code)) {
-                return type;
-            }
-        }
-        return null;
+        return BaseEnum.fromCode(SignTemplateType.class, code);
     }
 }

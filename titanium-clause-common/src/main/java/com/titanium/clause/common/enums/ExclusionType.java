@@ -1,5 +1,7 @@
 package com.titanium.clause.common.enums;
 
+import com.titanium.metadata.enums.BaseEnum;
+
 import lombok.Getter;
 
 /**
@@ -9,7 +11,7 @@ import lombok.Getter;
  * 取值来源于领域实体注释“免责类型（故意行为/既往症/违法行为）”。
  */
 @Getter
-public enum ExclusionType {
+public enum ExclusionType implements BaseEnum {
     INTENTIONAL(1, "INTENTIONAL", "故意行为", "被保险人故意行为导致的损失"),
     PRE_EXISTING(2, "PRE_EXISTING", "既往症", "投保前已存在的疾病或状况"),
     ILLEGAL(3, "ILLEGAL", "违法行为", "违反法律法规的行为导致的损失");
@@ -27,14 +29,9 @@ public enum ExclusionType {
     }
 
     /**
-     * 根据 code 反查枚举，未匹配返回 null
+     * 根据 code 反查枚举，未匹配返回 null（统一范式入口，委托 {@link BaseEnum}）
      */
     public static ExclusionType fromCode(String code) {
-        for (ExclusionType type : values()) {
-            if (type.code.equals(code)) {
-                return type;
-            }
-        }
-        return null;
+        return BaseEnum.fromCode(ExclusionType.class, code);
     }
 }

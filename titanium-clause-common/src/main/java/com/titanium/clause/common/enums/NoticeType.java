@@ -1,5 +1,7 @@
 package com.titanium.clause.common.enums;
 
+import com.titanium.metadata.enums.BaseEnum;
+
 import lombok.Getter;
 
 /**
@@ -8,7 +10,7 @@ import lombok.Getter;
  * 表示条款告知书的类型（投保须知/免责说明/健康告知），条款域内部使用，不跨微服务复用。
  */
 @Getter
-public enum NoticeType {
+public enum NoticeType implements BaseEnum {
     INSURE_NOTICE(1, "INSURE_NOTICE", "投保须知"),
     EXCLUSION_NOTICE(2, "EXCLUSION_NOTICE", "免责说明"),
     HEALTH_NOTICE(3, "HEALTH_NOTICE", "健康告知");
@@ -24,14 +26,9 @@ public enum NoticeType {
     }
 
     /**
-     * 根据 code 反查枚举，未匹配返回 null
+     * 根据 code 反查枚举，未匹配返回 null（统一范式入口，委托 {@link BaseEnum}）
      */
     public static NoticeType fromCode(String code) {
-        for (NoticeType type : values()) {
-            if (type.code.equals(code)) {
-                return type;
-            }
-        }
-        return null;
+        return BaseEnum.fromCode(NoticeType.class, code);
     }
 }

@@ -17,7 +17,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @SpringBootApplication
 @EnableScheduling
-@EnableFeignClients(basePackages = "com.titanium.clause.api")
+@EnableFeignClients(basePackages = { "com.titanium.clause.api", "com.titanium.ruleengine.api" })
 @EntityScan(basePackages = { "com.titanium.clause.infrastructure.entity", "com.titanium.clause.query.view" })
 @EnableJpaRepositories(basePackages = { "com.titanium.clause.infrastructure.repository.jpa",
         "com.titanium.clause.query.repository" })

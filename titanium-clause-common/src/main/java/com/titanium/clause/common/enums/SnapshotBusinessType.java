@@ -1,5 +1,7 @@
 package com.titanium.clause.common.enums;
 
+import com.titanium.metadata.enums.BaseEnum;
+
 import lombok.Getter;
 
 /**
@@ -9,7 +11,7 @@ import lombok.Getter;
  * 语义为"业务单据类型"，与 metadata 的业务域类型 BusinessDomainType 不同，故独立定义。
  */
 @Getter
-public enum SnapshotBusinessType {
+public enum SnapshotBusinessType implements BaseEnum {
     POLICY(1, "POLICY", "保单"),
     ENDORSEMENT(2, "ENDORSEMENT", "批单");
 
@@ -24,14 +26,9 @@ public enum SnapshotBusinessType {
     }
 
     /**
-     * 根据 code 反查枚举，未匹配返回 null
+     * 根据 code 反查枚举，未匹配返回 null（统一范式入口，委托 {@link BaseEnum}）
      */
     public static SnapshotBusinessType fromCode(String code) {
-        for (SnapshotBusinessType type : values()) {
-            if (type.code.equals(code)) {
-                return type;
-            }
-        }
-        return null;
+        return BaseEnum.fromCode(SnapshotBusinessType.class, code);
     }
 }

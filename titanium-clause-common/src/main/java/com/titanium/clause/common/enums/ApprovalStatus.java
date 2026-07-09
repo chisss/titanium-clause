@@ -1,5 +1,7 @@
 package com.titanium.clause.common.enums;
 
+import com.titanium.metadata.enums.BaseEnum;
+
 import lombok.Getter;
 
 /**
@@ -8,7 +10,7 @@ import lombok.Getter;
  * 表示一条审批记录的处理结果状态，条款域内部使用，不跨微服务复用。
  */
 @Getter
-public enum ApprovalStatus {
+public enum ApprovalStatus implements BaseEnum {
     PENDING(1, "PENDING", "待审批"),
     APPROVED(2, "APPROVED", "审批通过"),
     REJECTED(3, "REJECTED", "审批驳回");
@@ -24,14 +26,9 @@ public enum ApprovalStatus {
     }
 
     /**
-     * 根据 code 反查枚举，未匹配返回 null
+     * 根据 code 反查枚举，未匹配返回 null（统一范式入口，委托 {@link BaseEnum}）
      */
     public static ApprovalStatus fromCode(String code) {
-        for (ApprovalStatus status : values()) {
-            if (status.code.equals(code)) {
-                return status;
-            }
-        }
-        return null;
+        return BaseEnum.fromCode(ApprovalStatus.class, code);
     }
 }

@@ -2,6 +2,7 @@ package com.titanium.clause.web.request;
 
 import java.time.LocalDateTime;
 
+import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import lombok.Data;
@@ -35,6 +36,11 @@ public class UpdateClauseRequest {
      * 条款描述
      */
     private String description;
+
+    /**
+     * 险种类型
+     */
+    private InsuranceType insuranceType;
 
     /**
      * 生效日期

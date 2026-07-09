@@ -325,8 +325,8 @@ public class Clause extends BaseAggregate {
     @CommandHandler
     public void handle(UpdateCoverageCommand command) {
         validateDraftStatus("更新保险责任");
-        if (!this.coverages.containsKey(command.coverage().getId())) {
-            throw new ClauseOperationNotAllowedException("保险责任不存在: " + command.coverage().getId());
+        if (!this.coverages.containsKey(command.coverage().id())) {
+            throw new ClauseOperationNotAllowedException("保险责任不存在: " + command.coverage().id());
         }
         AggregateLifecycle.apply(new CoverageAddedEvent(command.clauseId(), command.coverage(), command.updatedBy(),
                 LocalDateTime.now()));
@@ -506,7 +506,7 @@ public class Clause extends BaseAggregate {
         if (this.coverages == null) {
             this.coverages = new HashMap<>();
         }
-        this.coverages.put(event.coverage().getId(), event.coverage());
+        this.coverages.put(event.coverage().id(), event.coverage());
         this.updatedBy = event.updatedBy();
         this.updateTime = event.updatedAt();
     }
@@ -525,7 +525,7 @@ public class Clause extends BaseAggregate {
         if (this.exclusions == null) {
             this.exclusions = new HashMap<>();
         }
-        this.exclusions.put(event.exclusion().getId(), event.exclusion());
+        this.exclusions.put(event.exclusion().id(), event.exclusion());
         this.updatedBy = event.updatedBy();
         this.updateTime = event.updatedAt();
     }

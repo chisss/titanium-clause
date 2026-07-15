@@ -5,34 +5,19 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 import com.titanium.clause.aggregate.Clause;
-import com.titanium.clause.common.exception.ClauseDuplicateException;
 import com.titanium.clause.common.exception.ClauseExpiredException;
 import com.titanium.clause.common.exception.ClauseInvalidStatusException;
-import com.titanium.clause.repository.ClauseRepository;
-import com.titanium.clause.valueobject.ClauseCode;
-import com.titanium.clause.valueobject.ClauseId;
 import com.titanium.metadata.enums.clause.ClauseEnum;
-
-import lombok.RequiredArgsConstructor;
 
 /**
  * 条款领域服务
+ * <p>
+ * 纯领域服务：只承载条款相关的无依赖业务规则（数据校验、状态流转规则），
+ * 不依赖仓储/Port，取数（唯一性/存在性）与发命令属应用层编排职责。
+ * </p>
  */
-@RequiredArgsConstructor
 @Component
 public class ClauseDomainService {
-    private final ClauseRepository clauseRepository;
-
-    /**
-     * 验证条款代码是否唯一
-     */
-    public void validateClauseCodeUnique(ClauseCode clauseCode, String tenantId, ClauseId excludeClauseId) {
-        var existingClause = clauseRepository.findByCode(clauseCode, tenantId);
-        if (existingClause.isPresent()
-                && (excludeClauseId == null || !existingClause.get().getClauseId().equals(excludeClauseId))) {
-            throw new ClauseDuplicateException("条款代码已存在: " + clauseCode.getValue());
-        }
-    }
 
     /**
      * 验证条款有效期
@@ -115,25 +100,25 @@ public class ClauseDomainService {
     }
 
     /**
-     * 检查条款是否可以激活
+     * 检查条款状态是否可以激活
      */
-    public boolean canActivateClause(Clause clause) {
-        return clause.getStatus() == ClauseEnum.ClauseStatus.DRAFT
-                || clause.getStatus() == ClauseEnum.ClauseStatus.INACTIVE;
+    public boolean canActivateClause(ClauseEnum.ClauseStatus status) {
+        return status == ClauseEnum.ClauseStatus.DRAFT
+                || status == ClauseEnum.ClauseStatus.INACTIVE;
     }
 
     /**
-     * 检查条款是否可以删除
+     * 检查条款状态是否可以删除
      */
-    public boolean canDeleteClause(Clause clause) {
-        return clause.getStatus() == ClauseEnum.ClauseStatus.DRAFT
-                || clause.getStatus() == ClauseEnum.ClauseStatus.INACTIVE;
+    public boolean canDeleteClause(ClauseEnum.ClauseStatus status) {
+        return status == ClauseEnum.ClauseStatus.DRAFT
+                || status == ClauseEnum.ClauseStatus.INACTIVE;
     }
 
     /**
      * 检查条款是否处于活跃状态
      */
-    public boolean isClauseActive(Clause clause) {
-        return clause.getStatus() == ClauseEnum.ClauseStatus.ACTIVE;
+    public boolean isClauseActive(ClauseEnum.ClauseStatus status) {
+        return status == ClauseEnum.ClauseStatus.ACTIVE;
     }
 }

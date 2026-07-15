@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.titanium.clause.event.ClauseApprovedEvent;
 import com.titanium.clause.event.ClauseArchivedEvent;
 import com.titanium.clause.event.ClauseCreatedEvent;
+import com.titanium.clause.event.ClauseDeletedEvent;
 import com.titanium.clause.event.ClauseRejectedEvent;
 import com.titanium.clause.event.ClauseStatusChangedEvent;
 import com.titanium.clause.event.ClauseSubmittedForApprovalEvent;
@@ -174,5 +175,21 @@ public class ClauseProjectionEventHandler {
             view.setUpdateTime(event.archivedAt());
             clauseViewRepository.save(view);
         }, () -> log.warn("[读模型投影] 条款归档失败：未找到读模型记录 clauseId={}", event.clauseId()));
+    }
+
+    /**
+     * 投影条款删除事件：物理移除读模型记录
+     * <p>
+     * 草稿条款硬删除，写侧聚合已 {@code markDeleted}，读模型同步物理删除，保持读写一致。
+     * </p>
+     */
+    @EventHandler
+    @Transactional
+    public void on(ClauseDeletedEvent event) {
+        log.info("[读模型投影] 条款删除: clauseId={}", event.clauseId());
+
+        clauseViewRepository.findById(event.clauseId().getValue())
+                .ifPresentOrElse(clauseViewRepository::delete,
+                        () -> log.warn("[读模型投影] 条款删除失败：未找到读模型记录 clauseId={}", event.clauseId()));
     }
 }

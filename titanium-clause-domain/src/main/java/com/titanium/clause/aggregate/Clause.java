@@ -20,6 +20,7 @@ import com.titanium.clause.command.ApproveClauseCommand;
 import com.titanium.clause.command.ArchiveClauseCommand;
 import com.titanium.clause.command.ChangeClauseStatusCommand;
 import com.titanium.clause.command.CreateClauseCommand;
+import com.titanium.clause.command.DeleteClauseCommand;
 import com.titanium.clause.command.InactivateClauseCommand;
 import com.titanium.clause.command.RejectClauseCommand;
 import com.titanium.clause.command.RemoveCoverageCommand;
@@ -48,6 +49,7 @@ import com.titanium.clause.event.ClaimRuleSetEvent;
 import com.titanium.clause.event.ClauseApprovedEvent;
 import com.titanium.clause.event.ClauseArchivedEvent;
 import com.titanium.clause.event.ClauseCreatedEvent;
+import com.titanium.clause.event.ClauseDeletedEvent;
 import com.titanium.clause.event.ClauseRejectedEvent;
 import com.titanium.clause.event.ClauseRevisedEvent;
 import com.titanium.clause.event.ClauseStatusChangedEvent;
@@ -300,6 +302,21 @@ public class Clause extends BaseAggregate {
     }
 
     /**
+     * 删除条款命令处理器
+     * <p>
+     * 仅允许硬删除草稿（DRAFT）状态的条款，恢复「删草稿」能力。 已生效/停用条款应走归档（{@link ArchiveClauseCommand}）软删，不可硬删。
+     * </p>
+     */
+    @CommandHandler
+    public void handle(DeleteClauseCommand command) {
+        if (this.status != ClauseEnum.ClauseStatus.DRAFT) {
+            throw new ClauseInvalidStatusException(
+                    "仅草稿状态的条款可删除，当前状态: " + this.status.getName() + "，已生效条款请使用归档");
+        }
+        AggregateLifecycle.apply(new ClauseDeletedEvent(command.clauseId(), command.deletedBy(), LocalDateTime.now()));
+    }
+
+    /**
      * 添加保险责任命令处理器
      */
     @CommandHandler
@@ -499,6 +516,14 @@ public class Clause extends BaseAggregate {
         this.status = ClauseEnum.ClauseStatus.ARCHIVED;
         this.updatedBy = event.archivedBy();
         this.updateTime = event.archivedAt();
+    }
+
+    @EventSourcingHandler
+    public void on(ClauseDeletedEvent event) {
+        // 草稿硬删除：标记聚合已删除，后续命令不可再路由到本聚合
+        this.updatedBy = event.deletedBy();
+        this.updateTime = event.deletedAt();
+        AggregateLifecycle.markDeleted();
     }
 
     @EventSourcingHandler

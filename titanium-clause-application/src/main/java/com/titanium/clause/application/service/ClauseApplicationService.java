@@ -1,13 +1,11 @@
 package com.titanium.clause.application.service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.titanium.clause.aggregate.Clause;
 import com.titanium.clause.command.ActivateClauseCommand;
 import com.titanium.clause.command.AddCoverageCommand;
 import com.titanium.clause.command.AddExclusionCommand;
@@ -15,6 +13,7 @@ import com.titanium.clause.command.AddNotificationCommand;
 import com.titanium.clause.command.ApproveClauseCommand;
 import com.titanium.clause.command.ArchiveClauseCommand;
 import com.titanium.clause.command.CreateClauseCommand;
+import com.titanium.clause.command.DeleteClauseCommand;
 import com.titanium.clause.command.InactivateClauseCommand;
 import com.titanium.clause.command.RejectClauseCommand;
 import com.titanium.clause.command.RemoveCoverageCommand;
@@ -37,7 +36,8 @@ import com.titanium.clause.entity.ContractChangeRule;
 import com.titanium.clause.entity.Coverage;
 import com.titanium.clause.entity.Exclusion;
 import com.titanium.clause.entity.PremiumRule;
-import com.titanium.clause.repository.ClauseRepository;
+import com.titanium.clause.query.repository.ClauseViewRepository;
+import com.titanium.clause.query.view.ClauseView;
 import com.titanium.clause.service.ClauseDomainService;
 import com.titanium.clause.valueobject.ClauseCode;
 import com.titanium.clause.valueobject.ClauseId;
@@ -59,9 +59,9 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class ClauseApplicationService {
-    private final CommandGateway      commandGateway;
-    private final ClauseDomainService clauseDomainService;
-    private final ClauseRepository    clauseRepository;
+    private final CommandGateway        commandGateway;
+    private final ClauseDomainService   clauseDomainService;
+    private final ClauseViewRepository  clauseViewRepository;
 
     /**
      * 创建条款
@@ -70,8 +70,8 @@ public class ClauseApplicationService {
     public ClauseId createClause(String clauseCode, String clauseName, ClauseEnum.ClauseType clauseType, String content,
                                  String description, InsuranceType insuranceType, LocalDateTime effectiveDate,
                                  LocalDateTime expiryDate, String createdBy, String tenantId) {
-        Optional<Clause> existingClause = clauseRepository.findByCode(ClauseCode.fromString(clauseCode), tenantId);
-        if (existingClause.isPresent()) {
+        // 唯一性校验：写侧收敛为纯事件溯源后，取数走 CQRS 读模型 t_clause_view（最终一致）
+        if (clauseViewRepository.findByClauseCodeAndTenantId(clauseCode, tenantId).isPresent()) {
             throw new ClauseDuplicateException("条款代码已存在: " + clauseCode);
         }
 
@@ -97,14 +97,14 @@ public class ClauseApplicationService {
                              String description, InsuranceType insuranceType, LocalDateTime effectiveDate,
                              LocalDateTime expiryDate, String updatedBy, String tenantId) {
         ClauseId id = ClauseId.fromString(clauseId);
-        Clause clause = findClauseOrThrow(id, tenantId);
+        ClauseView view = findClauseOrThrow(id, tenantId);
 
-        clauseDomainService.validateClauseUpdateStatus(clause.getStatus());
-        clauseDomainService.validateClauseData(clause.getClauseCode().getValue(), clauseName, clauseType, content,
+        clauseDomainService.validateClauseUpdateStatus(view.getStatus());
+        clauseDomainService.validateClauseData(view.getClauseCode(), clauseName, clauseType, content,
                 effectiveDate, expiryDate);
 
         UpdateClauseCommand command = new UpdateClauseCommand(
-                id, clause.getClauseCode(), ClauseName.fromString(clauseName),
+                id, ClauseCode.fromString(view.getClauseCode()), ClauseName.fromString(clauseName),
                 clauseType, content, description, insuranceType,
                 effectiveDate, expiryDate, tenantId, updatedBy
         );
@@ -118,10 +118,10 @@ public class ClauseApplicationService {
     @Transactional
     public void activateClause(String clauseId, String activatedBy, String tenantId) {
         ClauseId id = ClauseId.fromString(clauseId);
-        Clause clause = findClauseOrThrow(id, tenantId);
+        ClauseView view = findClauseOrThrow(id, tenantId);
 
-        if (!clauseDomainService.canActivateClause(clause)) {
-            throw new ClauseInvalidStatusException("条款状态不允许激活: " + clause.getStatus());
+        if (!clauseDomainService.canActivateClause(view.getStatus())) {
+            throw new ClauseInvalidStatusException("条款状态不允许激活: " + view.getStatus());
         }
 
         commandGateway.sendAndWait(new ActivateClauseCommand(id, activatedBy));
@@ -300,23 +300,38 @@ public class ClauseApplicationService {
 
     /**
      * 删除条款
+     * <p>
+     * 写侧纯事件溯源，按当前状态分派删除语义：
+     * <ul>
+     * <li>DRAFT（草稿）→ {@link DeleteClauseCommand} 硬删除（恢复「删草稿」能力，读模型物理移除）；</li>
+     * <li>ACTIVE/INACTIVE（生效/停用）→ {@link ArchiveClauseCommand} 归档软删（保留读模型、状态置 ARCHIVED）；</li>
+     * <li>其它状态（待审批/已过期/已归档）→ 不允许删除。</li>
+     * </ul>
+     * 前置状态校验由聚合内聚裁决，应用层仅按状态选择对应命令。
+     * </p>
      */
     @Transactional
     public void deleteClause(String clauseId, String tenantId) {
         ClauseId id = ClauseId.fromString(clauseId);
-        Clause clause = findClauseOrThrow(id, tenantId);
+        ClauseView view = findClauseOrThrow(id, tenantId);
 
-        if (!clauseDomainService.canDeleteClause(clause)) {
-            throw new ClauseInvalidStatusException("条款状态不允许删除: " + clause.getStatus());
+        ClauseEnum.ClauseStatus status = view.getStatus();
+        if (status == ClauseEnum.ClauseStatus.DRAFT) {
+            commandGateway.sendAndWait(new DeleteClauseCommand(id, "system"));
+        } else if (status == ClauseEnum.ClauseStatus.ACTIVE || status == ClauseEnum.ClauseStatus.INACTIVE) {
+            commandGateway.sendAndWait(new ArchiveClauseCommand(id, "system"));
+        } else {
+            throw new ClauseInvalidStatusException("条款状态不允许删除: " + status);
         }
-
-        clauseRepository.deleteById(id, tenantId);
     }
 
     // ===== 私有方法 =====
 
-    private Clause findClauseOrThrow(ClauseId clauseId, String tenantId) {
-        return clauseRepository.findById(clauseId, tenantId)
+    /**
+     * 存在性校验（编排职责）：查 CQRS 读模型 t_clause_view，不存在直接抛异常。
+     */
+    private ClauseView findClauseOrThrow(ClauseId clauseId, String tenantId) {
+        return clauseViewRepository.findByClauseIdAndTenantId(clauseId.getValue(), tenantId)
                 .orElseThrow(() -> new ClauseNotFoundException("条款不存在: " + clauseId.getValue()));
     }
 }

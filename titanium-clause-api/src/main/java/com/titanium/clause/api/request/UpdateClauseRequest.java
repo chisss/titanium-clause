@@ -1,4 +1,4 @@
-package com.titanium.clause.api.dto;
+package com.titanium.clause.api.request;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +11,7 @@ import lombok.Data;
  * 更新条款远程入参 DTO（跨服务 Feign 契约）
  */
 @Data
-public class UpdateClauseDTO {
+public class UpdateClauseRequest {
     /** 条款名称 */
     private String                clauseName;
 

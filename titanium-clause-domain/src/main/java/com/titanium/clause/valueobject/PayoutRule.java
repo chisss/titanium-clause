@@ -28,6 +28,7 @@ import com.titanium.metadata.enums.clause.PayoutType;
  * @param reimbursementRatio 报销比例 0-1（REIMBURSEMENT 时使用）
  * @param maxPayout          单次赔付上限（按损/报销封顶，可选）
  * @param ruleSetCode        规则引擎规则集编码（可选）；非空时复杂赔付计算委托规则引擎
+ * @param periodicTerms      周期给付条款（PERIODIC 时使用：年金给付频率/起领/期限/保证年期）
  */
 public record PayoutRule(
         PayoutType payoutType,
@@ -36,8 +37,30 @@ public record PayoutRule(
         Deductible deductible,
         BigDecimal reimbursementRatio,
         BigDecimal maxPayout,
-        String ruleSetCode
+        String ruleSetCode,
+        PeriodicPayoutTerms periodicTerms
 ) {
+
+    /**
+     * 周期给付条款（年金/两全生存金按期给付）。
+     * 承载年金给付的结构化参数：给付频率、起领时点、给付期限、保证领取年期。
+     *
+     * @param frequency         给付频率（如 MONTHLY/QUARTERLY/SEMI_ANNUAL/ANNUAL 的编码）
+     * @param startAge          起领年龄（达此年龄开始给付，可空）
+     * @param startAfterYears   保单生效后满 N 年起领（与 startAge 二选一，可空）
+     * @param payoutYears       给付年限（定期年金；终身给付则为空）
+     * @param guaranteedYears   保证领取年期（被保人身故仍保证给付的年数，可空）
+     * @param amountPerPeriod   每期给付金额（定额年金；与保额挂钩时可空由计算得出）
+     */
+    public record PeriodicPayoutTerms(
+            String frequency,
+            Integer startAge,
+            Integer startAfterYears,
+            Integer payoutYears,
+            Integer guaranteedYears,
+            BigDecimal amountPerPeriod
+    ) {
+    }
 
     /**
      * 构造定额给付规则（寿险身故、重疾确诊即赔）
@@ -46,7 +69,7 @@ public record PayoutRule(
      * @return 赔付规则
      */
     public static PayoutRule fixed(BigDecimal fixedAmount) {
-        return new PayoutRule(PayoutType.FIXED, fixedAmount, null, null, null, null, null);
+        return new PayoutRule(PayoutType.FIXED, fixedAmount, null, null, null, null, null, null);
     }
 
     /**
@@ -56,7 +79,7 @@ public record PayoutRule(
      * @return 赔付规则
      */
     public static PayoutRule proportional(BigDecimal proportion) {
-        return new PayoutRule(PayoutType.PROPORTIONAL, null, proportion, null, null, null, null);
+        return new PayoutRule(PayoutType.PROPORTIONAL, null, proportion, null, null, null, null, null);
     }
 
     /**
@@ -67,7 +90,7 @@ public record PayoutRule(
      * @return 赔付规则
      */
     public static PayoutRule actualLoss(Deductible deductible, BigDecimal maxPayout) {
-        return new PayoutRule(PayoutType.ACTUAL_LOSS, null, null, deductible, null, maxPayout, null);
+        return new PayoutRule(PayoutType.ACTUAL_LOSS, null, null, deductible, null, maxPayout, null, null);
     }
 
     /**
@@ -79,7 +102,18 @@ public record PayoutRule(
      * @return 赔付规则
      */
     public static PayoutRule reimbursement(BigDecimal reimbursementRatio, Deductible deductible, BigDecimal maxPayout) {
-        return new PayoutRule(PayoutType.REIMBURSEMENT, null, null, deductible, reimbursementRatio, maxPayout, null);
+        return new PayoutRule(PayoutType.REIMBURSEMENT, null, null, deductible, reimbursementRatio, maxPayout, null,
+                null);
+    }
+
+    /**
+     * 构造周期给付规则（年金生存给付、两全生存金按期领取）。
+     *
+     * @param terms 周期给付条款（频率/起领/期限/保证年期/每期金额）
+     * @return 赔付规则
+     */
+    public static PayoutRule periodic(PeriodicPayoutTerms terms) {
+        return new PayoutRule(PayoutType.PERIODIC, null, null, null, null, null, null, terms);
     }
 
     /**

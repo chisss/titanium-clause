@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
 
 import com.titanium.clause.port.RuleEnginePort;
 import com.titanium.ruleengine.api.RuleEngineApi;
-import com.titanium.ruleengine.api.dto.RuleExecutionResultDTO;
 import com.titanium.ruleengine.api.response.ApiResponse;
+import com.titanium.ruleengine.api.response.RuleExecutionResultResponse;
 import com.titanium.ruleengine.common.enums.RuleDecision;
 
 /**
@@ -31,7 +31,7 @@ class RuleEngineAdapterTest {
     @DisplayName("规则引擎 PASS 决策翻译为通过")
     void shouldTranslatePassDecision() {
         RuleEngineApi api = mock(RuleEngineApi.class);
-        RuleExecutionResultDTO dto = RuleExecutionResultDTO.builder().decision(RuleDecision.PASS).build();
+        RuleExecutionResultResponse dto = RuleExecutionResultResponse.builder().decision(RuleDecision.PASS).build();
         when(api.execute(eq("UW_001"), any(), eq("T-1"))).thenReturn(ApiResponse.success(dto));
         RuleEngineAdapter adapter = new RuleEngineAdapter(api);
 
@@ -45,7 +45,7 @@ class RuleEngineAdapterTest {
     @DisplayName("规则引擎 REJECT 决策翻译为不通过")
     void shouldTranslateRejectDecision() {
         RuleEngineApi api = mock(RuleEngineApi.class);
-        RuleExecutionResultDTO dto = RuleExecutionResultDTO.builder().decision(RuleDecision.REJECT).build();
+        RuleExecutionResultResponse dto = RuleExecutionResultResponse.builder().decision(RuleDecision.REJECT).build();
         when(api.execute(any(), any(), any())).thenReturn(ApiResponse.success(dto));
         RuleEngineAdapter adapter = new RuleEngineAdapter(api);
 

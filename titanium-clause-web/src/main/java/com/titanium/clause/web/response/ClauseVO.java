@@ -11,7 +11,7 @@ import lombok.Data;
  * 条款响应 VO（后台/端上展示契约）
  */
 @Data
-public class ClauseResponse {
+public class ClauseVO {
     /** 条款ID */
     private String                  clauseId;
 

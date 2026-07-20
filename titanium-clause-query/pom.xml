@@ -72,6 +72,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- MapStruct（投影事件 → 读模型字段映射；processor path 由 titanium-parent 统一提供） -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

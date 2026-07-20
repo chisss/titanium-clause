@@ -1,4 +1,4 @@
-package com.titanium.clause.web.request;
+package com.titanium.clause.web.dto;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +11,7 @@ import lombok.Data;
  * 更新条款请求
  */
 @Data
-public class UpdateClauseRequest {
+public class UpdateClauseDTO {
     /**
      * 条款代码
      */

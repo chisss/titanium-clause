@@ -1,5 +1,8 @@
 package com.titanium.clause.query.handler.projection;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.stereotype.Component;
@@ -13,8 +16,18 @@ import com.titanium.clause.event.ClauseRejectedEvent;
 import com.titanium.clause.event.ClauseStatusChangedEvent;
 import com.titanium.clause.event.ClauseSubmittedForApprovalEvent;
 import com.titanium.clause.event.ClauseUpdatedEvent;
+import com.titanium.clause.event.CoverageAddedEvent;
+import com.titanium.clause.event.CoverageRemovedEvent;
+import com.titanium.clause.event.PremiumRuleSetEvent;
+import com.titanium.clause.query.mapper.ClauseRuleViewMapper;
+import com.titanium.clause.query.mapper.ClauseViewMapper;
 import com.titanium.clause.query.repository.ClauseViewRepository;
+import com.titanium.clause.query.repository.CoverageViewRepository;
+import com.titanium.clause.query.repository.PremiumRuleViewRepository;
 import com.titanium.clause.query.view.ClauseView;
+import com.titanium.clause.query.view.CoverageView;
+import com.titanium.clause.query.view.PremiumRuleView;
+import com.titanium.common.jpa.BaseView;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import lombok.RequiredArgsConstructor;
@@ -36,7 +49,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ClauseProjectionEventHandler {
 
-    private final ClauseViewRepository clauseViewRepository;
+    private final ClauseViewRepository      clauseViewRepository;
+    private final ClauseViewMapper          clauseViewMapper;
+    private final CoverageViewRepository    coverageViewRepository;
+    private final PremiumRuleViewRepository premiumRuleViewRepository;
+    private final ClauseRuleViewMapper      clauseRuleViewMapper;
 
     /**
      * 投影条款创建事件：新建读模型记录
@@ -50,25 +67,12 @@ public class ClauseProjectionEventHandler {
                 .findByClauseIdAndTenantId(event.clauseId().getValue(), event.tenantId())
                 .orElseGet(ClauseView::new);
 
-        view.setClauseId(event.clauseId().getValue());
-        view.setClauseCode(event.clauseCode() != null ? event.clauseCode().getValue() : null);
-        view.setClauseName(event.clauseName() != null ? event.clauseName().getValue() : null);
-        view.setClauseType(event.clauseType());
-        view.setContent(event.content());
-        view.setDescription(event.description());
-        view.setInsuranceType(event.insuranceType());
-        view.setClauseVersion(event.version() != null ? event.version().getValue() : null);
-        view.setParentClauseId(event.parentClauseId() != null ? event.parentClauseId().getValue() : null);
-        view.setEffectiveDate(event.effectiveDate());
-        view.setExpiryDate(event.expiryDate());
+        // 事件字段 → 读模型的结构映射收敛到 MapStruct（含值对象拆解），消除逐字段 set
+        clauseViewMapper.applyCreated(view, event);
+        // status 含 DRAFT 默认回落语义，IGNORE 策略下空源会被跳过而非回落，故仍由处理器判定
         view.setStatus(event.status() != null ? event.status() : ClauseEnum.ClauseStatus.DRAFT);
-        view.setCreatedBy(event.createdBy());
-        view.setUpdatedBy(event.updatedBy());
-        view.setTenantId(event.tenantId());
-        if (view.getCreateTime() == null) {
-            view.setCreateTime(event.createdAt());
-        }
-        view.setUpdateTime(event.createdAt());
+        // 审计时间戳取自事件时间，含"仅首次"语义，留处理器（不下沉映射器）
+        stampAuditTime(view, event.createdAt());
 
         clauseViewRepository.save(view);
     }
@@ -191,5 +195,103 @@ public class ClauseProjectionEventHandler {
         clauseViewRepository.findById(event.clauseId().getValue())
                 .ifPresentOrElse(clauseViewRepository::delete,
                         () -> log.warn("[读模型投影] 条款删除失败：未找到读模型记录 clauseId={}", event.clauseId()));
+    }
+
+    // ==================== 规则组件投影：保险责任 / 缴费规则 ====================
+
+    /**
+     * 投影保险责任添加事件：新建/更新责任读模型记录（addCoverage 与 updateCoverage 均发此事件，故 upsert）
+     * <p>
+     * 责任事件未携带租户ID，从父条款读模型 {@code ClauseView} 继承，保持责任读模型的租户隔离与条款一致。
+     * 父条款读模型缺失时告警跳过，由 DLQ 重试（事件乱序保障）。
+     * </p>
+     */
+    @EventHandler
+    @Transactional
+    public void on(CoverageAddedEvent event) {
+        String clauseId = event.clauseId().getValue();
+        String coverageId = event.coverage().id() != null ? event.coverage().id().getValue() : null;
+        log.info("[读模型投影] 保险责任添加: clauseId={}, coverageId={}", clauseId, coverageId);
+
+        resolveTenantId(clauseId).ifPresentOrElse(tenantId -> {
+            CoverageView view = coverageViewRepository.findByCoverageIdAndTenantId(coverageId, tenantId)
+                    .orElseGet(CoverageView::new);
+            // 责任实体 → 读模型的结构映射（含 JSON 序列化）收敛到 MapStruct，消除逐字段 set
+            clauseRuleViewMapper.applyCoverage(view, event.coverage());
+            view.setClauseId(clauseId);
+            view.setTenantId(tenantId);
+            stampAuditTime(view, event.updatedAt());
+            coverageViewRepository.save(view);
+        }, () -> log.warn("[读模型投影] 保险责任添加失败：未找到父条款读模型 clauseId={}（可能事件乱序，将由DLQ重试）", clauseId));
+    }
+
+    /**
+     * 投影保险责任移除事件：物理删除责任读模型记录
+     */
+    @EventHandler
+    @Transactional
+    public void on(CoverageRemovedEvent event) {
+        String clauseId = event.clauseId().getValue();
+        String coverageId = event.coverageId().getValue();
+        log.info("[读模型投影] 保险责任移除: clauseId={}, coverageId={}", clauseId, coverageId);
+
+        resolveTenantId(clauseId)
+                .flatMap(tenantId -> coverageViewRepository.findByCoverageIdAndTenantId(coverageId, tenantId))
+                .ifPresentOrElse(coverageViewRepository::delete,
+                        () -> log.warn("[读模型投影] 保险责任移除失败：未找到责任读模型 clauseId={}, coverageId={}", clauseId,
+                                coverageId));
+    }
+
+    /**
+     * 投影缴费规则设置事件：upsert 费率读模型记录（一条款一费率规则，主键即 clauseId）
+     * <p>
+     * 费率事件未携带租户ID，从父条款读模型继承。父条款读模型缺失时告警跳过，由 DLQ 重试。
+     * </p>
+     */
+    @EventHandler
+    @Transactional
+    public void on(PremiumRuleSetEvent event) {
+        String clauseId = event.clauseId().getValue();
+        log.info("[读模型投影] 缴费规则设置: clauseId={}", clauseId);
+
+        resolveTenantId(clauseId).ifPresentOrElse(tenantId -> {
+            PremiumRuleView view = premiumRuleViewRepository.findByClauseIdAndTenantId(clauseId, tenantId)
+                    .orElseGet(PremiumRuleView::new);
+            // 费率实体 → 读模型的结构映射（含四维费率表 JSON 序列化）收敛到 MapStruct，消除逐字段 set
+            clauseRuleViewMapper.applyPremiumRule(view, event.premiumRule());
+            view.setClauseId(clauseId);
+            view.setTenantId(tenantId);
+            stampAuditTime(view, event.updatedAt());
+            premiumRuleViewRepository.save(view);
+        }, () -> log.warn("[读模型投影] 缴费规则设置失败：未找到父条款读模型 clauseId={}（可能事件乱序，将由DLQ重试）", clauseId));
+    }
+
+    /**
+     * 从父条款读模型解析租户ID（规则组件事件未携带 tenantId，继承自所属条款）
+     *
+     * @param clauseId 条款ID
+     * @return 租户ID，父条款读模型缺失时为空
+     */
+    private Optional<String> resolveTenantId(String clauseId) {
+        return clauseViewRepository.findById(clauseId).map(ClauseView::getTenantId);
+    }
+
+    // ==================== 读模型审计时间戳（含"仅首次"语义，不下沉映射器） ====================
+
+    /**
+     * 统一填充读模型审计时间戳：createTime 仅首次创建时写入、updateTime 每次投影刷新。
+     * <p>
+     * 该逻辑含"仅首次设置"语义，属投影处理器职责，不下沉 MapStruct 映射器。时间取自事件时间（业务时间），
+     * 由调用方传入，而非 {@code now()}，保持与条款域既有投影语义一致。
+     * </p>
+     *
+     * @param view 目标读模型
+     * @param eventTime 事件时间（作为创建/更新时间戳）
+     */
+    private void stampAuditTime(BaseView view, LocalDateTime eventTime) {
+        if (view.getCreateTime() == null) {
+            view.setCreateTime(eventTime);
+        }
+        view.setUpdateTime(eventTime);
     }
 }

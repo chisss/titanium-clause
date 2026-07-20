@@ -1,4 +1,4 @@
-package com.titanium.clause.web.request;
+package com.titanium.clause.web.dto;
 
 import lombok.Data;
 
@@ -6,7 +6,7 @@ import lombok.Data;
  * 激活条款请求
  */
 @Data
-public class ActivateClauseRequest {
+public class ActivateClauseDTO {
     /**
      * 更新人
      */

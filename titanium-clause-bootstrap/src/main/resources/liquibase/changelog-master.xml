@@ -6,5 +6,6 @@
     <include file="classpath:liquibase/ddl/axon_event_store_202607091700_weisun_ddl.sql"/>
     <include file="classpath:liquibase/ddl/clause_init_202607091700_weisun_ddl.sql"/>
     <include file="classpath:liquibase/ddl/clause_view_202607091700_weisun_ddl.sql"/>
-    <include file="classpath:liquibase/dml/clause_life_coverage_seed_202607110200_weisun_dml.sql"/>
+    <include file="classpath:liquibase/ddl/t_premium_rule_view_202607171800_weisun_ddl.sql"/>
+    <!-- 寿险责任种子改由 LifeClauseSeedInitializer 走聚合命令建立（读写模型同源），旧直插 t_coverage 孤儿表种子已移除 -->
 </databaseChangeLog>

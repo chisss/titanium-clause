@@ -12,18 +12,19 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.titanium.clause.api.dto.ActivateClauseDTO;
-import com.titanium.clause.api.dto.ClauseDTO;
-import com.titanium.clause.api.dto.CreateClauseDTO;
-import com.titanium.clause.api.dto.InactivateClauseDTO;
-import com.titanium.clause.api.dto.UpdateClauseDTO;
+import com.titanium.clause.api.request.ActivateClauseRequest;
+import com.titanium.clause.api.request.CreateClauseRequest;
+import com.titanium.clause.api.request.InactivateClauseRequest;
+import com.titanium.clause.api.request.UpdateClauseRequest;
+import com.titanium.clause.api.response.ClauseResponse;
+import com.titanium.clause.api.response.PremiumRuleResponse;
 
 /**
  * 条款聚合对外契约（Feign）
  * <p>
  * 命名主键为聚合根 {@code Clause}，承载条款的跨服务远程调用。契约路径遵从内部服务远程调用规约
  * {@code /api/v1/clauses}，由 web 层 {@code ClauseApiProvider} 实现，路径不得篡改。所有方法透传
- * {@code X-Tenant-Id} 请求头贯穿多租户上下文，入出参一律使用 api 层 DTO。
+ * {@code X-Tenant-Id} 请求头贯穿多租户上下文，入参使用 Request、出参使用 Response。
  * </p>
  * <p>
  * 同域多个 {@code @FeignClient} 的 {@code name} 相同，必须各配唯一 {@code contextId}，否则
@@ -38,25 +39,25 @@ public interface ClauseApi {
     /**
      * 创建条款
      *
-     * @param dto 创建条款 DTO
+     * @param request 创建条款 Request
      * @param tenantId 租户ID
-     * @return 条款DTO
+     * @return 条款 Response
      */
     @PostMapping
-    ClauseDTO createClause(@RequestBody CreateClauseDTO dto,
+    ClauseResponse createClause(@RequestBody CreateClauseRequest request,
                            @RequestHeader("X-Tenant-Id") String tenantId);
 
     /**
      * 更新条款
      *
      * @param clauseId 条款ID
-     * @param dto 更新条款 DTO
+     * @param request 更新条款 Request
      * @param tenantId 租户ID
-     * @return 条款DTO
+     * @return 条款 Response
      */
     @PutMapping("/{clauseId}")
-    ClauseDTO updateClause(@PathVariable("clauseId") String clauseId,
-                           @RequestBody UpdateClauseDTO dto,
+    ClauseResponse updateClause(@PathVariable("clauseId") String clauseId,
+                           @RequestBody UpdateClauseRequest request,
                            @RequestHeader("X-Tenant-Id") String tenantId);
 
     /**
@@ -64,10 +65,10 @@ public interface ClauseApi {
      *
      * @param clauseId 条款ID
      * @param tenantId 租户ID
-     * @return 条款DTO
+     * @return 条款 Response
      */
     @GetMapping("/{clauseId}")
-    ClauseDTO getClauseById(@PathVariable("clauseId") String clauseId,
+    ClauseResponse getClauseById(@PathVariable("clauseId") String clauseId,
                             @RequestHeader("X-Tenant-Id") String tenantId);
 
     /**
@@ -76,36 +77,60 @@ public interface ClauseApi {
      * @param status 状态码
      * @param clauseType 条款/险种类型码
      * @param tenantId 租户ID
-     * @return 条款DTO列表
+     * @return 条款 Response 列表
      */
     @GetMapping
-    List<ClauseDTO> getClauses(@RequestParam(required = false) String status,
+    List<ClauseResponse> getClauses(@RequestParam(required = false) String status,
                                @RequestParam(required = false) String clauseType,
                                @RequestHeader("X-Tenant-Id") String tenantId);
+
+    /**
+     * 查询条款的缴费规则（含四维年龄性别费率表，支持版本精确匹配）
+     * <p>
+     * billing 域保费计算与费率表查询的数据入口：经条款读模型（{@code t_premium_rule_view}）返回结构化费率，
+     * 未配置费率规则时返回 {@code null}。
+     * </p>
+     * <p>
+     * <b>版本查询扩展（BILL-2）</b>：{@code tableCode} 和 {@code version} 可选参数支持按费率表编码+版本精确匹配。
+     * 若均为 {@code null} 则返回该条款的默认费率规则（向后兼容）；若指定 {@code tableCode} 但 {@code version} 为 {@code null}，
+     * 则返回该 tableCode 的最新版本；若均指定则精确匹配，未找到时返回 {@code null}。
+     * </p>
+     *
+     * @param clauseId  条款ID
+     * @param tableCode 费率表编码（可选，支持多版本费率表）
+     * @param version   费率表版本（可选，配合 tableCode 使用）
+     * @param tenantId  租户ID
+     * @return 缴费规则 Response，未配置时为 {@code null}
+     */
+    @GetMapping("/{clauseId}/premium-rule")
+    PremiumRuleResponse getPremiumRuleByClauseId(@PathVariable("clauseId") String clauseId,
+                                            @RequestParam(required = false) String tableCode,
+                                            @RequestParam(required = false) String version,
+                                            @RequestHeader("X-Tenant-Id") String tenantId);
 
     /**
      * 激活条款
      *
      * @param clauseId 条款ID
-     * @param dto 激活条款 DTO
+     * @param request 激活条款 Request
      * @param tenantId 租户ID
-     * @return 条款DTO
+     * @return 条款 Response
      */
     @PutMapping("/{clauseId}/activate")
-    ClauseDTO activateClause(@PathVariable("clauseId") String clauseId,
-                             @RequestBody ActivateClauseDTO dto,
+    ClauseResponse activateClause(@PathVariable("clauseId") String clauseId,
+                             @RequestBody ActivateClauseRequest request,
                              @RequestHeader("X-Tenant-Id") String tenantId);
 
     /**
      * 停用条款
      *
      * @param clauseId 条款ID
-     * @param dto 停用条款 DTO
+     * @param request 停用条款 Request
      * @param tenantId 租户ID
-     * @return 条款DTO
+     * @return 条款 Response
      */
     @PutMapping("/{clauseId}/inactivate")
-    ClauseDTO inactivateClause(@PathVariable("clauseId") String clauseId,
-                               @RequestBody InactivateClauseDTO dto,
+    ClauseResponse inactivateClause(@PathVariable("clauseId") String clauseId,
+                               @RequestBody InactivateClauseRequest request,
                                @RequestHeader("X-Tenant-Id") String tenantId);
 }

@@ -20,12 +20,12 @@ import com.titanium.clause.common.context.TenantContext;
 import com.titanium.clause.common.enums.ApprovalType;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.valueobject.ClauseId;
+import com.titanium.clause.web.dto.ActivateClauseDTO;
+import com.titanium.clause.web.dto.CreateClauseDTO;
+import com.titanium.clause.web.dto.InactivateClauseDTO;
+import com.titanium.clause.web.dto.UpdateClauseDTO;
 import com.titanium.clause.web.mapper.ClauseWebMapper;
-import com.titanium.clause.web.request.ActivateClauseRequest;
-import com.titanium.clause.web.request.CreateClauseRequest;
-import com.titanium.clause.web.request.InactivateClauseRequest;
-import com.titanium.clause.web.request.UpdateClauseRequest;
-import com.titanium.clause.web.response.ClauseResponse;
+import com.titanium.clause.web.response.ClauseVO;
 import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
@@ -35,7 +35,7 @@ import lombok.RequiredArgsConstructor;
  * 条款控制器（后台/端上 HTTP 入口）
  * <p>
  * 面向管理后台/端上，路径 {@code /web/v1/clauses}，入参为 web 层 {@code XxxRequest}、出参
- * {@link ClauseResponse}，<b>不 implements ClauseApi</b>（远程契约由 {@code ClauseApiProvider} 承接）。
+ * {@link ClauseVO}，<b>不 implements ClauseApi</b>（远程契约由 {@code ClauseApiProvider} 承接）。
  * 写入口经 {@link ClauseApplicationService} 编排（校验/取号），读入口经 {@link ClauseAppQueryService}
  * 查读模型返回 {@link ClauseQueryResult}，由 {@link ClauseWebMapper} 转为展示 VO。Controller 零业务逻辑。
  * </p>
@@ -53,13 +53,13 @@ public class ClauseController {
      * 创建条款
      */
     @PostMapping
-    public ResponseEntity<ClauseResponse> createClause(@RequestBody CreateClauseRequest request) {
+    public ResponseEntity<ClauseVO> createClause(@RequestBody CreateClauseDTO request) {
         String tenantId = TenantContext.getCurrentTenant();
         ClauseId clauseId = clauseApplicationService.createClause(
                 request.getClauseCode(), request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
                 request.getEffectiveDate(), request.getExpiryDate(), request.getCreatedBy(), tenantId);
-        ClauseResponse response = findVoOrThrow(clauseId.getValue(), tenantId, "创建条款失败");
+        ClauseVO response = findVoOrThrow(clauseId.getValue(), tenantId, "创建条款失败");
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -67,7 +67,7 @@ public class ClauseController {
      * 根据ID查询条款
      */
     @GetMapping("/{clauseId}")
-    public ResponseEntity<ClauseResponse> getClauseById(@PathVariable String clauseId) {
+    public ResponseEntity<ClauseVO> getClauseById(@PathVariable String clauseId) {
         String tenantId = TenantContext.getCurrentTenant();
         return ResponseEntity.ok(findVoOrThrow(clauseId, tenantId, "条款不存在"));
     }
@@ -76,7 +76,7 @@ public class ClauseController {
      * 根据条款代码查询条款
      */
     @GetMapping("/code/{clauseCode}")
-    public ResponseEntity<ClauseResponse> getClauseByCode(@PathVariable String clauseCode) {
+    public ResponseEntity<ClauseVO> getClauseByCode(@PathVariable String clauseCode) {
         String tenantId = TenantContext.getCurrentTenant();
         ClauseQueryResult result = clauseAppQueryService.findByCode(clauseCode, tenantId)
                 .orElseThrow(() -> new IllegalStateException("条款不存在"));
@@ -87,8 +87,8 @@ public class ClauseController {
      * 更新条款
      */
     @PutMapping("/{clauseId}")
-    public ResponseEntity<ClauseResponse> updateClause(@PathVariable String clauseId,
-                                                       @RequestBody UpdateClauseRequest request) {
+    public ResponseEntity<ClauseVO> updateClause(@PathVariable String clauseId,
+                                                       @RequestBody UpdateClauseDTO request) {
         String tenantId = TenantContext.getCurrentTenant();
         clauseApplicationService.updateClause(clauseId, request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
@@ -101,7 +101,7 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/activate")
     public ResponseEntity<Void> activateClause(@PathVariable String clauseId,
-                                               @RequestBody ActivateClauseRequest request) {
+                                               @RequestBody ActivateClauseDTO request) {
         String tenantId = TenantContext.getCurrentTenant();
         clauseApplicationService.activateClause(clauseId, request.getUpdatedBy(), tenantId);
         return ResponseEntity.noContent().build();
@@ -112,7 +112,7 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/inactivate")
     public ResponseEntity<Void> inactivateClause(@PathVariable String clauseId,
-                                                 @RequestBody InactivateClauseRequest request) {
+                                                 @RequestBody InactivateClauseDTO request) {
         String tenantId = TenantContext.getCurrentTenant();
         clauseApplicationService.inactivateClause(clauseId, request.getUpdatedBy(), tenantId);
         return ResponseEntity.noContent().build();
@@ -179,9 +179,9 @@ public class ClauseController {
      * 根据状态查询条款列表
      */
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<ClauseResponse>> getClausesByStatus(@PathVariable String status) {
+    public ResponseEntity<List<ClauseVO>> getClausesByStatus(@PathVariable String status) {
         String tenantId = TenantContext.getCurrentTenant();
-        List<ClauseResponse> responses = clauseAppQueryService
+        List<ClauseVO> responses = clauseAppQueryService
                 .findByStatus(ClauseEnum.ClauseStatus.fromCode(status), tenantId)
                 .stream().map(clauseWebMapper::toVO).toList();
         return ResponseEntity.ok(responses);
@@ -191,9 +191,9 @@ public class ClauseController {
      * 根据类型查询条款列表
      */
     @GetMapping("/type/{clauseType}")
-    public ResponseEntity<List<ClauseResponse>> getClausesByType(@PathVariable String clauseType) {
+    public ResponseEntity<List<ClauseVO>> getClausesByType(@PathVariable String clauseType) {
         String tenantId = TenantContext.getCurrentTenant();
-        List<ClauseResponse> responses = clauseAppQueryService
+        List<ClauseVO> responses = clauseAppQueryService
                 .findByType(InsuranceType.fromCode(clauseType), tenantId)
                 .stream().map(clauseWebMapper::toVO).toList();
         return ResponseEntity.ok(responses);
@@ -203,9 +203,9 @@ public class ClauseController {
      * 查询所有条款
      */
     @GetMapping
-    public ResponseEntity<List<ClauseResponse>> getAllClauses() {
+    public ResponseEntity<List<ClauseVO>> getAllClauses() {
         String tenantId = TenantContext.getCurrentTenant();
-        List<ClauseResponse> responses = clauseAppQueryService.findAll(tenantId)
+        List<ClauseVO> responses = clauseAppQueryService.findAll(tenantId)
                 .stream().map(clauseWebMapper::toVO).toList();
         return ResponseEntity.ok(responses);
     }
@@ -223,7 +223,7 @@ public class ClauseController {
     /**
      * 按ID查询读模型并转展示 VO，未命中抛异常
      */
-    private ClauseResponse findVoOrThrow(String clauseId, String tenantId, String message) {
+    private ClauseVO findVoOrThrow(String clauseId, String tenantId, String message) {
         ClauseQueryResult result = clauseAppQueryService.findById(clauseId, tenantId)
                 .orElseThrow(() -> new IllegalStateException(message));
         return clauseWebMapper.toVO(result);

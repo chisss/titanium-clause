@@ -1,4 +1,4 @@
-package com.titanium.clause.api.dto;
+package com.titanium.clause.api.response;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +11,7 @@ import lombok.Data;
  * 条款数据传输对象
  */
 @Data
-public class ClauseDTO {
+public class ClauseResponse {
     /** 条款ID */
     private String clauseId;
     /** 条款代码 */

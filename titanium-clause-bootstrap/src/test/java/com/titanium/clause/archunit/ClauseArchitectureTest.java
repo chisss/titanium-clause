@@ -65,6 +65,33 @@ class ClauseArchitectureTest extends AbstractArchitectureGuardTest {
         super.apiInterfacesMustBeNamedByAggregate();
     }
 
+    /**
+     * 启用「api 层使用 Request/Response 而非 DTO」（2026-07-19 命名新规）。
+     * <p>
+     * 条款域 api 层已弃用 DTO：写入参 {@code CreateClauseRequest}/{@code UpdateClauseRequest} 等落
+     * {@code clause.api.request}，读出参 {@code ClauseResponse}/{@code PremiumRuleResponse}/{@code AgeGenderRateResponse}
+     * 落 {@code clause.api.response}，api 层无 DTO 后缀类型。
+     * </p>
+     */
+    @Test
+    @Override
+    protected void apiLayerUsesRequestResponseNotDto() {
+        super.apiLayerUsesRequestResponseNotDto();
+    }
+
+    /**
+     * 启用「web 层使用 DTO/VO 而非 Request/Response」（2026-07-19 命名新规）。
+     * <p>
+     * 条款域 web 层前端入参已改名 {@code CreateClauseDTO}/{@code UpdateClauseDTO} 等落 {@code clause.web.dto}，
+     * 出参 {@code ClauseVO} 用 VO，web 层无 Request/Response 后缀类型。
+     * </p>
+     */
+    @Test
+    @Override
+    protected void webLayerUsesDtoVoNotRequest() {
+        super.webLayerUsesDtoVoNotRequest();
+    }
+
     // 注：不启用严格隔离断言 webShouldNotDependOnDomainCommandsOrAggregates。
     // 现行 api/web 规范允许 web 依赖 command/query（但不碰 aggregate），故回退为基类默认 @Disabled。
 }

@@ -15,6 +15,10 @@ import com.titanium.clause.valueobject.AgeGenderRate;
  * {@link #ncdCoefficient} 无赔款优待系数（车险）、{@link #occupationCoefficients} 职业系数表（意外险）。
  * <b>常规费率走结构化字段，复杂费率计算走 {@link #ruleSetCode} + 规则引擎。</b>原标量 {@link #premiumRate} 保留向后兼容。
  * </p>
+ * <p>
+ * 🆕 扩展费率表版本管理：{@link #tableCode} 费率表编码、{@link #tableVersion} 费率表版本。支持同一条款下配置多版本费率表，
+ * billing 域保费计算可按 tableCode+version 精确查询特定版本费率（BILL-2）。
+ * </p>
  *
  * @param calculationMethod       保费计算方式（固定金额/费率计算）
  * @param basePremium             基础保费（固定金额时使用）
@@ -27,6 +31,8 @@ import com.titanium.clause.valueobject.AgeGenderRate;
  * @param ncdCoefficient          无赔款优待系数(NCD)
  * @param occupationCoefficients  职业系数表（key=职业类别码）
  * @param ruleSetCode             规则引擎规则集编码（可选，复杂费率委托规则引擎）
+ * @param tableCode               费率表编码（可选，支持多版本费率表管理）
+ * @param tableVersion            费率表版本（可选，配合 tableCode 使用）
  * @param createdAt               创建时间
  * @param updatedAt               更新时间
  */
@@ -42,6 +48,8 @@ public record PremiumRule(
         BigDecimal ncdCoefficient,
         Map<String, BigDecimal> occupationCoefficients,
         String ruleSetCode,
+        String tableCode,
+        String tableVersion,
         LocalDateTime createdAt,
         LocalDateTime updatedAt) {
 
@@ -65,6 +73,28 @@ public record PremiumRule(
     public BigDecimal resolveRate(int age, String gender) {
         for (AgeGenderRate ageGenderRate : ageGenderRates) {
             if (ageGenderRate.matches(age, gender)) {
+                return ageGenderRate.rate();
+            }
+        }
+        if (baseRate != null) {
+            return baseRate;
+        }
+        return premiumRate;
+    }
+
+    /**
+     * 四维费率解析：按 年龄 × 性别 × 缴费期 × 保障期 精确命中费率表条目。
+     * 寿险费率表定价维度，未命中回退基础费率、再回退标量费率。
+     *
+     * @param age          投保年龄
+     * @param gender       性别 M/F
+     * @param paymentTerm  缴费期（年数）
+     * @param coverageTerm 保障期（年数）
+     * @return 适用费率，无任何配置时返回 null
+     */
+    public BigDecimal resolveRate(int age, String gender, Integer paymentTerm, Integer coverageTerm) {
+        for (AgeGenderRate ageGenderRate : ageGenderRates) {
+            if (ageGenderRate.matches(age, gender, paymentTerm, coverageTerm)) {
                 return ageGenderRate.rate();
             }
         }

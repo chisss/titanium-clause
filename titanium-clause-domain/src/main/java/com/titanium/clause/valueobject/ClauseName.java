@@ -2,24 +2,13 @@ package com.titanium.clause.valueobject;
 
 import java.io.Serializable;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
 /**
  * 条款名称值对象
+ *
+ * <p>record 实现：Jackson 原生支持 record 反序列化（规范 3.4.1 值对象须为 record），
+ * 事件溯源 payload {@code {"value":"..."}} 可正确回读。</p>
  */
-@EqualsAndHashCode
-@Getter
-public class ClauseName implements Serializable {
-    private final String value;
-
-    /**
-     * 构造函数
-     * @param value 条款名称值
-     */
-    public ClauseName(String value) {
-        this.value = value;
-    }
+public record ClauseName(String value) implements Serializable {
 
     /**
      * 创建条款名称

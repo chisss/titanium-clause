@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.titanium.clause.query.result.ClauseQueryResult;
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 /**
  * 条款查询服务（CQRS 读侧）
@@ -33,7 +33,7 @@ public interface ClauseQueryService {
     /**
      * 根据险种类型查询条款列表
      */
-    List<ClauseQueryResult> getClausesByType(InsuranceType insuranceType, String tenantId);
+    List<ClauseQueryResult> getClausesByType(InsuranceProductType insuranceType, String tenantId);
 
     /**
      * 查询全部条款列表

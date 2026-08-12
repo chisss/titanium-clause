@@ -18,8 +18,8 @@ import com.titanium.clause.valueobject.ClauseCode;
 import com.titanium.clause.valueobject.ClauseId;
 import com.titanium.clause.valueobject.ClauseName;
 import com.titanium.clause.valueobject.Version;
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 /**
  * 条款删除命令聚合根测试
@@ -48,7 +48,7 @@ class ClauseDeleteTest {
     private ClauseCreatedEvent draftCreatedEvent() {
         LocalDateTime now = LocalDateTime.now();
         return new ClauseCreatedEvent(CLAUSE_ID, ClauseCode.fromString("CL-001"), ClauseName.fromString("测试条款"),
-                ClauseEnum.ClauseType.MAIN, "条款内容", ClauseEnum.ClauseStatus.DRAFT, "描述", InsuranceType.PROPERTY,
+                ClauseEnum.ClauseType.MAIN, "条款内容", ClauseEnum.ClauseStatus.DRAFT, "描述", InsuranceProductType.HOUSEHOLD_PROPERTY,
                 Version.of("V1.0"), null, now, now.plusYears(1), Map.of(), Map.of(), null, null, null, TENANT_ID,
                 "creator", now, "creator", now);
     }

@@ -38,7 +38,7 @@ public class ClauseKafkaEventPublisher {
      */
     @EventHandler
     public void on(ClauseStatusChangedEvent event) {
-        publish(ClauseConstants.TOPIC_CLAUSE_STATUS_CHANGED, event.clauseId().getValue(), event);
+        publish(ClauseConstants.TOPIC_CLAUSE_STATUS_CHANGED, event.clauseId().value(), event);
     }
 
     /**
@@ -46,7 +46,7 @@ public class ClauseKafkaEventPublisher {
      */
     @EventHandler
     public void on(ClauseApprovedEvent event) {
-        publish(ClauseConstants.TOPIC_CLAUSE_STATUS_CHANGED, event.clauseId().getValue(), event);
+        publish(ClauseConstants.TOPIC_CLAUSE_STATUS_CHANGED, event.clauseId().value(), event);
     }
 
     /**

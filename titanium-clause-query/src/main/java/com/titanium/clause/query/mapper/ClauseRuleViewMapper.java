@@ -80,7 +80,7 @@ public interface ClauseRuleViewMapper {
     /** 责任ID值对象 → 字符串（空安全；复用于 coverageId 与 mainCoverageId） */
     @Named("coverageIdValue")
     default String coverageIdValue(CoverageId coverageId) {
-        return coverageId != null ? coverageId.getValue() : null;
+        return coverageId != null ? coverageId.value() : null;
     }
 
     /** 复杂值对象/集合 → JSON 字符串（null 安全，与投影处理器 toJson 语义一致） */

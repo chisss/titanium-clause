@@ -3,24 +3,14 @@ package com.titanium.clause.valueobject;
 import java.io.Serializable;
 import java.util.UUID;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
 /**
  * 条款ID值对象
+ *
+ * <p>record 实现：Jackson 原生支持 record 反序列化（规范 3.4.1 值对象须为 record），
+ * 事件溯源 payload {@code {"value":"..."}} 可正确回读，规避 class 型单参构造无 {@code @JsonCreator}
+ * 导致的反序列化失败。</p>
  */
-@EqualsAndHashCode
-@Getter
-public class ClauseId implements Serializable {
-    private final String value;
-
-    /**
-     * 构造函数
-     * @param value 条款ID值
-     */
-    public ClauseId(String value) {
-        this.value = value;
-    }
+public record ClauseId(String value) implements Serializable {
 
     /**
      * 创建条款ID

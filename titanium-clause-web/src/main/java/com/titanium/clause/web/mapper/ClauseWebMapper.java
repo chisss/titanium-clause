@@ -1,11 +1,13 @@
 package com.titanium.clause.web.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.titanium.clause.api.response.ClauseResponse;
 import com.titanium.clause.api.response.PremiumRuleResponse;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.query.result.PremiumRuleQueryResult;
+import com.titanium.clause.web.dto.CreateClauseDTO;
 import com.titanium.clause.web.response.ClauseVO;
 
 /**
@@ -35,6 +37,28 @@ public interface ClauseWebMapper {
      * @return 条款 Response
      */
     ClauseResponse toResponse(ClauseQueryResult result);
+
+    /**
+     * 创建请求 + 生成的条款ID → 展示 VO（写入口回显用，避免同步读最终一致投影）
+     * <p>
+     * 条款读模型经 {@code @EventHandler} 异步投影，命令 {@code sendAndWait} 返回后投影未必落库，
+     * 若立即查读模型会因未命中而误报「创建失败」。此处直接以已受理的写入语义回显：新建条款状态恒为
+     * {@code DRAFT}，其余字段取自请求，{@code clauseId} 为写侧生成值。审计时间戳由投影补齐，回显暂缺无碍前端跳转。
+     * </p>
+     *
+     * @param request  创建条款请求
+     * @param clauseId 写侧生成的条款ID
+     * @return 条款展示 VO
+     */
+    @Mapping(target = "clauseId", source = "clauseId")
+    @Mapping(target = "status", constant = "DRAFT")
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "parentClauseId", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "tenantId", ignore = true)
+    ClauseVO toCreatedVO(CreateClauseDTO request, String clauseId);
 
     /**
      * 缴费规则读模型结果 → 对外 Response（Provider 用，供 billing 费率查询）

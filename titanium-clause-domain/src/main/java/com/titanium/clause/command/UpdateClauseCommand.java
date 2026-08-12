@@ -7,8 +7,8 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 import com.titanium.clause.valueobject.ClauseCode;
 import com.titanium.clause.valueobject.ClauseId;
 import com.titanium.clause.valueobject.ClauseName;
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 /**
  * 更新条款命令
@@ -21,7 +21,7 @@ public record UpdateClauseCommand(
         ClauseEnum.ClauseType clauseType,
         String content,
         String description,
-        InsuranceType insuranceType,
+        InsuranceProductType insuranceType,
         LocalDateTime effectiveDate,
         LocalDateTime expiryDate,
         String tenantId,

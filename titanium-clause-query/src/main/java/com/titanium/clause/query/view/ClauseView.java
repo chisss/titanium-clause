@@ -3,8 +3,8 @@ package com.titanium.clause.query.view;
 import java.time.LocalDateTime;
 
 import com.titanium.common.jpa.BaseView;
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -69,7 +69,7 @@ public class ClauseView extends BaseView {
     /** 险种类型 */
     @Enumerated(EnumType.STRING)
     @Column(name = "insurance_type", length = 50)
-    private InsuranceType           insuranceType;
+    private InsuranceProductType           insuranceType;
 
     /** 父条款ID */
     @Column(name = "parent_clause_id", length = 36)

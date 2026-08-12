@@ -36,37 +36,10 @@ public class ClauseDomainService {
      */
     public void checkClauseExpired(Clause clause) {
         if (clause.getStatus() == ClauseEnum.ClauseStatus.EXPIRED) {
-            throw new ClauseExpiredException("条款已过期: " + clause.getClauseName().getValue());
+            throw new ClauseExpiredException("条款已过期: " + clause.getClauseName().value());
         }
         if (clause.getExpiryDate() != null && clause.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new ClauseExpiredException("条款已过期: " + clause.getClauseName().getValue());
-        }
-    }
-
-    /**
-     * 验证条款状态变更是否合法
-     */
-    public void validateStatusChange(ClauseEnum.ClauseStatus currentStatus, ClauseEnum.ClauseStatus newStatus) {
-        if (currentStatus == newStatus) {
-            return;
-        }
-
-        boolean isValid = switch (currentStatus) {
-            case DRAFT -> newStatus == ClauseEnum.ClauseStatus.PENDING_APPROVAL
-                    || newStatus == ClauseEnum.ClauseStatus.ACTIVE
-                    || newStatus == ClauseEnum.ClauseStatus.INACTIVE;
-            case PENDING_APPROVAL -> newStatus == ClauseEnum.ClauseStatus.ACTIVE
-                    || newStatus == ClauseEnum.ClauseStatus.DRAFT;
-            case ACTIVE -> newStatus == ClauseEnum.ClauseStatus.INACTIVE
-                    || newStatus == ClauseEnum.ClauseStatus.EXPIRED
-                    || newStatus == ClauseEnum.ClauseStatus.ARCHIVED;
-            case INACTIVE -> newStatus == ClauseEnum.ClauseStatus.ACTIVE;
-            case EXPIRED, ARCHIVED -> false;
-        };
-
-        if (!isValid) {
-            throw new ClauseInvalidStatusException(
-                    "条款状态从 " + currentStatus.getName() + " 不允许变更为 " + newStatus.getName());
+            throw new ClauseExpiredException("条款已过期: " + clause.getClauseName().value());
         }
     }
 
@@ -101,18 +74,24 @@ public class ClauseDomainService {
 
     /**
      * 检查条款状态是否可以激活
+     * <p>
+     * 仅停用（INACTIVE）条款可直接重新激活；草稿（DRAFT）不可直接激活，必须经审批流程
+     * （提交审批 → 审批通过）才能生效，防止绕过审批的责任完整性校验。
+     * </p>
      */
     public boolean canActivateClause(ClauseEnum.ClauseStatus status) {
-        return status == ClauseEnum.ClauseStatus.DRAFT
-                || status == ClauseEnum.ClauseStatus.INACTIVE;
+        return status == ClauseEnum.ClauseStatus.INACTIVE;
     }
 
     /**
      * 检查条款状态是否可以删除
+     * <p>
+     * 仅草稿（DRAFT）可硬删除，与聚合根 {@code DeleteClauseCommand} 的删除前置条件一致；
+     * 已生效/停用条款应走归档软删，不可硬删。
+     * </p>
      */
     public boolean canDeleteClause(ClauseEnum.ClauseStatus status) {
-        return status == ClauseEnum.ClauseStatus.DRAFT
-                || status == ClauseEnum.ClauseStatus.INACTIVE;
+        return status == ClauseEnum.ClauseStatus.DRAFT;
     }
 
     /**

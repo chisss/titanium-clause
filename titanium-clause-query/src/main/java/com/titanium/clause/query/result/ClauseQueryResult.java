@@ -2,8 +2,8 @@ package com.titanium.clause.query.result;
 
 import java.time.LocalDateTime;
 
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 import lombok.Data;
 
@@ -33,7 +33,7 @@ public class ClauseQueryResult {
     /** 版本号 */
     private String                  version;
     /** 险种类型 */
-    private InsuranceType           insuranceType;
+    private InsuranceProductType           insuranceType;
     /** 父条款ID */
     private String                  parentClauseId;
     /** 生效日期 */

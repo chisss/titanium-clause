@@ -7,12 +7,14 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.titanium.clause.common.constant.ClauseConstants;
+import com.titanium.clause.common.tenant.PlatformTenantSupport;
 import com.titanium.clause.query.repository.ClauseViewRepository;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.query.service.ClauseQueryService;
 import com.titanium.clause.query.view.ClauseView;
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +23,8 @@ import lombok.extern.slf4j.Slf4j;
  * 条款查询服务实现（CQRS 读侧）
  * <p>
  * 查询读模型表 {@code t_clause_view}（由 {@code ClauseProjectionEventHandler} 投影维护），
- * 组装为稳定 DTO 返回，禁止直接返回读模型实体。
+ * 组装为稳定 DTO 返回，禁止直接返回读模型实体。查询采用「当前租户 + 平台公共租户
+ * ({@link ClauseConstants#PLATFORM_TENANT})」的平台默认回退，使各业务租户可选用平台预置公共条款模板。
  * </p>
  */
 @Service
@@ -34,33 +37,36 @@ public class ClauseQueryServiceImpl implements ClauseQueryService {
     @Override
     @Transactional(readOnly = true)
     public Optional<ClauseQueryResult> getClauseById(String clauseId, String tenantId) {
-        return clauseViewRepository.findByClauseIdAndTenantId(clauseId, tenantId).map(this::toResult);
+        return clauseViewRepository.findByClauseIdAndTenantIdIn(clauseId, PlatformTenantSupport.scope(tenantId))
+                .map(this::toResult);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<ClauseQueryResult> getClauseByCode(String clauseCode, String tenantId) {
-        return clauseViewRepository.findByClauseCodeAndTenantId(clauseCode, tenantId).map(this::toResult);
+        return clauseViewRepository.findByClauseCodeAndTenantIdIn(clauseCode, PlatformTenantSupport.scope(tenantId))
+                .map(this::toResult);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ClauseQueryResult> getClausesByStatus(ClauseEnum.ClauseStatus status, String tenantId) {
-        return clauseViewRepository.findByStatusAndTenantId(status, tenantId).stream().map(this::toResult)
-                .collect(Collectors.toList());
+        return clauseViewRepository.findByStatusAndTenantIdIn(status, PlatformTenantSupport.scope(tenantId)).stream()
+                .map(this::toResult).collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ClauseQueryResult> getClausesByType(InsuranceType insuranceType, String tenantId) {
-        return clauseViewRepository.findByInsuranceTypeAndTenantId(insuranceType, tenantId).stream().map(this::toResult)
-                .collect(Collectors.toList());
+    public List<ClauseQueryResult> getClausesByType(InsuranceProductType insuranceType, String tenantId) {
+        return clauseViewRepository.findByInsuranceProductTypeAndTenantIdIn(insuranceType, PlatformTenantSupport.scope(tenantId))
+                .stream().map(this::toResult).collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ClauseQueryResult> getAllClauses(String tenantId) {
-        return clauseViewRepository.findByTenantId(tenantId).stream().map(this::toResult).collect(Collectors.toList());
+        return clauseViewRepository.findByTenantIdIn(PlatformTenantSupport.scope(tenantId)).stream().map(this::toResult)
+                .collect(Collectors.toList());
     }
 
     // ==================== 转换方法：读模型 → DTO ====================

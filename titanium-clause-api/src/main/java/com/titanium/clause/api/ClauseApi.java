@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.titanium.clause.api.request.ActivateClauseRequest;
@@ -17,6 +16,7 @@ import com.titanium.clause.api.request.CreateClauseRequest;
 import com.titanium.clause.api.request.InactivateClauseRequest;
 import com.titanium.clause.api.request.UpdateClauseRequest;
 import com.titanium.clause.api.response.ClauseResponse;
+import com.titanium.clause.api.response.CoverageResponse;
 import com.titanium.clause.api.response.PremiumRuleResponse;
 
 /**
@@ -32,8 +32,7 @@ import com.titanium.clause.api.response.PremiumRuleResponse;
  * （Client 后缀）为老式命名的冗余契约，已重命名为本接口。
  * </p>
  */
-@FeignClient(name = "titanium-clause-service", contextId = "clauseApi")
-@RequestMapping("/api/v1/clauses")
+@FeignClient(name = "titanium-clause-service", contextId = "clauseApi", path = "/api/v1/clauses")
 public interface ClauseApi {
 
     /**
@@ -133,4 +132,20 @@ public interface ClauseApi {
     ClauseResponse inactivateClause(@PathVariable("clauseId") String clauseId,
                                @RequestBody InactivateClauseRequest request,
                                @RequestHeader("X-Tenant-Id") String tenantId);
+
+    /**
+     * 查询条款下的保险责任清单（供 policy 出单装配责任快照、claim 定责调用）
+     * <p>
+     * 出单时 policy 域取此清单冻结为保单责任快照（L4），含责任保额、免赔、赔付比例与责任级等待期——
+     * 这些是理赔定责的依据。结构化触发条件与赔付规则中的跨域必需要素已拍平为标量字段，
+     * 调用方无需依赖条款域内部值对象类型。
+     * </p>
+     *
+     * @param clauseId 条款ID
+     * @param tenantId 租户ID
+     * @return 保险责任列表，无责任时为空列表
+     */
+    @GetMapping("/{clauseId}/coverages")
+    List<CoverageResponse> getCoveragesByClauseId(@PathVariable("clauseId") String clauseId,
+                                             @RequestHeader("X-Tenant-Id") String tenantId);
 }

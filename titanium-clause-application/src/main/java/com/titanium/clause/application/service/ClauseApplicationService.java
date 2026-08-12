@@ -1,4 +1,6 @@
 package com.titanium.clause.application.service;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
+
 
 import java.time.LocalDateTime;
 
@@ -45,7 +47,6 @@ import com.titanium.clause.valueobject.ClauseName;
 import com.titanium.clause.valueobject.CoverageId;
 import com.titanium.clause.valueobject.ExclusionId;
 import com.titanium.clause.valueobject.Version;
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import lombok.RequiredArgsConstructor;
@@ -68,7 +69,7 @@ public class ClauseApplicationService {
      */
     @Transactional
     public ClauseId createClause(String clauseCode, String clauseName, ClauseEnum.ClauseType clauseType, String content,
-                                 String description, InsuranceType insuranceType, LocalDateTime effectiveDate,
+                                 String description, InsuranceProductType insuranceType, LocalDateTime effectiveDate,
                                  LocalDateTime expiryDate, String createdBy, String tenantId) {
         // 唯一性校验：写侧收敛为纯事件溯源后，取数走 CQRS 读模型 t_clause_view（最终一致）
         if (clauseViewRepository.findByClauseCodeAndTenantId(clauseCode, tenantId).isPresent()) {
@@ -94,7 +95,7 @@ public class ClauseApplicationService {
      */
     @Transactional
     public void updateClause(String clauseId, String clauseName, ClauseEnum.ClauseType clauseType, String content,
-                             String description, InsuranceType insuranceType, LocalDateTime effectiveDate,
+                             String description, InsuranceProductType insuranceType, LocalDateTime effectiveDate,
                              LocalDateTime expiryDate, String updatedBy, String tenantId) {
         ClauseId id = ClauseId.fromString(clauseId);
         ClauseView view = findClauseOrThrow(id, tenantId);
@@ -331,7 +332,7 @@ public class ClauseApplicationService {
      * 存在性校验（编排职责）：查 CQRS 读模型 t_clause_view，不存在直接抛异常。
      */
     private ClauseView findClauseOrThrow(ClauseId clauseId, String tenantId) {
-        return clauseViewRepository.findByClauseIdAndTenantId(clauseId.getValue(), tenantId)
-                .orElseThrow(() -> new ClauseNotFoundException("条款不存在: " + clauseId.getValue()));
+        return clauseViewRepository.findByClauseIdAndTenantId(clauseId.value(), tenantId)
+                .orElseThrow(() -> new ClauseNotFoundException("条款不存在: " + clauseId.value()));
     }
 }

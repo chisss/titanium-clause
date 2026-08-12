@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 
+import com.titanium.clause.common.tenant.PlatformTenantSupport;
 import com.titanium.clause.query.repository.CoverageViewRepository;
 import com.titanium.clause.query.repository.PremiumRuleViewRepository;
 import com.titanium.clause.query.result.CoverageQueryResult;
@@ -44,7 +45,8 @@ public class ClauseRuleQueryServiceImpl implements ClauseRuleQueryService {
     @Override
     @Transactional(readOnly = true)
     public List<CoverageQueryResult> getCoveragesByClauseId(String clauseId, String tenantId) {
-        return coverageViewRepository.findByClauseIdAndTenantId(clauseId, tenantId).stream()
+        return coverageViewRepository.findByClauseIdAndTenantIdIn(clauseId, PlatformTenantSupport.scope(tenantId))
+                .stream()
                 .map(this::toCoverageResult)
                 .collect(Collectors.toList());
     }

@@ -71,11 +71,11 @@ import com.titanium.clause.valueobject.ExclusionId;
 import com.titanium.clause.valueobject.TimeRange;
 import com.titanium.clause.valueobject.Version;
 import com.titanium.common.domain.BaseAggregate;
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 import com.titanium.metadata.errorcode.ClauseErrorCode;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -87,7 +87,7 @@ import lombok.experimental.SuperBuilder;
  * </p>
  */
 @Aggregate
-@Data
+@Getter
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 public class Clause extends BaseAggregate {
@@ -102,7 +102,7 @@ public class Clause extends BaseAggregate {
     private String                      description;
     private Version                     version;
     private ClauseId                    parentClauseId;
-    private InsuranceType               insuranceType;
+    private InsuranceProductType               insuranceType;
     private LocalDateTime               effectiveDate;
     private LocalDateTime               expiryDate;
 
@@ -139,6 +139,18 @@ public class Clause extends BaseAggregate {
     }
 
     /**
+     * 修订新版本聚合的工厂构造器（非命令处理器）
+     * <p>
+     * 由原 ACTIVE 条款在 {@link #handle(ReviseClauseCommand)} 中经 {@link AggregateLifecycle#createNew}
+     * 调用，为 {@code newClauseId} 建立独立事件流。此处 apply {@link ClauseRevisedEvent} 作为新聚合的首个事件，
+     * 状态初始化由 {@link #on(ClauseRevisedEvent)} 承接。
+     * </p>
+     */
+    public Clause(ClauseRevisedEvent event) {
+        AggregateLifecycle.apply(event);
+    }
+
+    /**
      * 更新条款命令处理器
      */
     @CommandHandler
@@ -166,9 +178,8 @@ public class Clause extends BaseAggregate {
         }
 
         boolean isValid = switch (this.status) {
-            case DRAFT -> newStatus == ClauseEnum.ClauseStatus.ACTIVE
-                    || newStatus == ClauseEnum.ClauseStatus.INACTIVE
-                    || newStatus == ClauseEnum.ClauseStatus.PENDING_APPROVAL;
+            // 草稿只能提交审批；生效（ACTIVE）唯一入口是审批通过（ClauseApprovedEvent），不可由此直达，防止绕过审批
+            case DRAFT -> newStatus == ClauseEnum.ClauseStatus.PENDING_APPROVAL;
             case PENDING_APPROVAL -> newStatus == ClauseEnum.ClauseStatus.ACTIVE
                     || newStatus == ClauseEnum.ClauseStatus.DRAFT;
             case ACTIVE -> newStatus == ClauseEnum.ClauseStatus.INACTIVE
@@ -274,6 +285,12 @@ public class Clause extends BaseAggregate {
 
     /**
      * 条款修订命令处理器（创建新版本）
+     * <p>
+     * 修订不改写当前 ACTIVE 版本，而是以全新的 {@code newClauseId} 创建一个独立的 DRAFT 聚合实例，
+     * 使新版本拥有自己的事件流。通过 {@link AggregateLifecycle#createNew} 在同一工作单元内构造新聚合，
+     * 由新聚合的构造器 {@link #Clause(ClauseRevisedEvent)} 应用 {@link ClauseRevisedEvent} 初始化状态。
+     * 原聚合状态保持 ACTIVE 不变（本命令不对原聚合 apply 任何事件）。
+     * </p>
      */
     @CommandHandler
     public void handle(ReviseClauseCommand command) {
@@ -282,11 +299,16 @@ public class Clause extends BaseAggregate {
         }
 
         Version newVersion = this.version.nextVersion();
-        AggregateLifecycle.apply(new ClauseRevisedEvent(this.clauseId, command.newClauseId(), this.clauseCode,
+        ClauseRevisedEvent revisedEvent = new ClauseRevisedEvent(this.clauseId, command.newClauseId(), this.clauseCode,
                 this.clauseName, this.clauseType, this.content, this.description, this.insuranceType, newVersion,
                 this.effectiveDate, this.expiryDate, this.coverages, this.exclusions, this.premiumRule, this.claimRule,
                 this.contractChangeRule, this.notifications, this.signTemplate, this.tenantId, command.revisedBy(),
-                LocalDateTime.now()));
+                LocalDateTime.now());
+        try {
+            AggregateLifecycle.createNew(Clause.class, () -> new Clause(revisedEvent));
+        } catch (Exception e) {
+            throw new ClauseOperationNotAllowedException("条款修订失败：创建新版本聚合异常", e);
+        }
     }
 
     /**
@@ -505,10 +527,42 @@ public class Clause extends BaseAggregate {
         this.updateTime = event.rejectedAt();
     }
 
+    /**
+     * 修订事件溯源处理器：初始化「新版本」聚合的状态。
+     * <p>
+     * 该事件是经 {@link AggregateLifecycle#createNew} 创建的新聚合的首个事件，运行在新聚合
+     * （{@code newClauseId}）自己的事件流上，故此处对 {@code clauseId} 的赋值是<b>初始化</b>而非改写既有标识。
+     * 新版本落为 DRAFT 状态，完整继承原条款的规则组件（责任/免除/费率/理赔/合同变更规则/告知/签署模板），
+     * 并通过 {@code parentClauseId} 溯源到原条款。
+     * </p>
+     */
     @EventSourcingHandler
     public void on(ClauseRevisedEvent event) {
-        // 修订事件不改变当前聚合根状态
-        // 新版本的创建在application层处理（创建新的Clause聚合实例）
+        this.clauseId = event.newClauseId();
+        this.parentClauseId = event.originalClauseId();
+        this.clauseCode = event.clauseCode();
+        this.clauseName = event.clauseName();
+        this.clauseType = event.clauseType();
+        this.content = event.content();
+        this.status = ClauseEnum.ClauseStatus.DRAFT;
+        this.description = event.description();
+        this.insuranceType = event.insuranceType();
+        this.version = event.newVersion();
+        this.effectiveDate = event.effectiveDate();
+        this.expiryDate = event.expiryDate();
+        this.coverages = event.coverages() != null ? new HashMap<>(event.coverages()) : new HashMap<>();
+        this.exclusions = event.exclusions() != null ? new HashMap<>(event.exclusions()) : new HashMap<>();
+        this.premiumRule = event.premiumRule();
+        this.claimRule = event.claimRule();
+        this.contractChangeRule = event.contractChangeRule();
+        this.notifications = event.notifications() != null ? new ArrayList<>(event.notifications()) : new ArrayList<>();
+        this.signTemplate = event.signTemplate();
+        this.approvalRecords = new ArrayList<>();
+        this.tenantId = event.tenantId();
+        this.createdBy = event.revisedBy();
+        this.createTime = event.revisedAt();
+        this.updatedBy = event.revisedBy();
+        this.updateTime = event.revisedAt();
     }
 
     @EventSourcingHandler

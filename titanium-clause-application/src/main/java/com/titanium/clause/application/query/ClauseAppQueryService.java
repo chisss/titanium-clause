@@ -1,4 +1,6 @@
 package com.titanium.clause.application.query;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +20,6 @@ import com.titanium.clause.query.query.FindPremiumRuleByClauseIdQuery;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.query.result.CoverageQueryResult;
 import com.titanium.clause.query.result.PremiumRuleQueryResult;
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import jakarta.annotation.Resource;
@@ -69,7 +70,7 @@ public class ClauseAppQueryService {
     /**
      * 根据险种类型查询条款列表（读模型）
      */
-    public List<ClauseQueryResult> findByType(InsuranceType insuranceType, String tenantId) {
+    public List<ClauseQueryResult> findByType(InsuranceProductType insuranceType, String tenantId) {
         return queryGateway.query(new FindClausesByTypeQuery(insuranceType, tenantId),
                 ResponseTypes.multipleInstancesOf(ClauseQueryResult.class)).join();
     }

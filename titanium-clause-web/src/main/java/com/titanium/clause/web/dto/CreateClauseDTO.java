@@ -1,8 +1,9 @@
 package com.titanium.clause.web.dto;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
+
 
 import java.time.LocalDateTime;
 
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import lombok.Data;
@@ -40,7 +41,7 @@ public class CreateClauseDTO {
     /**
      * 险种类型
      */
-    private InsuranceType insuranceType;
+    private InsuranceProductType insuranceType;
 
     /**
      * 生效日期

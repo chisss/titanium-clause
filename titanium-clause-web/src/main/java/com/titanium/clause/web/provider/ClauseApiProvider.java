@@ -1,7 +1,10 @@
 package com.titanium.clause.web.provider;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
+
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.titanium.clause.api.ClauseApi;
@@ -9,8 +12,8 @@ import com.titanium.clause.application.query.ClauseAppQueryService;
 import com.titanium.clause.application.service.ClauseApplicationService;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.valueobject.ClauseId;
+import com.titanium.clause.web.assembler.CoverageResponseAssembler;
 import com.titanium.clause.web.mapper.ClauseWebMapper;
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import lombok.RequiredArgsConstructor;
@@ -26,12 +29,14 @@ import lombok.RequiredArgsConstructor;
  * </p>
  */
 @RestController
+@RequestMapping("/api/v1/clauses")
 @RequiredArgsConstructor
 public class ClauseApiProvider implements ClauseApi {
 
-    private final ClauseApplicationService clauseApplicationService;
-    private final ClauseAppQueryService    clauseAppQueryService;
-    private final ClauseWebMapper          clauseWebMapper;
+    private final ClauseApplicationService  clauseApplicationService;
+    private final ClauseAppQueryService     clauseAppQueryService;
+    private final ClauseWebMapper           clauseWebMapper;
+    private final CoverageResponseAssembler coverageResponseAssembler;
 
     @Override
     public com.titanium.clause.api.response.ClauseResponse createClause(
@@ -40,7 +45,7 @@ public class ClauseApiProvider implements ClauseApi {
                 request.getClauseCode(), request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
                 request.getEffectiveDate(), request.getExpiryDate(), request.getCreatedBy(), tenantId);
-        return findResponseOrThrow(clauseId.getValue(), tenantId);
+        return findResponseOrThrow(clauseId.value(), tenantId);
     }
 
     @Override
@@ -72,7 +77,7 @@ public class ClauseApiProvider implements ClauseApi {
         if (status != null) {
             results = clauseAppQueryService.findByStatus(ClauseEnum.ClauseStatus.fromCode(status), tenantId);
         } else if (clauseType != null) {
-            results = clauseAppQueryService.findByType(InsuranceType.fromCode(clauseType), tenantId);
+            results = clauseAppQueryService.findByType(InsuranceProductType.fromCode(clauseType), tenantId);
         } else {
             results = clauseAppQueryService.findAll(tenantId);
         }
@@ -91,6 +96,14 @@ public class ClauseApiProvider implements ClauseApi {
             String clauseId, com.titanium.clause.api.request.InactivateClauseRequest request, String tenantId) {
         clauseApplicationService.inactivateClause(clauseId, request.getInactivatedBy(), tenantId);
         return findResponseOrThrow(clauseId, tenantId);
+    }
+
+    @Override
+    public List<com.titanium.clause.api.response.CoverageResponse> getCoveragesByClauseId(String clauseId,
+                                                                                          String tenantId) {
+        return clauseAppQueryService.findCoveragesByClauseId(clauseId, tenantId).stream()
+                .map(coverageResponseAssembler::toResponse)
+                .toList();
     }
 
     /**

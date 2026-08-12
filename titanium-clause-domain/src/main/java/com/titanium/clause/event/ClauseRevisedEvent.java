@@ -17,8 +17,8 @@ import com.titanium.clause.valueobject.ClauseName;
 import com.titanium.clause.valueobject.CoverageId;
 import com.titanium.clause.valueobject.ExclusionId;
 import com.titanium.clause.valueobject.Version;
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 /**
  * 条款已修订事件（新版本创建）
@@ -31,7 +31,7 @@ public record ClauseRevisedEvent(
         ClauseEnum.ClauseType clauseType,
         String content,
         String description,
-        InsuranceType insuranceType,
+        InsuranceProductType insuranceType,
         Version newVersion,
         LocalDateTime effectiveDate,
         LocalDateTime expiryDate,

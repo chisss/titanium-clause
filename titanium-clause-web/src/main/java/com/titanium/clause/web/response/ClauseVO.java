@@ -1,8 +1,9 @@
 package com.titanium.clause.web.response;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
+
 
 import java.time.LocalDateTime;
 
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import lombok.Data;
@@ -37,7 +38,7 @@ public class ClauseVO {
     private String                  version;
 
     /** 险种类型 */
-    private InsuranceType           insuranceType;
+    private InsuranceProductType           insuranceType;
 
     /** 父条款ID */
     private String                  parentClauseId;

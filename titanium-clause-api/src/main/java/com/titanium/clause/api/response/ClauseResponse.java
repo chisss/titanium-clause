@@ -1,12 +1,9 @@
 package com.titanium.clause.api.response;
 
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 import java.time.LocalDateTime;
-
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
-
 import lombok.Data;
-
 /**
  * 条款数据传输对象
  */
@@ -29,7 +26,7 @@ public class ClauseResponse {
     /** 版本号 */
     private String version;
     /** 险种类型 */
-    private InsuranceType insuranceType;
+    private InsuranceProductType insuranceType;
     /** 父条款ID */
     private String parentClauseId;
     /** 生效日期 */

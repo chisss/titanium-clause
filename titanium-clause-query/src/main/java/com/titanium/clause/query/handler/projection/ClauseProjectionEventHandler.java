@@ -13,6 +13,7 @@ import com.titanium.clause.event.ClauseArchivedEvent;
 import com.titanium.clause.event.ClauseCreatedEvent;
 import com.titanium.clause.event.ClauseDeletedEvent;
 import com.titanium.clause.event.ClauseRejectedEvent;
+import com.titanium.clause.event.ClauseRevisedEvent;
 import com.titanium.clause.event.ClauseStatusChangedEvent;
 import com.titanium.clause.event.ClauseSubmittedForApprovalEvent;
 import com.titanium.clause.event.ClauseUpdatedEvent;
@@ -64,7 +65,7 @@ public class ClauseProjectionEventHandler {
         log.info("[读模型投影] 条款创建: clauseId={}", event.clauseId());
 
         ClauseView view = clauseViewRepository
-                .findByClauseIdAndTenantId(event.clauseId().getValue(), event.tenantId())
+                .findByClauseIdAndTenantId(event.clauseId().value(), event.tenantId())
                 .orElseGet(ClauseView::new);
 
         // 事件字段 → 读模型的结构映射收敛到 MapStruct（含值对象拆解），消除逐字段 set
@@ -85,9 +86,9 @@ public class ClauseProjectionEventHandler {
     public void on(ClauseUpdatedEvent event) {
         log.info("[读模型投影] 条款更新: clauseId={}", event.clauseId());
 
-        clauseViewRepository.findByClauseIdAndTenantId(event.clauseId().getValue(), event.tenantId())
+        clauseViewRepository.findByClauseIdAndTenantId(event.clauseId().value(), event.tenantId())
                 .ifPresentOrElse(view -> {
-                    view.setClauseName(event.clauseName() != null ? event.clauseName().getValue() : null);
+                    view.setClauseName(event.clauseName() != null ? event.clauseName().value() : null);
                     view.setClauseType(event.clauseType());
                     view.setContent(event.content());
                     view.setDescription(event.description());
@@ -108,7 +109,7 @@ public class ClauseProjectionEventHandler {
     public void on(ClauseStatusChangedEvent event) {
         log.info("[读模型投影] 条款状态变更: clauseId={}, 新状态={}", event.clauseId(), event.newStatus());
 
-        clauseViewRepository.findById(event.clauseId().getValue())
+        clauseViewRepository.findById(event.clauseId().value())
                 .ifPresentOrElse(view -> {
                     view.setStatus(event.newStatus());
                     view.setUpdatedBy(event.updatedBy());
@@ -125,7 +126,7 @@ public class ClauseProjectionEventHandler {
     public void on(ClauseSubmittedForApprovalEvent event) {
         log.info("[读模型投影] 条款提交审批: clauseId={}", event.clauseId());
 
-        clauseViewRepository.findById(event.clauseId().getValue()).ifPresentOrElse(view -> {
+        clauseViewRepository.findById(event.clauseId().value()).ifPresentOrElse(view -> {
             view.setStatus(ClauseEnum.ClauseStatus.PENDING_APPROVAL);
             view.setUpdatedBy(event.submittedBy());
             view.setUpdateTime(event.submittedAt());
@@ -141,7 +142,7 @@ public class ClauseProjectionEventHandler {
     public void on(ClauseApprovedEvent event) {
         log.info("[读模型投影] 条款审批通过: clauseId={}", event.clauseId());
 
-        clauseViewRepository.findById(event.clauseId().getValue()).ifPresentOrElse(view -> {
+        clauseViewRepository.findById(event.clauseId().value()).ifPresentOrElse(view -> {
             view.setStatus(ClauseEnum.ClauseStatus.ACTIVE);
             view.setUpdatedBy(event.approverId());
             view.setUpdateTime(event.approvedAt());
@@ -157,12 +158,43 @@ public class ClauseProjectionEventHandler {
     public void on(ClauseRejectedEvent event) {
         log.info("[读模型投影] 条款审批驳回: clauseId={}", event.clauseId());
 
-        clauseViewRepository.findById(event.clauseId().getValue()).ifPresentOrElse(view -> {
+        clauseViewRepository.findById(event.clauseId().value()).ifPresentOrElse(view -> {
             view.setStatus(ClauseEnum.ClauseStatus.DRAFT);
             view.setUpdatedBy(event.rejectedBy());
             view.setUpdateTime(event.rejectedAt());
             clauseViewRepository.save(view);
         }, () -> log.warn("[读模型投影] 条款审批驳回失败：未找到读模型记录 clauseId={}", event.clauseId()));
+    }
+
+    /**
+     * 投影条款修订事件：为修订生成的「新版本」条款建立独立读模型记录
+     * <p>
+     * 修订经写侧 {@code AggregateLifecycle.createNew} 创建了以 {@code newClauseId} 为标识的新聚合，
+     * 此处对应建立一条新的 {@link ClauseView}（DRAFT 状态、{@code parentClauseId} 溯源原条款），
+     * 使新版本可被查询。事件字段 → 读模型的结构映射收敛到 MapStruct（含值对象拆解），消除逐字段 set。
+     * </p>
+     * <p>
+     * 规则组件（责任/费率等）读模型此处不复制：{@code CoverageView}/{@code PremiumRuleView}
+     * 以 coverageId/clauseId 为主键，修订沿用原规则组件ID，若复制将与原条款读模型记录主键冲突。
+     * </p>
+     */
+    @EventHandler
+    @Transactional
+    public void on(ClauseRevisedEvent event) {
+        log.info("[读模型投影] 条款修订: newClauseId={}, originalClauseId={}", event.newClauseId(),
+                event.originalClauseId());
+
+        ClauseView view = clauseViewRepository
+                .findByClauseIdAndTenantId(event.newClauseId().value(), event.tenantId())
+                .orElseGet(ClauseView::new);
+
+        clauseViewMapper.applyRevised(view, event);
+        // 修订态固定 DRAFT；租户显式承接（事件已携带 tenantId）
+        view.setStatus(ClauseEnum.ClauseStatus.DRAFT);
+        view.setTenantId(event.tenantId());
+        stampAuditTime(view, event.revisedAt());
+
+        clauseViewRepository.save(view);
     }
 
     /**
@@ -173,7 +205,7 @@ public class ClauseProjectionEventHandler {
     public void on(ClauseArchivedEvent event) {
         log.info("[读模型投影] 条款归档: clauseId={}", event.clauseId());
 
-        clauseViewRepository.findById(event.clauseId().getValue()).ifPresentOrElse(view -> {
+        clauseViewRepository.findById(event.clauseId().value()).ifPresentOrElse(view -> {
             view.setStatus(ClauseEnum.ClauseStatus.ARCHIVED);
             view.setUpdatedBy(event.archivedBy());
             view.setUpdateTime(event.archivedAt());
@@ -192,7 +224,7 @@ public class ClauseProjectionEventHandler {
     public void on(ClauseDeletedEvent event) {
         log.info("[读模型投影] 条款删除: clauseId={}", event.clauseId());
 
-        clauseViewRepository.findById(event.clauseId().getValue())
+        clauseViewRepository.findById(event.clauseId().value())
                 .ifPresentOrElse(clauseViewRepository::delete,
                         () -> log.warn("[读模型投影] 条款删除失败：未找到读模型记录 clauseId={}", event.clauseId()));
     }
@@ -209,8 +241,8 @@ public class ClauseProjectionEventHandler {
     @EventHandler
     @Transactional
     public void on(CoverageAddedEvent event) {
-        String clauseId = event.clauseId().getValue();
-        String coverageId = event.coverage().id() != null ? event.coverage().id().getValue() : null;
+        String clauseId = event.clauseId().value();
+        String coverageId = event.coverage().id() != null ? event.coverage().id().value() : null;
         log.info("[读模型投影] 保险责任添加: clauseId={}, coverageId={}", clauseId, coverageId);
 
         resolveTenantId(clauseId).ifPresentOrElse(tenantId -> {
@@ -231,8 +263,8 @@ public class ClauseProjectionEventHandler {
     @EventHandler
     @Transactional
     public void on(CoverageRemovedEvent event) {
-        String clauseId = event.clauseId().getValue();
-        String coverageId = event.coverageId().getValue();
+        String clauseId = event.clauseId().value();
+        String coverageId = event.coverageId().value();
         log.info("[读模型投影] 保险责任移除: clauseId={}, coverageId={}", clauseId, coverageId);
 
         resolveTenantId(clauseId)
@@ -251,7 +283,7 @@ public class ClauseProjectionEventHandler {
     @EventHandler
     @Transactional
     public void on(PremiumRuleSetEvent event) {
-        String clauseId = event.clauseId().getValue();
+        String clauseId = event.clauseId().value();
         log.info("[读模型投影] 缴费规则设置: clauseId={}", clauseId);
 
         resolveTenantId(clauseId).ifPresentOrElse(tenantId -> {

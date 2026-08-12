@@ -5,8 +5,8 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.titanium.clause.port.RuleEnginePort;
+import com.titanium.metadata.response.ApiResponse;
 import com.titanium.ruleengine.api.RuleEngineApi;
-import com.titanium.ruleengine.api.response.ApiResponse;
 import com.titanium.ruleengine.api.response.RuleExecutionResultResponse;
 
 import lombok.RequiredArgsConstructor;

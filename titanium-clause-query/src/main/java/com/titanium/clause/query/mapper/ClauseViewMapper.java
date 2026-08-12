@@ -8,6 +8,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import com.titanium.clause.event.ClauseCreatedEvent;
+import com.titanium.clause.event.ClauseRevisedEvent;
 import com.titanium.clause.query.view.ClauseView;
 import com.titanium.clause.valueobject.ClauseCode;
 import com.titanium.clause.valueobject.ClauseId;
@@ -54,27 +55,47 @@ public interface ClauseViewMapper {
     @Mapping(target = "updateTime", ignore = true)
     void applyCreated(@MappingTarget ClauseView view, ClauseCreatedEvent event);
 
+    /**
+     * 条款修订事件 → 条款读模型（就地新建；生成新条款ID的独立读模型记录）。
+     * <p>
+     * 修订产生全新版本聚合，此处为 {@code newClauseId} 建立独立读模型记录，{@code parentClauseId} 溯源原条款；
+     * 修订态 status 固定 DRAFT、createTime/updateTime（审计时间戳）、version（乐观锁）均 ignore，由处理器承接。
+     * </p>
+     */
+    @Mapping(target = "clauseId", source = "newClauseId", qualifiedByName = "clauseIdValue")
+    @Mapping(target = "clauseCode", source = "clauseCode", qualifiedByName = "clauseCodeValue")
+    @Mapping(target = "clauseName", source = "clauseName", qualifiedByName = "clauseNameValue")
+    @Mapping(target = "clauseVersion", source = "newVersion", qualifiedByName = "versionValue")
+    @Mapping(target = "parentClauseId", source = "originalClauseId", qualifiedByName = "clauseIdValue")
+    @Mapping(target = "createdBy", source = "revisedBy")
+    @Mapping(target = "updatedBy", source = "revisedBy")
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "createTime", ignore = true)
+    @Mapping(target = "updateTime", ignore = true)
+    void applyRevised(@MappingTarget ClauseView view, ClauseRevisedEvent event);
+
     /** 条款ID值对象 → 字符串（空安全；复用于 clauseId 与 parentClauseId） */
     @Named("clauseIdValue")
     default String clauseIdValue(ClauseId clauseId) {
-        return clauseId != null ? clauseId.getValue() : null;
+        return clauseId != null ? clauseId.value() : null;
     }
 
     /** 条款代码值对象 → 字符串（空安全） */
     @Named("clauseCodeValue")
     default String clauseCodeValue(ClauseCode clauseCode) {
-        return clauseCode != null ? clauseCode.getValue() : null;
+        return clauseCode != null ? clauseCode.value() : null;
     }
 
     /** 条款名称值对象 → 字符串（空安全） */
     @Named("clauseNameValue")
     default String clauseNameValue(ClauseName clauseName) {
-        return clauseName != null ? clauseName.getValue() : null;
+        return clauseName != null ? clauseName.value() : null;
     }
 
     /** 版本值对象 → 字符串（空安全） */
     @Named("versionValue")
     default String versionValue(Version version) {
-        return version != null ? version.getValue() : null;
+        return version != null ? version.value() : null;
     }
 }

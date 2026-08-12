@@ -1,4 +1,6 @@
 package com.titanium.clause.web.controller;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
+
 
 import java.util.List;
 import java.util.Map;
@@ -18,15 +20,18 @@ import com.titanium.clause.application.query.ClauseAppQueryService;
 import com.titanium.clause.application.service.ClauseApplicationService;
 import com.titanium.clause.common.context.TenantContext;
 import com.titanium.clause.common.enums.ApprovalType;
+import com.titanium.clause.entity.Coverage;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.valueobject.ClauseId;
+import com.titanium.clause.web.assembler.CoverageAssembler;
 import com.titanium.clause.web.dto.ActivateClauseDTO;
+import com.titanium.clause.web.dto.CoverageDTO;
 import com.titanium.clause.web.dto.CreateClauseDTO;
 import com.titanium.clause.web.dto.InactivateClauseDTO;
 import com.titanium.clause.web.dto.UpdateClauseDTO;
 import com.titanium.clause.web.mapper.ClauseWebMapper;
 import com.titanium.clause.web.response.ClauseVO;
-import com.titanium.metadata.enums.InsuranceType;
+import com.titanium.clause.web.response.CoverageVO;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
 import lombok.RequiredArgsConstructor;
@@ -48,6 +53,7 @@ public class ClauseController {
     private final ClauseApplicationService clauseApplicationService;
     private final ClauseAppQueryService    clauseAppQueryService;
     private final ClauseWebMapper          clauseWebMapper;
+    private final CoverageAssembler        coverageAssembler;
 
     /**
      * 创建条款
@@ -59,7 +65,10 @@ public class ClauseController {
                 request.getClauseCode(), request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
                 request.getEffectiveDate(), request.getExpiryDate(), request.getCreatedBy(), tenantId);
-        ClauseVO response = findVoOrThrow(clauseId.getValue(), tenantId, "创建条款失败");
+        // 读模型为异步投影，命令返回后未必落库；直接回显已受理的写入（含生成的 clauseId、初始 DRAFT 状态），
+        // 避免同步查最终一致投影未命中而误报「创建条款失败」。租户由请求上下文补齐。
+        ClauseVO response = clauseWebMapper.toCreatedVO(request, clauseId.value());
+        response.setTenantId(tenantId);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -161,7 +170,7 @@ public class ClauseController {
                                                             @RequestBody Map<String, String> request) {
         String tenantId = TenantContext.getCurrentTenant();
         ClauseId newClauseId = clauseApplicationService.reviseClause(clauseId, request.get("revisedBy"), tenantId);
-        return new ResponseEntity<>(Map.of("newClauseId", newClauseId.getValue()), HttpStatus.CREATED);
+        return new ResponseEntity<>(Map.of("newClauseId", newClauseId.value()), HttpStatus.CREATED);
     }
 
     /**
@@ -194,7 +203,7 @@ public class ClauseController {
     public ResponseEntity<List<ClauseVO>> getClausesByType(@PathVariable String clauseType) {
         String tenantId = TenantContext.getCurrentTenant();
         List<ClauseVO> responses = clauseAppQueryService
-                .findByType(InsuranceType.fromCode(clauseType), tenantId)
+                .findByType(InsuranceProductType.fromCode(clauseType), tenantId)
                 .stream().map(clauseWebMapper::toVO).toList();
         return ResponseEntity.ok(responses);
     }
@@ -218,6 +227,44 @@ public class ClauseController {
         String tenantId = TenantContext.getCurrentTenant();
         clauseApplicationService.deleteClause(clauseId, tenantId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 为条款新增保险责任
+     * <p>
+     * 前端扁平 {@link CoverageDTO} 经 {@link CoverageAssembler} 装配为领域责任实体，
+     * 医疗特有参数落 {@code CoverageTrigger.params} 扩展 Map。
+     * </p>
+     */
+    @PostMapping("/{clauseId}/coverages")
+    public ResponseEntity<Void> addCoverage(@PathVariable String clauseId,
+                                            @RequestBody CoverageDTO request) {
+        String tenantId = TenantContext.getCurrentTenant();
+        Coverage coverage = coverageAssembler.toCoverage(request);
+        clauseApplicationService.addCoverage(clauseId, coverage, request.getUpdatedBy(), tenantId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    /**
+     * 移除条款下的指定保险责任
+     */
+    @DeleteMapping("/{clauseId}/coverages/{coverageId}")
+    public ResponseEntity<Void> removeCoverage(@PathVariable String clauseId,
+                                               @PathVariable String coverageId) {
+        String tenantId = TenantContext.getCurrentTenant();
+        clauseApplicationService.removeCoverage(clauseId, coverageId, null, tenantId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 查询条款下的保险责任列表（读模型），拍平为前端展示 VO
+     */
+    @GetMapping("/{clauseId}/coverages")
+    public ResponseEntity<List<CoverageVO>> listCoverages(@PathVariable String clauseId) {
+        String tenantId = TenantContext.getCurrentTenant();
+        List<CoverageVO> responses = clauseAppQueryService.findCoveragesByClauseId(clauseId, tenantId)
+                .stream().map(coverageAssembler::toVO).toList();
+        return ResponseEntity.ok(responses);
     }
 
     /**

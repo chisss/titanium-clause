@@ -8,8 +8,8 @@ import com.titanium.clause.valueobject.ClauseCode;
 import com.titanium.clause.valueobject.ClauseId;
 import com.titanium.clause.valueobject.ClauseName;
 import com.titanium.clause.valueobject.Version;
-import com.titanium.metadata.enums.InsuranceType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 /**
  * 创建条款命令
@@ -22,7 +22,7 @@ public record CreateClauseCommand(
         ClauseEnum.ClauseType clauseType,
         String content,
         String description,
-        InsuranceType insuranceType,
+        InsuranceProductType insuranceType,
         Version version,
         LocalDateTime effectiveDate,
         LocalDateTime expiryDate,

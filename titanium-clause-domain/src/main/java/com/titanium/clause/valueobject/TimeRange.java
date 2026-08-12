@@ -2,15 +2,17 @@ package com.titanium.clause.valueobject;
 
 import java.time.LocalDateTime;
 
-import lombok.Value;
-
 /**
  * 时间范围值对象
+ *
+ * <p>record 实现：Jackson 原生支持 record 反序列化（规范 3.4.1 值对象须为 record）。
+ * 保留 {@code of} 静态工厂以兼容既有调用点。</p>
  */
-@Value(staticConstructor = "of")
-public class TimeRange {
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+public record TimeRange(LocalDateTime startTime, LocalDateTime endTime) {
+
+    public static TimeRange of(LocalDateTime startTime, LocalDateTime endTime) {
+        return new TimeRange(startTime, endTime);
+    }
 
     /**
      * 检查当前时间是否在时间范围内

@@ -2,11 +2,13 @@ package com.titanium.clause.query.view;
 
 import java.time.LocalDateTime;
 
+import com.titanium.clause.query.converter.InsuranceProductTypeConverter;
 import com.titanium.common.jpa.BaseView;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -67,7 +69,7 @@ public class ClauseView extends BaseView {
     private String                  clauseVersion;
 
     /** 险种类型 */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = InsuranceProductTypeConverter.class)
     @Column(name = "insurance_type", length = 50)
     private InsuranceProductType           insuranceType;
 

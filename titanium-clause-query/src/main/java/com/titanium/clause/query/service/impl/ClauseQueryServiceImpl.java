@@ -1,9 +1,14 @@
 package com.titanium.clause.query.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +21,7 @@ import com.titanium.clause.query.view.ClauseView;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,7 +64,7 @@ public class ClauseQueryServiceImpl implements ClauseQueryService {
     @Override
     @Transactional(readOnly = true)
     public List<ClauseQueryResult> getClausesByType(InsuranceProductType insuranceType, String tenantId) {
-        return clauseViewRepository.findByInsuranceProductTypeAndTenantIdIn(insuranceType, PlatformTenantSupport.scope(tenantId))
+        return clauseViewRepository.findByInsuranceTypeAndTenantIdIn(insuranceType, PlatformTenantSupport.scope(tenantId))
                 .stream().map(this::toResult).collect(Collectors.toList());
     }
 
@@ -67,6 +73,45 @@ public class ClauseQueryServiceImpl implements ClauseQueryService {
     public List<ClauseQueryResult> getAllClauses(String tenantId) {
         return clauseViewRepository.findByTenantIdIn(PlatformTenantSupport.scope(tenantId)).stream().map(this::toResult)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClauseQueryResult> getClauses(String clauseName, String clauseCode, ClauseEnum.ClauseStatus status,
+                                              List<InsuranceProductType> insuranceTypes, String tenantId,
+                                              int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createTime").and(Sort.by("clauseId"));
+        PageRequest pageable = PageRequest.of(Math.max(page, 0), normalizeSize(size), sort);
+        if (insuranceTypes != null && insuranceTypes.isEmpty()) {
+            return Page.empty(pageable);
+        }
+        Specification<ClauseView> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(root.get("tenantId").in(PlatformTenantSupport.scope(tenantId)));
+            if (clauseName != null && !clauseName.isBlank()) {
+                predicates.add(criteriaBuilder.like(root.get("clauseName"), "%" + escapeLike(clauseName) + "%",
+                        '\\'));
+            }
+            if (clauseCode != null && !clauseCode.isBlank()) {
+                predicates.add(criteriaBuilder.equal(root.get("clauseCode"), clauseCode.trim()));
+            }
+            if (status != null) {
+                predicates.add(criteriaBuilder.equal(root.get("status"), status));
+            }
+            if (insuranceTypes != null && !insuranceTypes.isEmpty()) {
+                predicates.add(root.get("insuranceType").in(insuranceTypes));
+            }
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+        return clauseViewRepository.findAll(specification, pageable).map(this::toResult);
+    }
+
+    private int normalizeSize(int size) {
+        return size > 0 ? Math.min(size, 200) : 20;
+    }
+
+    private String escapeLike(String value) {
+        return value.trim().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 
     // ==================== 转换方法：读模型 → DTO ====================

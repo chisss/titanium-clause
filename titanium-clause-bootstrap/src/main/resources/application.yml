@@ -74,8 +74,13 @@ axon:
     messages: jackson
   eventhandling:
     processors:
-      clauseEventProcessor:
-        source: kafkaMessageSource
+      clause-query-group:
+        dlq:
+          enabled: true
+          cache:
+            enabled: true
+            size: 2048
+        batchSize: 1
   kafka:
     default-topic: clause-events
     consumer:

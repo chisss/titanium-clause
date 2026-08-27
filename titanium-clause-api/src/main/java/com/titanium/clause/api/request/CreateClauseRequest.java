@@ -1,8 +1,10 @@
 package com.titanium.clause.api.request;
 
-import com.titanium.metadata.enums.insurance.InsuranceProductType;
 import java.time.LocalDateTime;
+
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
+
 import lombok.Data;
 /**
  * 创建条款远程入参 DTO（跨服务 Feign 契约）

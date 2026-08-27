@@ -1,6 +1,7 @@
 package com.titanium.clause.api.response;
 
 import java.math.BigDecimal;
+
 import lombok.Data;
 /**
  * 保险责任对外响应（Feign 契约）

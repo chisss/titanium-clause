@@ -1,10 +1,9 @@
 package com.titanium.clause.web.controller;
-import com.titanium.metadata.enums.insurance.InsuranceProductType;
-
 
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,7 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.titanium.clause.application.query.ClauseAppQueryService;
 import com.titanium.clause.application.service.ClauseApplicationService;
@@ -33,6 +34,9 @@ import com.titanium.clause.web.mapper.ClauseWebMapper;
 import com.titanium.clause.web.response.ClauseVO;
 import com.titanium.clause.web.response.CoverageVO;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceCategory;
+import com.titanium.metadata.enums.insurance.InsuranceLine;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 import lombok.RequiredArgsConstructor;
 
@@ -88,7 +92,7 @@ public class ClauseController {
     public ResponseEntity<ClauseVO> getClauseByCode(@PathVariable String clauseCode) {
         String tenantId = TenantContext.getCurrentTenant();
         ClauseQueryResult result = clauseAppQueryService.findByCode(clauseCode, tenantId)
-                .orElseThrow(() -> new IllegalStateException("条款不存在"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "条款不存在"));
         return ResponseEntity.ok(clauseWebMapper.toVO(result));
     }
 
@@ -212,11 +216,50 @@ public class ClauseController {
      * 查询所有条款
      */
     @GetMapping
-    public ResponseEntity<List<ClauseVO>> getAllClauses() {
+    public ResponseEntity<Page<ClauseVO>> getAllClauses(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "20") int pageSize) {
         String tenantId = TenantContext.getCurrentTenant();
-        List<ClauseVO> responses = clauseAppQueryService.findAll(tenantId)
-                .stream().map(clauseWebMapper::toVO).toList();
+        ClauseEnum.ClauseStatus statusEnum = parseStatus(status);
+        List<InsuranceProductType> insuranceTypes = insuranceTypesForCategory(category);
+        Page<ClauseVO> responses = clauseAppQueryService.findClauses(name, code, statusEnum, insuranceTypes, tenantId,
+                Math.max(pageNum - 1, 0), pageSize).map(clauseWebMapper::toVO);
         return ResponseEntity.ok(responses);
+    }
+
+    private ClauseEnum.ClauseStatus parseStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return null;
+        }
+        ClauseEnum.ClauseStatus result = ClauseEnum.ClauseStatus.fromCode(status.trim());
+        if (result == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "无效的条款状态: " + status);
+        }
+        return result;
+    }
+
+    private List<InsuranceProductType> insuranceTypesForCategory(String category) {
+        if (category == null || category.isBlank()) {
+            return null;
+        }
+        String code = category.trim();
+        InsuranceProductType productType = InsuranceProductType.fromCode(code);
+        if (productType != null) {
+            return List.of(productType);
+        }
+        InsuranceLine line = InsuranceLine.fromCode(code);
+        if (line != null) {
+            return InsuranceProductType.byLine(line);
+        }
+        InsuranceCategory insuranceCategory = InsuranceCategory.fromCode(code);
+        if (insuranceCategory != null) {
+            return InsuranceProductType.byCategory(insuranceCategory);
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "无效的险种分类: " + category);
     }
 
     /**
@@ -272,7 +315,7 @@ public class ClauseController {
      */
     private ClauseVO findVoOrThrow(String clauseId, String tenantId, String message) {
         ClauseQueryResult result = clauseAppQueryService.findById(clauseId, tenantId)
-                .orElseThrow(() -> new IllegalStateException(message));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, message));
         return clauseWebMapper.toVO(result);
     }
 }

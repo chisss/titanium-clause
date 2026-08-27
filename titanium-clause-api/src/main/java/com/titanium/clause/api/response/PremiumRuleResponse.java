@@ -3,6 +3,7 @@ package com.titanium.clause.api.response;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+
 import lombok.Data;
 /**
  * 缴费规则数据传输对象（对外契约）

@@ -1,12 +1,10 @@
 package com.titanium.clause.application.query;
-import com.titanium.metadata.enums.insurance.InsuranceProductType;
-
-
 import java.util.List;
 import java.util.Optional;
 
 import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryGateway;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.titanium.clause.query.query.FindAllClausesQuery;
@@ -20,9 +18,11 @@ import com.titanium.clause.query.query.FindPremiumRuleByClauseIdQuery;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.query.result.CoverageQueryResult;
 import com.titanium.clause.query.result.PremiumRuleQueryResult;
+import com.titanium.clause.query.service.ClauseQueryService;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 条款查询服务（CQRS 读侧入口）
@@ -33,10 +33,11 @@ import jakarta.annotation.Resource;
  * </p>
  */
 @Service
+@RequiredArgsConstructor
 public class ClauseAppQueryService {
 
-    @Resource
-    private QueryGateway queryGateway;
+    private final QueryGateway       queryGateway;
+    private final ClauseQueryService clauseQueryService;
 
     /**
      * 根据ID查询条款（读模型）
@@ -81,6 +82,16 @@ public class ClauseAppQueryService {
     public List<ClauseQueryResult> findAll(String tenantId) {
         return queryGateway.query(new FindAllClausesQuery(tenantId),
                 ResponseTypes.multipleInstancesOf(ClauseQueryResult.class)).join();
+    }
+
+    /**
+     * 按后台筛选条件查询条款。
+     */
+    public Page<ClauseQueryResult> findClauses(String clauseName, String clauseCode,
+                                               ClauseEnum.ClauseStatus status,
+                                               List<InsuranceProductType> insuranceTypes, String tenantId,
+                                               int page, int size) {
+        return clauseQueryService.getClauses(clauseName, clauseCode, status, insuranceTypes, tenantId, page, size);
     }
 
     /**

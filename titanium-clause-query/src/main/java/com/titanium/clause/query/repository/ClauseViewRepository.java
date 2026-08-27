@@ -30,7 +30,7 @@ public interface ClauseViewRepository
 
     List<ClauseView> findByStatusAndTenantId(ClauseEnum.ClauseStatus status, String tenantId);
 
-    List<ClauseView> findByInsuranceProductTypeAndTenantId(InsuranceProductType insuranceType, String tenantId);
+    List<ClauseView> findByInsuranceTypeAndTenantId(InsuranceProductType insuranceType, String tenantId);
 
     List<ClauseView> findByTenantId(String tenantId);
 
@@ -42,7 +42,7 @@ public interface ClauseViewRepository
 
     List<ClauseView> findByStatusAndTenantIdIn(ClauseEnum.ClauseStatus status, Collection<String> tenantIds);
 
-    List<ClauseView> findByInsuranceProductTypeAndTenantIdIn(InsuranceProductType insuranceType, Collection<String> tenantIds);
+    List<ClauseView> findByInsuranceTypeAndTenantIdIn(InsuranceProductType insuranceType, Collection<String> tenantIds);
 
     List<ClauseView> findByTenantIdIn(Collection<String> tenantIds);
 }

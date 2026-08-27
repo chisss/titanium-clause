@@ -1,6 +1,7 @@
 package com.titanium.clause.api.response;
 
 import java.math.BigDecimal;
+
 import lombok.Data;
 /**
  * 年龄性别费率数据传输对象（对外契约）

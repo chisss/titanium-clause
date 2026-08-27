@@ -1,8 +1,10 @@
 package com.titanium.clause.api.response;
 
-import com.titanium.metadata.enums.insurance.InsuranceProductType;
 import java.time.LocalDateTime;
+
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
+
 import lombok.Data;
 /**
  * 条款数据传输对象

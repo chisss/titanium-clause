@@ -1,7 +1,4 @@
 package com.titanium.clause.application.service;
-import com.titanium.metadata.enums.insurance.InsuranceProductType;
-
-
 import java.time.LocalDateTime;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
@@ -48,6 +45,7 @@ import com.titanium.clause.valueobject.CoverageId;
 import com.titanium.clause.valueobject.ExclusionId;
 import com.titanium.clause.valueobject.Version;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 import lombok.RequiredArgsConstructor;
 

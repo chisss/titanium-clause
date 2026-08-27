@@ -3,6 +3,8 @@ package com.titanium.clause.query.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 import com.titanium.metadata.enums.insurance.InsuranceProductType;
@@ -39,4 +41,10 @@ public interface ClauseQueryService {
      * 查询全部条款列表
      */
     List<ClauseQueryResult> getAllClauses(String tenantId);
+
+    /**
+     * 按后台筛选条件查询条款。
+     */
+    Page<ClauseQueryResult> getClauses(String clauseName, String clauseCode, ClauseEnum.ClauseStatus status,
+                                       List<InsuranceProductType> insuranceTypes, String tenantId, int page, int size);
 }

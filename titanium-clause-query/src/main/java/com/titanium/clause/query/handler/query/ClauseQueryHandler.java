@@ -53,4 +53,5 @@ public class ClauseQueryHandler {
     public List<ClauseQueryResult> handle(FindAllClausesQuery query) {
         return clauseQueryService.getAllClauses(query.tenantId());
     }
+
 }

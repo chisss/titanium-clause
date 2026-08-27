@@ -1,11 +1,11 @@
 package com.titanium.clause.web.provider;
-import com.titanium.metadata.enums.insurance.InsuranceProductType;
-
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.titanium.clause.api.ClauseApi;
 import com.titanium.clause.application.query.ClauseAppQueryService;
@@ -15,6 +15,7 @@ import com.titanium.clause.valueobject.ClauseId;
 import com.titanium.clause.web.assembler.CoverageResponseAssembler;
 import com.titanium.clause.web.mapper.ClauseWebMapper;
 import com.titanium.metadata.enums.clause.ClauseEnum;
+import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
 import lombok.RequiredArgsConstructor;
 
@@ -107,11 +108,11 @@ public class ClauseApiProvider implements ClauseApi {
     }
 
     /**
-     * 按ID查询读模型并转对外 Response，未命中抛异常（由全局兜底转 404）
+     * 按ID查询读模型并转对外 Response，未命中返回 404
      */
     private com.titanium.clause.api.response.ClauseResponse findResponseOrThrow(String clauseId, String tenantId) {
         return clauseAppQueryService.findById(clauseId, tenantId)
                 .map(clauseWebMapper::toResponse)
-                .orElseThrow(() -> new IllegalStateException("条款不存在: " + clauseId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "条款不存在: " + clauseId));
     }
 }

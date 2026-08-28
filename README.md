@@ -145,14 +145,19 @@ flowchart LR
 
 ### 管理后台展示
 
-以下截图来自 [Titanium 管理后台](https://github.com/chisss/titanium-admin-web)，展示真实运行中的数据看板和产品管理页面。图片采用仓库内版本化资源，GitHub 页面可直接加载。
+以下截图来自 [Titanium 管理后台](https://github.com/chisss/titanium-admin-web)，仅展示条款域对应的业务页面。截图包含可核验的示例数据，并按页面上下排列，GitHub 页面可直接加载。
 
 <p align="center">
-  <img src="./docs/screenshots/titanium-admin-dashboard-20260828.png" alt="Titanium 管理后台数据看板" width="49%" />
-  <img src="./docs/screenshots/titanium-admin-product-list-20260828.png" alt="Titanium 管理后台产品列表" width="49%" />
+  <img src="./docs/screenshots/titanium-clause-list-20260828.png" alt="条款列表：生效中条款与版本状态" width="100%" />
 </p>
 
-<p align="center"><sub>数据看板总览 · 产品列表与产品生命周期操作</sub></p>
+<p align="center"><sub>条款列表 · 条款编码、险种分类、版本及生效状态</sub></p>
+
+<p align="center">
+  <img src="./docs/screenshots/titanium-clause-detail-20260828.png" alt="条款详情：医疗保障责任明细" width="100%" />
+</p>
+
+<p align="center"><sub>条款详情 · 基本信息、条款内容及保障责任明细</sub></p>
 
 ### 协作关系
 

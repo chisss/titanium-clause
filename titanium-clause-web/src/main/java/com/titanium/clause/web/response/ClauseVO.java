@@ -11,6 +11,7 @@ import lombok.Data;
  */
 @Data
 public class ClauseVO {
+    private String clauseNo;
     /** 条款ID */
     private String                  clauseId;
 

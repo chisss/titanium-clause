@@ -11,6 +11,7 @@ import lombok.Data;
  */
 @Data
 public class ClauseResponse {
+    private String clauseNo;
     /** 条款ID */
     private String clauseId;
     /** 条款代码 */

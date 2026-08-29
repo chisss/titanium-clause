@@ -29,9 +29,10 @@ import com.titanium.clause.query.view.ClauseView;
 import com.titanium.clause.query.view.CoverageView;
 import com.titanium.clause.query.view.PremiumRuleView;
 import com.titanium.common.jpa.BaseView;
+import com.titanium.common.number.BusinessNumberGenerator;
+import com.titanium.common.number.BusinessNumberType;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -47,7 +48,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @ProcessingGroup("clause-query-group")
-@RequiredArgsConstructor
 public class ClauseProjectionEventHandler {
 
     private final ClauseViewRepository      clauseViewRepository;
@@ -55,6 +55,20 @@ public class ClauseProjectionEventHandler {
     private final CoverageViewRepository    coverageViewRepository;
     private final PremiumRuleViewRepository premiumRuleViewRepository;
     private final ClauseRuleViewMapper      clauseRuleViewMapper;
+    private final BusinessNumberGenerator   businessNumberGenerator;
+
+    public ClauseProjectionEventHandler(ClauseViewRepository repository, ClauseViewMapper mapper, CoverageViewRepository coverageRepository, PremiumRuleViewRepository premiumRepository, ClauseRuleViewMapper ruleMapper, BusinessNumberGenerator generator) {
+        this.clauseViewRepository = repository;
+        this.clauseViewMapper = mapper;
+        this.coverageViewRepository = coverageRepository;
+        this.premiumRuleViewRepository = premiumRepository;
+        this.clauseRuleViewMapper = ruleMapper;
+        this.businessNumberGenerator = generator;
+    }
+
+    public ClauseProjectionEventHandler(ClauseViewRepository repository, ClauseViewMapper mapper, CoverageViewRepository coverageRepository, PremiumRuleViewRepository premiumRepository, ClauseRuleViewMapper ruleMapper) {
+        this(repository, mapper, coverageRepository, premiumRepository, ruleMapper, null);
+    }
 
     /**
      * 投影条款创建事件：新建读模型记录
@@ -70,6 +84,9 @@ public class ClauseProjectionEventHandler {
 
         // 事件字段 → 读模型的结构映射收敛到 MapStruct（含值对象拆解），消除逐字段 set
         clauseViewMapper.applyCreated(view, event);
+        if (view.getClauseNo() == null && businessNumberGenerator != null) {
+            view.setClauseNo(businessNumberGenerator.next(event.tenantId(), BusinessNumberType.CLAUSE));
+        }
         // status 含 DRAFT 默认回落语义，IGNORE 策略下空源会被跳过而非回落，故仍由处理器判定
         view.setStatus(event.status() != null ? event.status() : ClauseEnum.ClauseStatus.DRAFT);
         // 审计时间戳取自事件时间，含"仅首次"语义，留处理器（不下沉映射器）

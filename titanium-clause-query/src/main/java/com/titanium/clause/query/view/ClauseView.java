@@ -32,6 +32,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ClauseView extends BaseView {
+    @Column(name = "clause_no", nullable = false, length = 32)
+    private String                  clauseNo;
 
     /** 条款ID（聚合根ID，读模型主键） */
     @Id

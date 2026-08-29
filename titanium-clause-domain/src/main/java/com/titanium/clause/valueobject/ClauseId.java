@@ -1,7 +1,7 @@
 package com.titanium.clause.valueobject;
 
 import java.io.Serializable;
-import java.util.UUID;
+import com.titanium.common.util.SnowflakeIdGenerator;
 
 /**
  * 条款ID值对象
@@ -17,7 +17,7 @@ public record ClauseId(String value) implements Serializable {
      * @return 条款ID实例
      */
     public static ClauseId create() {
-        return new ClauseId(UUID.randomUUID().toString());
+        return new ClauseId(SnowflakeIdGenerator.generate());
     }
 
     /**

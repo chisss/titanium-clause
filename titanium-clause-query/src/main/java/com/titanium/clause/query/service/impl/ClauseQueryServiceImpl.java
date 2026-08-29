@@ -118,6 +118,7 @@ public class ClauseQueryServiceImpl implements ClauseQueryService {
 
     private ClauseQueryResult toResult(ClauseView view) {
         ClauseQueryResult result = new ClauseQueryResult();
+        result.setClauseNo(view.getClauseNo());
         result.setClauseId(view.getClauseId());
         result.setClauseCode(view.getClauseCode());
         result.setClauseName(view.getClauseName());

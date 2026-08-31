@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -157,7 +158,7 @@ public class Clause extends BaseAggregate {
     public void handle(UpdateClauseCommand command) {
         if (this.status != ClauseEnum.ClauseStatus.DRAFT) {
             throw new ClauseInvalidStatusException(
-                    ClauseErrorCode.CLAUSE_OPERATION_NOT_ALLOWED.getMessage() + "：仅草稿状态允许更新");
+                    ClauseErrorCode.CLAUSE_INVALID_STATUS.getMessage() + "：仅草稿状态允许更新");
         }
 
         AggregateLifecycle.apply(new ClauseUpdatedEvent(command.clauseId(), command.clauseCode(), command.clauseName(),
@@ -248,14 +249,9 @@ public class Clause extends BaseAggregate {
             throw new ClauseInvalidStatusException("仅待审批状态的条款可执行审批操作");
         }
 
-        ApprovalRecord record = new ApprovalRecord();
-        record.setRecordId(java.util.UUID.randomUUID().toString().replace("-", ""));
-        record.setApprovalType(command.approvalType());
-        record.setApproverId(command.approverId());
-        record.setApproverName(command.approverName());
-        record.setApprovalStatus(ApprovalStatus.APPROVED);
-        record.setComment(command.comment());
-        record.setApprovalTime(LocalDateTime.now());
+        ApprovalRecord record = new ApprovalRecord(UUID.randomUUID().toString().replace("-", ""),
+                command.approvalType(), command.approverId(), command.approverName(), ApprovalStatus.APPROVED,
+                command.comment(), LocalDateTime.now());
 
         AggregateLifecycle
                 .apply(new ClauseApprovedEvent(command.clauseId(), record, command.approverId(), LocalDateTime.now()));
@@ -270,14 +266,9 @@ public class Clause extends BaseAggregate {
             throw new ClauseInvalidStatusException("仅待审批状态的条款可执行驳回操作");
         }
 
-        ApprovalRecord record = new ApprovalRecord();
-        record.setRecordId(java.util.UUID.randomUUID().toString().replace("-", ""));
-        record.setApprovalType(command.approvalType());
-        record.setApproverId(command.approverId());
-        record.setApproverName(command.approverName());
-        record.setApprovalStatus(ApprovalStatus.REJECTED);
-        record.setComment(command.comment());
-        record.setApprovalTime(LocalDateTime.now());
+        ApprovalRecord record = new ApprovalRecord(UUID.randomUUID().toString().replace("-", ""),
+                command.approvalType(), command.approverId(), command.approverName(), ApprovalStatus.REJECTED,
+                command.comment(), LocalDateTime.now());
 
         AggregateLifecycle
                 .apply(new ClauseRejectedEvent(command.clauseId(), record, command.approverId(), LocalDateTime.now()));
@@ -670,7 +661,7 @@ public class Clause extends BaseAggregate {
         }
 
         TimeRange validityRange = TimeRange.of(effectiveDate, expiryDate);
-        if (!validityRange.isInRange(claimEvent.getClaimTime())) {
+        if (!validityRange.isInRange(claimEvent.claimTime())) {
             return false;
         }
 

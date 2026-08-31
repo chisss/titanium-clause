@@ -9,6 +9,7 @@ import org.mapstruct.ReportingPolicy;
 
 import com.titanium.clause.event.ClauseCreatedEvent;
 import com.titanium.clause.event.ClauseRevisedEvent;
+import com.titanium.clause.event.ClauseUpdatedEvent;
 import com.titanium.clause.query.view.ClauseView;
 import com.titanium.clause.valueobject.ClauseCode;
 import com.titanium.clause.valueobject.ClauseId;
@@ -74,6 +75,22 @@ public interface ClauseViewMapper {
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     void applyRevised(@MappingTarget ClauseView view, ClauseRevisedEvent event);
+
+    /**
+     * 条款更新事件 → 条款读模型（就地更新）。
+     * <p>
+     * 与投影语义一致仅更新事件携带的字段（clauseName 值对象拆解为字符串，clauseCode 维持原值不回写）；
+     * status、createTime/updateTime（审计时间戳）、version（乐观锁）均 ignore，由处理器承接。
+     * </p>
+     */
+    @Mapping(target = "clauseName", source = "clauseName", qualifiedByName = "clauseNameValue")
+    @Mapping(target = "clauseId", ignore = true)
+    @Mapping(target = "clauseCode", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "createTime", ignore = true)
+    @Mapping(target = "updateTime", ignore = true)
+    void applyUpdated(@MappingTarget ClauseView view, ClauseUpdatedEvent event);
 
     /** 条款ID值对象 → 字符串（空安全；复用于 clauseId 与 parentClauseId） */
     @Named("clauseIdValue")

@@ -26,13 +26,4 @@ public class ClauseConstants {
      * </p>
      */
     public static final String PLATFORM_TENANT = "default";
-
-    /**
-     * 错误码常量
-     */
-    public static final String ERROR_CLAUSE_NOT_FOUND = "CLAUSE-001";
-    public static final String ERROR_CLAUSE_DUPLICATE = "CLAUSE-002";
-    public static final String ERROR_CLAUSE_INVALID_STATUS = "CLAUSE-003";
-    public static final String ERROR_CLAUSE_EXPIRED = "CLAUSE-004";
-    public static final String ERROR_CLAUSE_OPERATION_NOT_ALLOWED = "CLAUSE-005";
 }

@@ -4,24 +4,21 @@ import java.time.LocalDateTime;
 
 import com.titanium.metadata.enums.claim.ClaimEnum;
 
-import lombok.Data;
-
 /**
- * 理赔事件实体类
+ * 理赔事件实体（聚合内实体，不可变值对象）
+ *
+ * @param id               理赔事件ID
+ * @param triggerCondition 触发条件
+ * @param claimAmount      理赔金额
+ * @param claimType        理赔类型
+ * @param otherInfo        其他理赔相关信息
+ * @param claimTime        理赔时间
  */
-@Data
-public class ClaimEvent {
-    // 理赔事件ID
-    private String              id;
-    // 触发条件
-    private String              triggerCondition;
-    // 理赔金额
-    private String              claimAmount;
-    // 理赔类型
-    private ClaimEnum.ClaimType claimType;
-    // 其他理赔相关信息
-    private String              otherInfo;
-    // 理赔时间
-    private LocalDateTime       claimTime;
-
+public record ClaimEvent(
+        String              id,
+        String              triggerCondition,
+        String              claimAmount,
+        ClaimEnum.ClaimType claimType,
+        String              otherInfo,
+        LocalDateTime       claimTime) {
 }

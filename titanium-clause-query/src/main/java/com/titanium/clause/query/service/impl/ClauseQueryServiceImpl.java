@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.titanium.clause.common.constant.ClauseConstants;
 import com.titanium.clause.common.tenant.PlatformTenantSupport;
+import com.titanium.clause.query.mapper.ClauseQueryResultMapper;
 import com.titanium.clause.query.repository.ClauseViewRepository;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.query.service.ClauseQueryService;
@@ -38,40 +39,41 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ClauseQueryServiceImpl implements ClauseQueryService {
 
-    private final ClauseViewRepository clauseViewRepository;
+    private final ClauseViewRepository    clauseViewRepository;
+    private final ClauseQueryResultMapper clauseQueryResultMapper;
 
     @Override
     @Transactional(readOnly = true)
     public Optional<ClauseQueryResult> getClauseById(String clauseId, String tenantId) {
         return clauseViewRepository.findByClauseIdAndTenantIdIn(clauseId, PlatformTenantSupport.scope(tenantId))
-                .map(this::toResult);
+                .map(clauseQueryResultMapper::toResult);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<ClauseQueryResult> getClauseByCode(String clauseCode, String tenantId) {
         return clauseViewRepository.findByClauseCodeAndTenantIdIn(clauseCode, PlatformTenantSupport.scope(tenantId))
-                .map(this::toResult);
+                .map(clauseQueryResultMapper::toResult);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ClauseQueryResult> getClausesByStatus(ClauseEnum.ClauseStatus status, String tenantId) {
         return clauseViewRepository.findByStatusAndTenantIdIn(status, PlatformTenantSupport.scope(tenantId)).stream()
-                .map(this::toResult).collect(Collectors.toList());
+                .map(clauseQueryResultMapper::toResult).collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ClauseQueryResult> getClausesByType(InsuranceProductType insuranceType, String tenantId) {
         return clauseViewRepository.findByInsuranceTypeAndTenantIdIn(insuranceType, PlatformTenantSupport.scope(tenantId))
-                .stream().map(this::toResult).collect(Collectors.toList());
+                .stream().map(clauseQueryResultMapper::toResult).collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ClauseQueryResult> getAllClauses(String tenantId) {
-        return clauseViewRepository.findByTenantIdIn(PlatformTenantSupport.scope(tenantId)).stream().map(this::toResult)
+        return clauseViewRepository.findByTenantIdIn(PlatformTenantSupport.scope(tenantId)).stream().map(clauseQueryResultMapper::toResult)
                 .collect(Collectors.toList());
     }
 
@@ -103,7 +105,7 @@ public class ClauseQueryServiceImpl implements ClauseQueryService {
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
-        return clauseViewRepository.findAll(specification, pageable).map(this::toResult);
+        return clauseViewRepository.findAll(specification, pageable).map(clauseQueryResultMapper::toResult);
     }
 
     private int normalizeSize(int size) {
@@ -114,28 +116,6 @@ public class ClauseQueryServiceImpl implements ClauseQueryService {
         return value.trim().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 
-    // ==================== 转换方法：读模型 → DTO ====================
-
-    private ClauseQueryResult toResult(ClauseView view) {
-        ClauseQueryResult result = new ClauseQueryResult();
-        result.setClauseNo(view.getClauseNo());
-        result.setClauseId(view.getClauseId());
-        result.setClauseCode(view.getClauseCode());
-        result.setClauseName(view.getClauseName());
-        result.setClauseType(view.getClauseType());
-        result.setContent(view.getContent());
-        result.setDescription(view.getDescription());
-        result.setStatus(view.getStatus());
-        result.setVersion(view.getClauseVersion());
-        result.setInsuranceType(view.getInsuranceType());
-        result.setParentClauseId(view.getParentClauseId());
-        result.setEffectiveDate(view.getEffectiveDate());
-        result.setExpiryDate(view.getExpiryDate());
-        result.setCreatedBy(view.getCreatedBy());
-        result.setCreatedAt(view.getCreateTime());
-        result.setUpdatedBy(view.getUpdatedBy());
-        result.setUpdatedAt(view.getUpdateTime());
-        result.setTenantId(view.getTenantId());
-        return result;
-    }
+    // ==================== 转换：读模型 → DTO（收敛到 MapStruct 映射器） ====================
+    // 结构映射（含版本号/审计时间戳字段名差异）由 ClauseQueryResultMapper 声明式承担，此处不再逐字段 set。
 }

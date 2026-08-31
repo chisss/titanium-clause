@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.titanium.clause.query.mapper.ClauseQueryResultMapperImpl;
 import com.titanium.clause.query.repository.ClauseViewRepository;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.query.view.ClauseView;
@@ -37,7 +38,8 @@ class ClauseQueryServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new ClauseQueryServiceImpl(repository);
+        // 读模型 → DTO 映射收敛至 MapStruct，测试使用注解处理器生成的实现类
+        service = new ClauseQueryServiceImpl(repository, new ClauseQueryResultMapperImpl());
     }
 
     @Test

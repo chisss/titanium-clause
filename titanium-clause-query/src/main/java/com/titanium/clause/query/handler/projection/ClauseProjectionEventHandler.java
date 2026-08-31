@@ -105,14 +105,8 @@ public class ClauseProjectionEventHandler {
 
         clauseViewRepository.findByClauseIdAndTenantId(event.clauseId().value(), event.tenantId())
                 .ifPresentOrElse(view -> {
-                    view.setClauseName(event.clauseName() != null ? event.clauseName().value() : null);
-                    view.setClauseType(event.clauseType());
-                    view.setContent(event.content());
-                    view.setDescription(event.description());
-                    view.setInsuranceType(event.insuranceType());
-                    view.setEffectiveDate(event.effectiveDate());
-                    view.setExpiryDate(event.expiryDate());
-                    view.setUpdatedBy(event.updatedBy());
+                    // 事件字段 → 读模型的结构映射收敛到 MapStruct（含值对象拆解），消除逐字段 set
+                    clauseViewMapper.applyUpdated(view, event);
                     view.setUpdateTime(event.updatedAt());
                     clauseViewRepository.save(view);
                 }, () -> log.warn("[读模型投影] 条款更新失败：未找到读模型记录 clauseId={}", event.clauseId()));

@@ -15,20 +15,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.titanium.clause.application.query.ClauseAppQueryService;
 import com.titanium.clause.application.service.ClauseApplicationService;
 import com.titanium.clause.common.context.TenantContext;
 import com.titanium.clause.common.enums.ApprovalType;
+import com.titanium.clause.common.exception.ClauseInvalidStatusException;
+import com.titanium.clause.common.exception.ClauseNotFoundException;
 import com.titanium.clause.entity.Coverage;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.valueobject.ClauseId;
 import com.titanium.clause.web.assembler.CoverageAssembler;
 import com.titanium.clause.web.dto.ActivateClauseDTO;
+import com.titanium.clause.web.dto.ApproveClauseDTO;
+import com.titanium.clause.web.dto.ArchiveClauseDTO;
 import com.titanium.clause.web.dto.CoverageDTO;
 import com.titanium.clause.web.dto.CreateClauseDTO;
 import com.titanium.clause.web.dto.InactivateClauseDTO;
+import com.titanium.clause.web.dto.RejectClauseDTO;
+import com.titanium.clause.web.dto.ReviseClauseDTO;
+import com.titanium.clause.web.dto.SubmitApprovalDTO;
 import com.titanium.clause.web.dto.UpdateClauseDTO;
 import com.titanium.clause.web.mapper.ClauseWebMapper;
 import com.titanium.clause.web.response.ClauseVO;
@@ -37,6 +43,8 @@ import com.titanium.metadata.enums.clause.ClauseEnum;
 import com.titanium.metadata.enums.insurance.InsuranceCategory;
 import com.titanium.metadata.enums.insurance.InsuranceLine;
 import com.titanium.metadata.enums.insurance.InsuranceProductType;
+import com.titanium.metadata.errorcode.SystemErrorCode;
+import com.titanium.metadata.exception.DomainException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -92,7 +100,7 @@ public class ClauseController {
     public ResponseEntity<ClauseVO> getClauseByCode(@PathVariable String clauseCode) {
         String tenantId = TenantContext.getCurrentTenant();
         ClauseQueryResult result = clauseAppQueryService.findByCode(clauseCode, tenantId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "条款不存在"));
+                .orElseThrow(() -> new ClauseNotFoundException("条款不存在"));
         return ResponseEntity.ok(clauseWebMapper.toVO(result));
     }
 
@@ -136,9 +144,9 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/submit-approval")
     public ResponseEntity<Void> submitForApproval(@PathVariable String clauseId,
-                                                  @RequestBody Map<String, String> request) {
+                                                  @RequestBody SubmitApprovalDTO request) {
         String tenantId = TenantContext.getCurrentTenant();
-        clauseApplicationService.submitForApproval(clauseId, request.get("submittedBy"), tenantId);
+        clauseApplicationService.submitForApproval(clauseId, request.getSubmittedBy(), tenantId);
         return ResponseEntity.noContent().build();
     }
 
@@ -147,10 +155,10 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/approve")
     public ResponseEntity<Void> approveClause(@PathVariable String clauseId,
-                                              @RequestBody Map<String, String> request) {
+                                              @RequestBody ApproveClauseDTO request) {
         String tenantId = TenantContext.getCurrentTenant();
-        clauseApplicationService.approveClause(clauseId, ApprovalType.fromCode(request.get("approvalType")),
-                request.get("approverId"), request.get("approverName"), request.get("comment"), tenantId);
+        clauseApplicationService.approveClause(clauseId, ApprovalType.fromCode(request.getApprovalType()),
+                request.getApproverId(), request.getApproverName(), request.getComment(), tenantId);
         return ResponseEntity.noContent().build();
     }
 
@@ -159,10 +167,10 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/reject")
     public ResponseEntity<Void> rejectClause(@PathVariable String clauseId,
-                                             @RequestBody Map<String, String> request) {
+                                             @RequestBody RejectClauseDTO request) {
         String tenantId = TenantContext.getCurrentTenant();
-        clauseApplicationService.rejectClause(clauseId, ApprovalType.fromCode(request.get("approvalType")),
-                request.get("approverId"), request.get("approverName"), request.get("comment"), tenantId);
+        clauseApplicationService.rejectClause(clauseId, ApprovalType.fromCode(request.getApprovalType()),
+                request.getApproverId(), request.getApproverName(), request.getComment(), tenantId);
         return ResponseEntity.noContent().build();
     }
 
@@ -171,9 +179,9 @@ public class ClauseController {
      */
     @PostMapping("/{clauseId}/revise")
     public ResponseEntity<Map<String, String>> reviseClause(@PathVariable String clauseId,
-                                                            @RequestBody Map<String, String> request) {
+                                                            @RequestBody ReviseClauseDTO request) {
         String tenantId = TenantContext.getCurrentTenant();
-        ClauseId newClauseId = clauseApplicationService.reviseClause(clauseId, request.get("revisedBy"), tenantId);
+        ClauseId newClauseId = clauseApplicationService.reviseClause(clauseId, request.getRevisedBy(), tenantId);
         return new ResponseEntity<>(Map.of("newClauseId", newClauseId.value()), HttpStatus.CREATED);
     }
 
@@ -182,9 +190,9 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/archive")
     public ResponseEntity<Void> archiveClause(@PathVariable String clauseId,
-                                              @RequestBody Map<String, String> request) {
+                                              @RequestBody ArchiveClauseDTO request) {
         String tenantId = TenantContext.getCurrentTenant();
-        clauseApplicationService.archiveClause(clauseId, request.get("archivedBy"), tenantId);
+        clauseApplicationService.archiveClause(clauseId, request.getArchivedBy(), tenantId);
         return ResponseEntity.noContent().build();
     }
 
@@ -237,7 +245,7 @@ public class ClauseController {
         }
         ClauseEnum.ClauseStatus result = ClauseEnum.ClauseStatus.fromCode(status.trim());
         if (result == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "无效的条款状态: " + status);
+            throw new ClauseInvalidStatusException("无效的条款状态: " + status);
         }
         return result;
     }
@@ -259,7 +267,7 @@ public class ClauseController {
         if (insuranceCategory != null) {
             return InsuranceProductType.byCategory(insuranceCategory);
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "无效的险种分类: " + category);
+        throw new DomainException(SystemErrorCode.PARAM_INVALID, "无效的险种分类: " + category);
     }
 
     /**
@@ -315,7 +323,7 @@ public class ClauseController {
      */
     private ClauseVO findVoOrThrow(String clauseId, String tenantId, String message) {
         ClauseQueryResult result = clauseAppQueryService.findById(clauseId, tenantId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, message));
+                .orElseThrow(() -> new ClauseNotFoundException(message));
         return clauseWebMapper.toVO(result);
     }
 }

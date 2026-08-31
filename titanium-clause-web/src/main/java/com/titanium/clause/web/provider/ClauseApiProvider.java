@@ -2,14 +2,20 @@ package com.titanium.clause.web.provider;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.titanium.clause.api.ClauseApi;
+import com.titanium.clause.api.request.ActivateClauseRequest;
+import com.titanium.clause.api.request.CreateClauseRequest;
+import com.titanium.clause.api.request.InactivateClauseRequest;
+import com.titanium.clause.api.request.UpdateClauseRequest;
+import com.titanium.clause.api.response.ClauseResponse;
+import com.titanium.clause.api.response.CoverageResponse;
+import com.titanium.clause.api.response.PremiumRuleResponse;
 import com.titanium.clause.application.query.ClauseAppQueryService;
 import com.titanium.clause.application.service.ClauseApplicationService;
+import com.titanium.clause.common.exception.ClauseNotFoundException;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.valueobject.ClauseId;
 import com.titanium.clause.web.assembler.CoverageResponseAssembler;
@@ -40,8 +46,7 @@ public class ClauseApiProvider implements ClauseApi {
     private final CoverageResponseAssembler coverageResponseAssembler;
 
     @Override
-    public com.titanium.clause.api.response.ClauseResponse createClause(
-            com.titanium.clause.api.request.CreateClauseRequest request, String tenantId) {
+    public ClauseResponse createClause(CreateClauseRequest request, String tenantId) {
         ClauseId clauseId = clauseApplicationService.createClause(
                 request.getClauseCode(), request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
@@ -50,8 +55,7 @@ public class ClauseApiProvider implements ClauseApi {
     }
 
     @Override
-    public com.titanium.clause.api.response.ClauseResponse updateClause(
-            String clauseId, com.titanium.clause.api.request.UpdateClauseRequest request, String tenantId) {
+    public ClauseResponse updateClause(String clauseId, UpdateClauseRequest request, String tenantId) {
         clauseApplicationService.updateClause(clauseId, request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
                 request.getEffectiveDate(), request.getExpiryDate(), request.getUpdatedBy(), tenantId);
@@ -59,12 +63,12 @@ public class ClauseApiProvider implements ClauseApi {
     }
 
     @Override
-    public com.titanium.clause.api.response.ClauseResponse getClauseById(String clauseId, String tenantId) {
+    public ClauseResponse getClauseById(String clauseId, String tenantId) {
         return findResponseOrThrow(clauseId, tenantId);
     }
 
     @Override
-    public com.titanium.clause.api.response.PremiumRuleResponse getPremiumRuleByClauseId(
+    public PremiumRuleResponse getPremiumRuleByClauseId(
             String clauseId, String tableCode, String version, String tenantId) {
         return clauseAppQueryService.findPremiumRuleByClauseIdAndVersion(clauseId, tableCode, version, tenantId)
                 .map(clauseWebMapper::toPremiumRuleResponse)
@@ -72,7 +76,7 @@ public class ClauseApiProvider implements ClauseApi {
     }
 
     @Override
-    public List<com.titanium.clause.api.response.ClauseResponse> getClauses(
+    public List<ClauseResponse> getClauses(
             String status, String clauseType, String tenantId) {
         List<ClauseQueryResult> results;
         if (status != null) {
@@ -86,33 +90,30 @@ public class ClauseApiProvider implements ClauseApi {
     }
 
     @Override
-    public com.titanium.clause.api.response.ClauseResponse activateClause(
-            String clauseId, com.titanium.clause.api.request.ActivateClauseRequest request, String tenantId) {
+    public ClauseResponse activateClause(String clauseId, ActivateClauseRequest request, String tenantId) {
         clauseApplicationService.activateClause(clauseId, request.getActivatedBy(), tenantId);
         return findResponseOrThrow(clauseId, tenantId);
     }
 
     @Override
-    public com.titanium.clause.api.response.ClauseResponse inactivateClause(
-            String clauseId, com.titanium.clause.api.request.InactivateClauseRequest request, String tenantId) {
+    public ClauseResponse inactivateClause(String clauseId, InactivateClauseRequest request, String tenantId) {
         clauseApplicationService.inactivateClause(clauseId, request.getInactivatedBy(), tenantId);
         return findResponseOrThrow(clauseId, tenantId);
     }
 
     @Override
-    public List<com.titanium.clause.api.response.CoverageResponse> getCoveragesByClauseId(String clauseId,
-                                                                                          String tenantId) {
+    public List<CoverageResponse> getCoveragesByClauseId(String clauseId, String tenantId) {
         return clauseAppQueryService.findCoveragesByClauseId(clauseId, tenantId).stream()
                 .map(coverageResponseAssembler::toResponse)
                 .toList();
     }
 
     /**
-     * 按ID查询读模型并转对外 Response，未命中返回 404
+     * 按ID查询读模型并转对外 Response，未命中抛条款不存在异常（由全局异常处理器映射 404）
      */
-    private com.titanium.clause.api.response.ClauseResponse findResponseOrThrow(String clauseId, String tenantId) {
+    private ClauseResponse findResponseOrThrow(String clauseId, String tenantId) {
         return clauseAppQueryService.findById(clauseId, tenantId)
                 .map(clauseWebMapper::toResponse)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "条款不存在: " + clauseId));
+                .orElseThrow(() -> new ClauseNotFoundException("条款不存在: " + clauseId));
     }
 }

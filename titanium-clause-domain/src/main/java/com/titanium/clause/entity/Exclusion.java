@@ -40,6 +40,6 @@ public record Exclusion(
      * @return 是否命中免责规则
      */
     public boolean isHitExclusion(ClaimEvent claimEvent) {
-        return exclusionRuleCode != null && claimEvent.getOtherInfo().contains(exclusionRuleCode);
+        return exclusionRuleCode != null && claimEvent.otherInfo().contains(exclusionRuleCode);
     }
 }

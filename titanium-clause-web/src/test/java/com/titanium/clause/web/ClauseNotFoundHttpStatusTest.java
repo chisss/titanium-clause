@@ -19,6 +19,7 @@ import com.titanium.clause.common.context.TenantContext;
 import com.titanium.clause.web.assembler.CoverageAssembler;
 import com.titanium.clause.web.assembler.CoverageResponseAssembler;
 import com.titanium.clause.web.controller.ClauseController;
+import com.titanium.clause.web.handler.ClauseExceptionHandler;
 import com.titanium.clause.web.mapper.ClauseWebMapper;
 import com.titanium.clause.web.provider.ClauseApiProvider;
 
@@ -39,8 +40,10 @@ class ClauseNotFoundHttpStatusTest {
                 mock(CoverageAssembler.class));
         ClauseApiProvider clauseApiProvider = new ClauseApiProvider(applicationService, clauseAppQueryService, webMapper,
                 mock(CoverageResponseAssembler.class));
-        webMockMvc = MockMvcBuilders.standaloneSetup(clauseController).build();
-        apiMockMvc = MockMvcBuilders.standaloneSetup(clauseApiProvider).build();
+        // 控制器/Provider 抛出 ClauseNotFoundException，由全局异常处理器统一映射为 404
+        ClauseExceptionHandler exceptionHandler = new ClauseExceptionHandler();
+        webMockMvc = MockMvcBuilders.standaloneSetup(clauseController).setControllerAdvice(exceptionHandler).build();
+        apiMockMvc = MockMvcBuilders.standaloneSetup(clauseApiProvider).setControllerAdvice(exceptionHandler).build();
         TenantContext.setCurrentTenant(TENANT_ID);
     }
 

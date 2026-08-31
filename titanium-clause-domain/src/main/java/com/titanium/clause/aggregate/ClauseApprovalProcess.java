@@ -132,12 +132,7 @@ public class ClauseApprovalProcess extends BaseAggregate {
      * 构建一条审批记录
      */
     private ApprovalRecord buildRecord(String approverId, String opinion, ApprovalStatus approvalStatus) {
-        ApprovalRecord record = new ApprovalRecord();
-        record.setRecordId(UUID.randomUUID().toString().replace("-", ""));
-        record.setApproverId(approverId);
-        record.setApprovalStatus(approvalStatus);
-        record.setComment(opinion);
-        record.setApprovalTime(LocalDateTime.now());
-        return record;
+        return new ApprovalRecord(UUID.randomUUID().toString().replace("-", ""), null, approverId, null,
+                approvalStatus, opinion, LocalDateTime.now());
     }
 }

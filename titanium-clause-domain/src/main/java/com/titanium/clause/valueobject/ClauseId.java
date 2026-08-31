@@ -1,6 +1,7 @@
 package com.titanium.clause.valueobject;
 
 import java.io.Serializable;
+
 import com.titanium.common.util.SnowflakeIdGenerator;
 
 /**

@@ -5,6 +5,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.titanium.clause.common.constant.ClauseConstants;
 import com.titanium.clause.common.context.TenantContext;
+import com.titanium.metadata.errorcode.SystemErrorCode;
+import com.titanium.metadata.exception.DomainException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,7 +21,7 @@ public class TenantInterceptor implements HandlerInterceptor {
         // 从请求头中获取租户ID
         String tenantId = request.getHeader(ClauseConstants.HEADER_TENANT_ID);
         if (tenantId == null || tenantId.trim().isEmpty()) {
-            throw new IllegalArgumentException("租户ID不能为空");
+            throw new DomainException(SystemErrorCode.TENANT_HEADER_MISSING);
         }
         // 设置租户ID到ThreadLocal
         TenantContext.setCurrentTenant(tenantId);

@@ -9,26 +9,27 @@ import com.titanium.clause.common.exception.ClauseExpiredException;
 import com.titanium.clause.common.exception.ClauseInvalidStatusException;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * 条款领域服务
  * <p>
  * 纯领域服务：只承载条款相关的无依赖业务规则（数据校验、状态流转规则），
  * 不依赖仓储/Port，取数（唯一性/存在性）与发命令属应用层编排职责。
+ * 数据完整性校验链已独立成 {@link ClauseDataValidator}（红线19），本类仅委托。
  * </p>
  */
 @Component
+@RequiredArgsConstructor
 public class ClauseDomainService {
 
+    private final ClauseDataValidator clauseDataValidator;
+
     /**
-     * 验证条款有效期
+     * 验证条款有效期（委托 {@link ClauseDataValidator}）
      */
     public void validateClauseEffectivePeriod(LocalDateTime effectiveDate, LocalDateTime expiryDate) {
-        if (effectiveDate == null) {
-            throw new IllegalArgumentException("条款生效日期不能为空");
-        }
-        if (expiryDate != null && expiryDate.isBefore(effectiveDate)) {
-            throw new IllegalArgumentException("条款失效日期不能早于生效日期");
-        }
+        clauseDataValidator.validateEffectivePeriod(effectiveDate, expiryDate);
     }
 
     /**
@@ -44,23 +45,11 @@ public class ClauseDomainService {
     }
 
     /**
-     * 验证条款数据完整性
+     * 验证条款数据完整性（委托 {@link ClauseDataValidator}，校验链已独立成校验器类）
      */
     public void validateClauseData(String clauseCode, String clauseName, ClauseEnum.ClauseType clauseType,
                                    String content, LocalDateTime effectiveDate, LocalDateTime expiryDate) {
-        if (clauseCode == null || clauseCode.trim().isEmpty()) {
-            throw new IllegalArgumentException("条款代码不能为空");
-        }
-        if (clauseName == null || clauseName.trim().isEmpty()) {
-            throw new IllegalArgumentException("条款名称不能为空");
-        }
-        if (clauseType == null) {
-            throw new IllegalArgumentException("条款类型不能为空");
-        }
-        if (content == null || content.trim().isEmpty()) {
-            throw new IllegalArgumentException("条款内容不能为空");
-        }
-        validateClauseEffectivePeriod(effectiveDate, expiryDate);
+        clauseDataValidator.validateClauseData(clauseCode, clauseName, clauseType, content, effectiveDate, expiryDate);
     }
 
     /**

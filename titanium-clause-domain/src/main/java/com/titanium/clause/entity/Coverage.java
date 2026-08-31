@@ -68,7 +68,7 @@ public record Coverage(
             if (trigger.usesRuleEngine()) {
                 return true;
             }
-            String eventCondition = claimEvent.getTriggerCondition();
+            String eventCondition = claimEvent.triggerCondition();
             if (eventCondition == null) {
                 return false;
             }
@@ -77,6 +77,6 @@ public record Coverage(
             }
             return trigger.triggerType().getCode().equals(eventCondition);
         }
-        return triggerCondition != null && triggerCondition.equals(claimEvent.getTriggerCondition());
+        return triggerCondition != null && triggerCondition.equals(claimEvent.triggerCondition());
     }
 }

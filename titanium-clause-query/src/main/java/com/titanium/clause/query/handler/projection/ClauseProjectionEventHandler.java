@@ -66,10 +66,6 @@ public class ClauseProjectionEventHandler {
         this.businessNumberGenerator = generator;
     }
 
-    public ClauseProjectionEventHandler(ClauseViewRepository repository, ClauseViewMapper mapper, CoverageViewRepository coverageRepository, PremiumRuleViewRepository premiumRepository, ClauseRuleViewMapper ruleMapper) {
-        this(repository, mapper, coverageRepository, premiumRepository, ruleMapper, null);
-    }
-
     /**
      * 投影条款创建事件：新建读模型记录
      */

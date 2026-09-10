@@ -181,8 +181,9 @@ public class ClauseProjectionEventHandler {
      * 使新版本可被查询。事件字段 → 读模型的结构映射收敛到 MapStruct（含值对象拆解），消除逐字段 set。
      * </p>
      * <p>
-     * 规则组件（责任/费率等）读模型此处不复制：{@code CoverageView}/{@code PremiumRuleView}
-     * 以 coverageId/clauseId 为主键，修订沿用原规则组件ID，若复制将与原条款读模型记录主键冲突。
+     * 规则组件读模型随版本复制（{@link #copyInheritedRuleViews}）：新版本聚合继承原条款责任/费率
+     * （ID 复用），责任读模型以 {@code (coverageId, clauseId)} 复合主键按条款版本隔离、费率读模型以
+     * clauseId 为主键天然按版本隔离，复制后新版本读模型与聚合状态一致（责任随版本变更可见、可独立增删改）。
      * </p>
      */
     @EventHandler
@@ -202,6 +203,9 @@ public class ClauseProjectionEventHandler {
         stampAuditTime(view, event.revisedAt());
 
         clauseViewRepository.save(view);
+
+        // 责任/费率读模型随版本复制：新版本读模型与写侧聚合状态一致
+        copyInheritedRuleViews(event);
     }
 
     /**
@@ -244,6 +248,10 @@ public class ClauseProjectionEventHandler {
      * 责任事件未携带租户ID，从父条款读模型 {@code ClauseView} 继承，保持责任读模型的租户隔离与条款一致。
      * 父条款读模型缺失时告警跳过，由 DLQ 重试（事件乱序保障）。
      * </p>
+     * <p>
+     * <b>复合主键定位</b>：按 {@code (coverageId, clauseId)} 定位所属版本的责任行——修订版本继承的责任
+     * （ID 复用）在此 upsert 的是新版本自己的行，不会改写原条款版本的责任读模型。
+     * </p>
      */
     @EventHandler
     @Transactional
@@ -253,7 +261,8 @@ public class ClauseProjectionEventHandler {
         log.info("[读模型投影] 保险责任添加: clauseId={}, coverageId={}", clauseId, coverageId);
 
         resolveTenantId(clauseId).ifPresentOrElse(tenantId -> {
-            CoverageView view = coverageViewRepository.findByCoverageIdAndTenantId(coverageId, tenantId)
+            CoverageView view = coverageViewRepository
+                    .findByCoverageIdAndClauseIdAndTenantId(coverageId, clauseId, tenantId)
                     .orElseGet(CoverageView::new);
             // 责任实体 → 读模型的结构映射（含 JSON 序列化）收敛到 MapStruct，消除逐字段 set
             clauseRuleViewMapper.applyCoverage(view, event.coverage());
@@ -265,7 +274,7 @@ public class ClauseProjectionEventHandler {
     }
 
     /**
-     * 投影保险责任移除事件：物理删除责任读模型记录
+     * 投影保险责任移除事件：物理删除责任读模型记录（按复合主键仅删该条款版本下的责任行）
      */
     @EventHandler
     @Transactional
@@ -274,11 +283,14 @@ public class ClauseProjectionEventHandler {
         String coverageId = event.coverageId().value();
         log.info("[读模型投影] 保险责任移除: clauseId={}, coverageId={}", clauseId, coverageId);
 
-        resolveTenantId(clauseId)
-                .flatMap(tenantId -> coverageViewRepository.findByCoverageIdAndTenantId(coverageId, tenantId))
-                .ifPresentOrElse(coverageViewRepository::delete,
-                        () -> log.warn("[读模型投影] 保险责任移除失败：未找到责任读模型 clauseId={}, coverageId={}", clauseId,
-                                coverageId));
+        resolveTenantId(clauseId).ifPresentOrElse(tenantId -> {
+            long deleted = coverageViewRepository.deleteByCoverageIdAndClauseIdAndTenantId(coverageId, clauseId,
+                    tenantId);
+            if (deleted == 0) {
+                log.warn("[读模型投影] 保险责任移除未命中读模型记录: clauseId={}, coverageId={}", clauseId,
+                        coverageId);
+            }
+        }, () -> log.warn("[读模型投影] 保险责任移除失败：未找到父条款读模型 clauseId={}（可能事件乱序，将由DLQ重试）", clauseId));
     }
 
     /**
@@ -313,6 +325,49 @@ public class ClauseProjectionEventHandler {
      */
     private Optional<String> resolveTenantId(String clauseId) {
         return clauseViewRepository.findById(clauseId).map(ClauseView::getTenantId);
+    }
+
+    /**
+     * 修订版本规则组件读模型复制：责任/费率随版本复制为新版本自己的读模型行
+     * <p>
+     * 修订事件携带完整规则组件快照（继承自原条款，ID 复用）与 tenantId，无需父条款解析。
+     * 责任读模型按 {@code (coverageId, clauseId)} 复合主键定位新版本行（与原条款行互不冲突）；
+     * 费率读模型以 clauseId 为主键，天然按条款版本隔离。审计时间戳统一取修订事件时间。
+     * </p>
+     *
+     * @param event 条款修订事件（含继承的规则组件快照）
+     */
+    private void copyInheritedRuleViews(ClauseRevisedEvent event) {
+        String newClauseId = event.newClauseId().value();
+        String tenantId = event.tenantId();
+
+        if (event.coverages() != null) {
+            event.coverages().values().forEach(coverage -> {
+                String coverageId = coverage.id() != null ? coverage.id().value() : null;
+                if (coverageId == null) {
+                    log.warn("[读模型投影] 条款修订复制责任跳过：责任ID缺失 newClauseId={}", newClauseId);
+                    return;
+                }
+                CoverageView coverageView = coverageViewRepository
+                        .findByCoverageIdAndClauseIdAndTenantId(coverageId, newClauseId, tenantId)
+                        .orElseGet(CoverageView::new);
+                clauseRuleViewMapper.applyCoverage(coverageView, coverage);
+                coverageView.setClauseId(newClauseId);
+                coverageView.setTenantId(tenantId);
+                stampAuditTime(coverageView, event.revisedAt());
+                coverageViewRepository.save(coverageView);
+            });
+        }
+
+        if (event.premiumRule() != null) {
+            PremiumRuleView premiumView = premiumRuleViewRepository.findByClauseIdAndTenantId(newClauseId, tenantId)
+                    .orElseGet(PremiumRuleView::new);
+            clauseRuleViewMapper.applyPremiumRule(premiumView, event.premiumRule());
+            premiumView.setClauseId(newClauseId);
+            premiumView.setTenantId(tenantId);
+            stampAuditTime(premiumView, event.revisedAt());
+            premiumRuleViewRepository.save(premiumView);
+        }
     }
 
     // ==================== 读模型审计时间戳（含"仅首次"语义，不下沉映射器） ====================

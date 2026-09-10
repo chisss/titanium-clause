@@ -1,5 +1,6 @@
 package com.titanium.clause.query.view;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import com.titanium.clause.common.enums.CoverageType;
@@ -12,9 +13,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -23,7 +27,13 @@ import lombok.Setter;
  * 对应读模型表 {@code t_coverage_view}，与写侧事件存储物理隔离。由
  * {@link com.titanium.clause.query.handler.projection.ClauseProjectionEventHandler} 订阅
  * {@code CoverageAddedEvent}/{@code CoverageRemovedEvent} 投影而来。一个条款可包含多个责任，
- * 故以 {@code coverage_id} 为主键、{@code clause_id} 建索引支持按条款批量查询。
+ * 故以 {@code coverage_id} 建索引支持按条款批量查询。
+ * </p>
+ * <p>
+ * <b>主键设计（修订→新版本机制）</b>：以 {@code (coverage_id, clause_id)} 复合主键按<b>条款版本</b>隔离责任
+ * 读模型。修订产生的新版本条款继承原条款责任（聚合内责任ID不变），若仅以 {@code coverage_id} 作主键，
+ * 新版本责任读模型将与原条款冲突（更新改写 clause_id、移除误删原条款责任行）。复合主键下两者各行其道，
+ * 责任随版本变更互不串扰。
  * </p>
  * <p>
  * <b>设计说明</b>：可检索/展示的标量字段（编码/名称/类型/保额/触发类型/赔付类型）独立建列；
@@ -37,16 +47,18 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "t_coverage_view")
+@IdClass(CoverageView.CoverageViewId.class)
 @Getter
 @Setter
 public class CoverageView extends BaseView {
 
-    /** 责任ID（聚合内唯一，读模型主键） */
+    /** 责任ID（聚合内唯一，与条款ID组成复合主键） */
     @Id
     @Column(name = "coverage_id", nullable = false, length = 36)
     private String              coverageId;
 
-    /** 所属条款ID（一条款多责任，建索引） */
+    /** 所属条款ID（复合主键一部分，按条款版本隔离责任读模型） */
+    @Id
     @Column(name = "clause_id", nullable = false, length = 36)
     private String              clauseId;
 
@@ -98,4 +110,24 @@ public class CoverageView extends BaseView {
     @Lob
     @Column(name = "payout_rule_json", columnDefinition = "TEXT")
     private String              payoutRuleJson;
+
+    /**
+     * 保险责任读模型复合主键类（责任ID + 所属条款ID）
+     * <p>
+     * 与实体 {@link IdClass} 注解配合，字段名与类型须与实体内 {@code @Id} 字段一致。
+     * 责任ID在聚合内唯一但跨条款版本复用（修订继承），故须叠加条款ID才能唯一定位一行。
+     * </p>
+     */
+    @Getter
+    @Setter
+    @EqualsAndHashCode
+    @NoArgsConstructor
+    public static class CoverageViewId implements Serializable {
+
+        /** 责任ID（复合主键之一） */
+        private String coverageId;
+
+        /** 所属条款ID（复合主键之一） */
+        private String clauseId;
+    }
 }

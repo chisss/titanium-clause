@@ -148,12 +148,12 @@ GetClauseByIdQuery、GetClauseByCodeQuery、GetClausesByStatusQuery、GetClauses
 # JDK 21
 export JAVA_HOME=/Users/sunwei/Library/Java/JavaVirtualMachines/corretto-21.0.4/Contents/Home
 
-# 在项目根目录构建条款域（含依赖模块）
-cd /Users/sunwei/titanium-project
-mvn -pl titanium-clause -am clean install -DskipTests
+# 构建条款域（域目录即 Maven reactor，一次构建全部子模块）
+cd /Users/sunwei/titanium-project/titanium-clause
+mvn clean install -DskipTests
 
 # 单独启动条款服务（确认 8083 未被 underwriting 占用）
-cd titanium-clause/titanium-clause-bootstrap
+cd titanium-clause-bootstrap
 mvn spring-boot:run
 
 # 访问基址： http://localhost:8083/titanium-clause/api/clauses

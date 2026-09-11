@@ -179,13 +179,17 @@ public class Clause extends BaseAggregate {
         }
 
         boolean isValid = switch (this.status) {
-            // 草稿只能提交审批；生效（ACTIVE）唯一入口是审批通过（ClauseApprovedEvent），不可由此直达，防止绕过审批
+            // 草稿只能提交审批
             case DRAFT -> newStatus == ClauseEnum.ClauseStatus.PENDING_APPROVAL;
-            case PENDING_APPROVAL -> newStatus == ClauseEnum.ClauseStatus.ACTIVE
-                    || newStatus == ClauseEnum.ClauseStatus.DRAFT;
+            // 待审批只能撤销提交回到草稿。🔴 生效（ACTIVE）的唯一入口是审批通过（ClauseApprovedEvent）：
+            // 一旦放行此处的 PENDING_APPROVAL → ACTIVE，ActivateClauseCommand 转发本命令即可让待审批条款
+            // 无审批结论、无审批记录地直接生效，绕过审批。
+            case PENDING_APPROVAL -> newStatus == ClauseEnum.ClauseStatus.DRAFT;
+            // 生效条款可停用 / 过期 / 归档
             case ACTIVE -> newStatus == ClauseEnum.ClauseStatus.INACTIVE
                     || newStatus == ClauseEnum.ClauseStatus.EXPIRED
                     || newStatus == ClauseEnum.ClauseStatus.ARCHIVED;
+            // 停用条款可重新启用（重新启用不是首次生效，无需审批）
             case INACTIVE -> newStatus == ClauseEnum.ClauseStatus.ACTIVE;
             default -> false;
         };
@@ -201,6 +205,10 @@ public class Clause extends BaseAggregate {
 
     /**
      * 激活条款命令处理器
+     * <p>
+     * 转发为 {@code ACTIVE} 的状态迁移，合法性由 {@link #handle(ChangeClauseStatusCommand)} 的迁移表裁定：
+     * 仅停用（INACTIVE）条款可经此重新启用；草稿、待审批条款均被拒绝（后者必须走审批通过）。
+     * </p>
      */
     @CommandHandler
     public void handle(ActivateClauseCommand command) {

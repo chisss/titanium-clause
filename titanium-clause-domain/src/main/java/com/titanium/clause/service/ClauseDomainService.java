@@ -64,8 +64,13 @@ public class ClauseDomainService {
     /**
      * 检查条款状态是否可以激活
      * <p>
-     * 仅停用（INACTIVE）条款可直接重新激活；草稿（DRAFT）不可直接激活，必须经审批流程
-     * （提交审批 → 审批通过）才能生效，防止绕过审批的责任完整性校验。
+     * 仅停用（INACTIVE）条款可直接重新激活；草稿（DRAFT）、待审批（PENDING_APPROVAL）不可直接激活，
+     * 必须经审批流程（提交审批 → 审批通过）才能首次生效，防止绕过审批的责任完整性校验。
+     * </p>
+     * <p>
+     * 🔴 本判据是应用层的前置拦截，<b>聚合根 {@code Clause#handle(ChangeClauseStatusCommand)} 的迁移表
+     * 是同一规则的最终守卫</b>，二者必须保持一致——仅靠应用层把关时，任何绕过应用层的调用方
+     * （新入口 / 跨域 Feign / 直接发命令）都能让待审批条款无审批生效。
      * </p>
      */
     public boolean canActivateClause(ClauseEnum.ClauseStatus status) {

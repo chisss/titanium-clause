@@ -180,5 +180,9 @@ mvn spring-boot:run
 
 7. **Liquibase 未接入 bootstrap**：SQL 脚本位于模块根 `/liquibase`，但 bootstrap 的 `application.yml` 使用 `jpa.hibernate.ddl-auto: update` 由 Hibernate 自动建表，未配置 `spring.liquibase`。与全局规约「用 Liquibase 管理迁移」不符，需补接入。
 
+8. **🟠 条款审批职责迁移未完成（m0-716 实读复核，2026-09-11）**：`Clause` 聚合内的**旧审批路径**（`SubmitClauseForApprovalCommand`/`ApproveClauseCommand`/`RejectClauseCommand`，经 `ClauseApplicationService` 有真实入口）**仍在服务**，而新聚合 `ClauseApprovalProcess` 的三个命令（`SubmitClauseApprovalCommand`/`ApproveClauseApprovalCommand`/`RejectClauseApprovalCommand`）**零发送方**——`Clause` 聚合内已注明「审批职责正迁移至独立聚合 `ClauseApprovalProcess`，以下 Submit/Approve/Reject 命令处理器及对应事件溯源处理器待迁移完成后移除」。
+   🔴 **不可加性接线**：直接给新命令补发送方会造出**双通道并存**（新旧审批路径同时可用、可绕过），正是 m0-707 刚在 maintenance 收敛掉的反模式。
+   🔴 **正确做法是破坏性替换**：删除 `Clause` 的 3 个 `@CommandHandler` 与对应 `@EventSourcingHandler`，把入口整体切到 `ClauseApprovalProcess`——**对已有事件存储有兼容性影响**（旧事件流中的审批事件不再被回放，须评估存量聚合的状态重建路径），**须项目决策后实施**。当前仅登记，未做任何改动。
+
 ---
 *本文档为条款域模块级规约，与根 CLAUDE.md 配合使用。*

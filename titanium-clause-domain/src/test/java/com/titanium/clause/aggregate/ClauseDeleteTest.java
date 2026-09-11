@@ -64,7 +64,7 @@ class ClauseDeleteTest {
     @Test
     void activeClauseCannotBeDeleted() {
         fixture.given(draftCreatedEvent(),
-                new ClauseStatusChangedEvent(CLAUSE_ID, ClauseEnum.ClauseStatus.ACTIVE, "approver", LocalDateTime.now()))
+                new ClauseStatusChangedEvent(CLAUSE_ID, ClauseEnum.ClauseStatus.ACTIVE, "approver", LocalDateTime.now(), TENANT_ID))
                 .when(new DeleteClauseCommand(CLAUSE_ID, "operator"))
                 .expectException(ClauseInvalidStatusException.class)
                 .expectNoEvents();
@@ -75,7 +75,7 @@ class ClauseDeleteTest {
         // 回归校验：删草稿能力恢复后，已生效条款的归档软删路径不受影响
         fixture.registerIgnoredField(com.titanium.clause.event.ClauseArchivedEvent.class, "archivedAt");
         fixture.given(draftCreatedEvent(),
-                new ClauseStatusChangedEvent(CLAUSE_ID, ClauseEnum.ClauseStatus.ACTIVE, "approver", LocalDateTime.now()))
+                new ClauseStatusChangedEvent(CLAUSE_ID, ClauseEnum.ClauseStatus.ACTIVE, "approver", LocalDateTime.now(), TENANT_ID))
                 .when(new ArchiveClauseCommand(CLAUSE_ID, "operator"))
                 .expectEvents(new com.titanium.clause.event.ClauseArchivedEvent(CLAUSE_ID, "operator", null));
     }

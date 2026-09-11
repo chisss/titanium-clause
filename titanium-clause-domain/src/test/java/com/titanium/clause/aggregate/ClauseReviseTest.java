@@ -76,7 +76,7 @@ class ClauseReviseTest {
     void activeClauseRevisionCreatesNewVersionWithInheritedCoverages() {
         fixture.given(draftCreatedEvent(),
                 new CoverageAddedEvent(CLAUSE_ID, COVERAGE, "creator", EFFECTIVE_DATE),
-                new ClauseStatusChangedEvent(CLAUSE_ID, ClauseEnum.ClauseStatus.ACTIVE, "approver", EFFECTIVE_DATE))
+                new ClauseStatusChangedEvent(CLAUSE_ID, ClauseEnum.ClauseStatus.ACTIVE, "approver", EFFECTIVE_DATE, TENANT_ID))
                 .when(new ReviseClauseCommand(CLAUSE_ID, NEW_CLAUSE_ID, "reviser"))
                 .expectEvents(new ClauseRevisedEvent(CLAUSE_ID, NEW_CLAUSE_ID, ClauseCode.fromString("CL-001"),
                         ClauseName.fromString("测试条款"), ClauseEnum.ClauseType.MAIN, "条款内容", "描述",

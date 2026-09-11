@@ -196,7 +196,7 @@ public class Clause extends BaseAggregate {
         }
 
         AggregateLifecycle.apply(new ClauseStatusChangedEvent(command.clauseId(), command.newStatus(),
-                command.updatedBy(), LocalDateTime.now()));
+                command.updatedBy(), LocalDateTime.now(), this.tenantId));
     }
 
     /**
@@ -253,8 +253,8 @@ public class Clause extends BaseAggregate {
                 command.approvalType(), command.approverId(), command.approverName(), ApprovalStatus.APPROVED,
                 command.comment(), LocalDateTime.now());
 
-        AggregateLifecycle
-                .apply(new ClauseApprovedEvent(command.clauseId(), record, command.approverId(), LocalDateTime.now()));
+        AggregateLifecycle.apply(new ClauseApprovedEvent(command.clauseId(), record, command.approverId(),
+                LocalDateTime.now(), this.tenantId));
     }
 
     /**

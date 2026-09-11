@@ -6,10 +6,12 @@ package com.titanium.clause.common.constant;
 public class ClauseConstants {
     /**
      * Kafka主题常量
+     * <p>
+     * 仅保留条款状态变更主题——条款的创建/修改/废止在聚合内**统一收敛为状态流转**，
+     * 外发只经「创建」与「状态变更」两条出口（见 {@code ClauseKafkaEventPublisher}），
+     * 原 TOPIC_CLAUSE_CREATED/UPDATED/DELETED 三个常量自声明起从无发布点，已删除（m5-903）。
+     * </p>
      */
-    public static final String TOPIC_CLAUSE_CREATED = "clause-created";
-    public static final String TOPIC_CLAUSE_UPDATED = "clause-updated";
-    public static final String TOPIC_CLAUSE_DELETED = "clause-deleted";
     public static final String TOPIC_CLAUSE_STATUS_CHANGED = "clause-status-changed";
 
     /**

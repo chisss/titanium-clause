@@ -87,42 +87,18 @@ public class KafkaConfig {
     }
 
     /**
-     * 创建条款创建事件主题
-     *
-     * @return 主题对象
-     */
-    @Bean
-    public NewTopic clauseCreatedTopic() {
-        return TopicBuilder.name("clause-created").partitions(3).replicas(2).build();
-    }
-
-    /**
-     * 创建条款更新事件主题
-     *
-     * @return 主题对象
-     */
-    @Bean
-    public NewTopic clauseUpdatedTopic() {
-        return TopicBuilder.name("clause-updated").partitions(3).replicas(2).build();
-    }
-
-    /**
-     * 创建条款状态变更事件主题
+     * 创建条款状态变更事件主题（本域唯一外发主题）
+     * <p>
+     * 🔴 条款的创建/修改/废止在聚合内**统一收敛为状态流转**，外发只经「创建」与「状态变更」两条出口
+     * （见 {@code ClauseKafkaEventPublisher}）。原 {@code clauseCreatedTopic}/{@code clauseUpdatedTopic}/
+     * {@code clauseDeletedTopic} 三个 Bean 建的主题自建起无任何发布点、亦无消费者，属死主题，
+     * 已随其同名常量一并删除（m5-903）——留着只会让 broker 上多出三个永不产生消息的主题。
+     * </p>
      *
      * @return 主题对象
      */
     @Bean
     public NewTopic clauseStatusChangedTopic() {
         return TopicBuilder.name("clause-status-changed").partitions(3).replicas(2).build();
-    }
-
-    /**
-     * 创建条款删除事件主题
-     *
-     * @return 主题对象
-     */
-    @Bean
-    public NewTopic clauseDeletedTopic() {
-        return TopicBuilder.name("clause-deleted").partitions(3).replicas(2).build();
     }
 }

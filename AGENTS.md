@@ -34,9 +34,8 @@
 | 常量 | topic | 发布时机 | 当前消费方 |
 |------|-------|---------|-----------|
 | `TOPIC_CLAUSE_STATUS_CHANGED` | `clause-status-changed` | 状态变更 / 审批通过 | 暂无外部消费者 |
-| `TOPIC_CLAUSE_CREATED` | `clause-created` | （常量已定义，未实际发布） | — |
-| `TOPIC_CLAUSE_UPDATED` | `clause-updated` | （常量已定义，未实际发布） | — |
-| `TOPIC_CLAUSE_DELETED` | `clause-deleted` | （常量已定义，未实际发布） | — |
+
+> `TOPIC_CLAUSE_CREATED` / `TOPIC_CLAUSE_UPDATED` / `TOPIC_CLAUSE_DELETED` 三个常量**已于 m5-903 删除**（声明起从无发布点），`KafkaConfig` 中对应三个死主题 Bean 一并删除；条款的创建/修改/废止在聚合内统一收敛为状态流转，外发只经上表一条出口。
 
 > Axon 自身事件总线 topic 为 `clause-events`（见 application.yml `axon.kafka.default-topic`）。
 

@@ -1,12 +1,12 @@
-package com.titanium.clause.web.dto;
+package com.titanium.clause.web.dto.approval;
 
 import lombok.Data;
 
 /**
- * 审批通过条款请求
+ * 审批驳回条款请求
  */
 @Data
-public class ApproveClauseDTO {
+public class RejectClauseDTO {
     /**
      * 审批类型码: LEGAL(法务)/ACTUARIAL(精算)/MANAGEMENT(管理层)
      */
@@ -23,7 +23,7 @@ public class ApproveClauseDTO {
     private String approverName;
 
     /**
-     * 审批意见
+     * 驳回意见
      */
     private String comment;
 }

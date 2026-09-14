@@ -15,9 +15,9 @@ import com.titanium.clause.api.request.ActivateClauseRequest;
 import com.titanium.clause.api.request.CreateClauseRequest;
 import com.titanium.clause.api.request.InactivateClauseRequest;
 import com.titanium.clause.api.request.UpdateClauseRequest;
-import com.titanium.clause.api.response.ClauseResponse;
-import com.titanium.clause.api.response.CoverageResponse;
-import com.titanium.clause.api.response.PremiumRuleResponse;
+import com.titanium.clause.api.response.clause.ClauseResponse;
+import com.titanium.clause.api.response.clause.CoverageResponse;
+import com.titanium.clause.api.response.rate.PremiumRuleResponse;
 
 /**
  * 条款聚合对外契约（Feign）

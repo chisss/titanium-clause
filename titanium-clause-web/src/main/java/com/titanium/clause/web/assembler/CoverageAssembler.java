@@ -15,7 +15,7 @@ import com.titanium.clause.valueobject.CoverageId;
 import com.titanium.clause.valueobject.CoverageTrigger;
 import com.titanium.clause.valueobject.Deductible;
 import com.titanium.clause.valueobject.PayoutRule;
-import com.titanium.clause.web.dto.CoverageDTO;
+import com.titanium.clause.web.dto.coverage.CoverageDTO;
 import com.titanium.clause.web.response.CoverageVO;
 import com.titanium.metadata.enums.CommonStatus;
 import com.titanium.metadata.enums.clause.CoverageTriggerType;

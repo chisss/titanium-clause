@@ -7,7 +7,7 @@ import lombok.Data;
 /**
  * 保险责任展示 VO（后端 → 前端，条款配置页「保险责任」列表/回显）
  * <p>
- * 与 {@link com.titanium.clause.web.dto.CoverageDTO} 结构对称：把读模型的结构化
+ * 与 {@link com.titanium.clause.web.dto.coverage.CoverageDTO} 结构对称：把读模型的结构化
  * {@code PayoutRule}/{@code CoverageTrigger} 拍平回前端易用的扁平字段，医疗特有参数从
  * {@code trigger.params} 扩展 Map 中还原。
  * </p>

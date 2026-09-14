@@ -1,4 +1,4 @@
-package com.titanium.clause.api.response;
+package com.titanium.clause.api.response.rate;
 
 import java.math.BigDecimal;
 

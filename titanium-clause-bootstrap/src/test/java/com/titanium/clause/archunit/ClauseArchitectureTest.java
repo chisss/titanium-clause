@@ -92,6 +92,42 @@ class ClauseArchitectureTest extends AbstractArchitectureGuardTest {
         super.webLayerUsesDtoVoNotRequest();
     }
 
+    /**
+     * 启用「web.dto 按业务主题拆子包、顶层清零」（分包规则·批次 2）。
+     * <p>
+     * 条款域 web.dto 已按业务主题三分：{@code dto.lifecycle}（创建 / 更新 / 激活 / 停用 / 修订
+     * 五件套，条款内容与状态维护）、{@code dto.approval}（提交审批 / 审批通过 / 驳回 / 归档，
+     * 审批闭环）、{@code dto.coverage}（保险责任配置，条款配置页「保险责任」编辑区），顶层零类。
+     * </p>
+     */
+    @Test
+    @Override
+    protected void webDtoShouldNotContainFlatClasses() {
+        super.webDtoShouldNotContainFlatClasses();
+    }
+
+    /**
+     * 启用「api.response 按业务主题拆子包、顶层清零」（分包规则·批次 2）。
+     * <p>
+     * 条款域 api.response 已按业务主题二分：{@code response.clause}（条款主体 / 保险责任契约）
+     * 与 {@code response.rate}（年龄性别费率 / 缴费规则契约），顶层零类。
+     * </p>
+     * <p>
+     * 🔴 <b>跨域引用面</b>：{@code response.clause.ClauseResponse} 与
+     * {@code response.clause.CoverageResponse} 被 claim（{@code ClauseServiceAdapter}）与
+     * policy（{@code ClauseServiceAdapter}）import，须先 install 本域 api 再编译下游。
+     * </p>
+     */
+    @Test
+    @Override
+    protected void apiResponseShouldNotContainFlatClasses() {
+        super.apiResponseShouldNotContainFlatClasses();
+    }
+
+    // 注：域内其余契约/门面包（web.controller 1、web.response 2 类）顶层 ≤2 类，api.request 4 类
+    // （创建 / 更新 / 激活 / 停用）为「条款生命周期维护」单一业务主题集中包，
+    // 均按《包结构分包规范与执行方案-2026-09》§一判据表豁免，不启用对应断言。
+
     // 注：不启用严格隔离断言 webShouldNotDependOnDomainCommandsOrAggregates。
     // 现行 api/web 规范允许 web 依赖 command/query（但不碰 aggregate），故回退为基类默认 @Disabled。
 }

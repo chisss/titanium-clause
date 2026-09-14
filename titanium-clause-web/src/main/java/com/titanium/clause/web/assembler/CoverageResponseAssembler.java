@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import org.springframework.stereotype.Component;
 
-import com.titanium.clause.api.response.CoverageResponse;
+import com.titanium.clause.api.response.clause.CoverageResponse;
 import com.titanium.clause.query.result.CoverageQueryResult;
 import com.titanium.clause.valueobject.CoverageTrigger;
 import com.titanium.clause.valueobject.Deductible;

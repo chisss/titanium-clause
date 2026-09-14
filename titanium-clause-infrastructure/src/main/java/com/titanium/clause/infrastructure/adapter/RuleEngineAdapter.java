@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import com.titanium.clause.port.RuleEnginePort;
 import com.titanium.metadata.response.ApiResponse;
 import com.titanium.ruleengine.api.RuleEngineApi;
-import com.titanium.ruleengine.api.response.RuleExecutionResultResponse;
+import com.titanium.ruleengine.api.response.execution.RuleExecutionResultResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

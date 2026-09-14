@@ -1,4 +1,4 @@
-package com.titanium.clause.api.response;
+package com.titanium.clause.api.response.clause;
 
 import java.time.LocalDateTime;
 

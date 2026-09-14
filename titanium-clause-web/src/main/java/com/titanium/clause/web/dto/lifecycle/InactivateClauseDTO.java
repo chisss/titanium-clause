@@ -1,4 +1,4 @@
-package com.titanium.clause.web.dto;
+package com.titanium.clause.web.dto.lifecycle;
 
 import lombok.Data;
 

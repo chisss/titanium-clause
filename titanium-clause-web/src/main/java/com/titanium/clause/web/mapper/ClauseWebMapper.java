@@ -3,11 +3,11 @@ package com.titanium.clause.web.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.titanium.clause.api.response.ClauseResponse;
-import com.titanium.clause.api.response.PremiumRuleResponse;
+import com.titanium.clause.api.response.clause.ClauseResponse;
+import com.titanium.clause.api.response.rate.PremiumRuleResponse;
 import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.query.result.PremiumRuleQueryResult;
-import com.titanium.clause.web.dto.CreateClauseDTO;
+import com.titanium.clause.web.dto.lifecycle.CreateClauseDTO;
 import com.titanium.clause.web.response.ClauseVO;
 
 /**

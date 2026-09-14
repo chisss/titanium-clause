@@ -1,4 +1,4 @@
-package com.titanium.clause.web.dto;
+package com.titanium.clause.web.dto.lifecycle;
 import java.time.LocalDateTime;
 
 import com.titanium.metadata.enums.clause.ClauseEnum;

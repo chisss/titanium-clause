@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import com.titanium.clause.port.RuleEnginePort;
 import com.titanium.metadata.response.ApiResponse;
 import com.titanium.ruleengine.api.RuleEngineApi;
-import com.titanium.ruleengine.api.response.RuleExecutionResultResponse;
+import com.titanium.ruleengine.api.response.execution.RuleExecutionResultResponse;
 import com.titanium.ruleengine.common.enums.RuleDecision;
 
 /**

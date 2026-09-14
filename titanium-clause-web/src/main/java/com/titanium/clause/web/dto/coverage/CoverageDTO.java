@@ -1,4 +1,4 @@
-package com.titanium.clause.web.dto;
+package com.titanium.clause.web.dto.coverage;
 
 import java.math.BigDecimal;
 

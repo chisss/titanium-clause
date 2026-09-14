@@ -1,5 +1,7 @@
 package com.titanium.clause.common.constant;
 
+import com.titanium.metadata.topic.CrossDomainTopics;
+
 /**
  * 条款服务常量类
  */
@@ -12,7 +14,7 @@ public class ClauseConstants {
      * 原 TOPIC_CLAUSE_CREATED/UPDATED/DELETED 三个常量自声明起从无发布点，已删除（m5-903）。
      * </p>
      */
-    public static final String TOPIC_CLAUSE_STATUS_CHANGED = "clause-status-changed";
+    public static final String TOPIC_CLAUSE_STATUS_CHANGED = CrossDomainTopics.CLAUSE_STATUS_CHANGED;
 
     /**
      * 请求头常量

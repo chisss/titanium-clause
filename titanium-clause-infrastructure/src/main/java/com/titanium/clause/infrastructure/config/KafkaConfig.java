@@ -21,6 +21,8 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 
+import com.titanium.clause.common.constant.ClauseConstants;
+
 /**
  * Kafka配置类
  */
@@ -109,6 +111,6 @@ public class KafkaConfig {
      */
     @Bean
     public NewTopic clauseStatusChangedTopic() {
-        return TopicBuilder.name("clause-status-changed").partitions(3).replicas(2).build();
+        return TopicBuilder.name(ClauseConstants.TOPIC_CLAUSE_STATUS_CHANGED).partitions(3).replicas(2).build();
     }
 }

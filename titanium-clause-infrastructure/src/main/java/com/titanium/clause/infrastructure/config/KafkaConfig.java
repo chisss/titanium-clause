@@ -20,7 +20,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
-import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 
 /**
  * Kafka配置类
@@ -35,25 +34,36 @@ public class KafkaConfig {
 
     /**
      * 创建Kafka生产者配置
+     * <p>
+     * 🔴 value serializer 必须是 {@link StringSerializer}，不能是 JSON 序列化器：发布方
+     * {@code ClauseKafkaEventPublisher} 已用 fastjson2 生成 JSON **字符串**，JSON 序列化器会把它当作
+     * 一个普通 String 值再编码一次，线上载荷遂成为「外层带引号、内层转义」的 JSON 字符串字面量
+     * （实测：39 字节的 {@code {"clauseId":...}} 变为 49 字节的 {@code "{\"clauseId\":...}"}），
+     * 首字节是 {@code "} 而非 {@code {}——消费端按 JSON 对象解析即刻失败。
+     * </p>
      *
      * @return 生产者配置
      */
     @Bean
-    public ProducerFactory<String, Object> producerFactory() {
+    public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
     /**
      * 创建Kafka模板
+     * <p>
+     * 泛型 {@code <String, String>} 与发布器注入类型一致（发布器发的是 fastjson2 JSON 字符串），
+     * 亦是全域统一形态（policy/payment 等域同此）。
+     * </p>
      *
      * @return Kafka模板
      */
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate() {
+    public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 

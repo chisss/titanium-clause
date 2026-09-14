@@ -31,7 +31,7 @@ public class ClauseKafkaEventPublisher {
     /** 跨域外发处理组，与写侧、读侧 clause-query-group 隔离 */
     public static final String PROCESSING_GROUP = "clause-kafka-group";
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     /**
      * 条款状态变更外发：供其它域感知条款状态流转
@@ -51,6 +51,14 @@ public class ClauseKafkaEventPublisher {
 
     /**
      * 统一外发：以聚合ID为分区键保证同一条款事件有序，事件体经 fastjson2 序列化。
+     * <p>
+     * 🔴 **线格式契约**：第三实参是 fastjson2 产出的 JSON **字符串**，由生产者 value serializer
+     * （{@link org.apache.kafka.common.serialization.StringSerializer}）逐字节透传，线上载荷即
+     * {@code {"clauseId":...}} 形态的 JSON 对象。此处**不得**改为直接发事件 POJO——那会把
+     * {@code LocalDateTime} 交给 Jackson 按时间戳数组编码，线格式随之改变（与 billing 域
+     * {@code LapseNotificationMessage} 踩过的坑同源）。该契约由
+     * {@code ClauseKafkaEventPublisherTest} 逐字节锁死。
+     * </p>
      *
      * @param topic 目标 Kafka topic
      * @param clauseId 聚合ID，作为消息 key

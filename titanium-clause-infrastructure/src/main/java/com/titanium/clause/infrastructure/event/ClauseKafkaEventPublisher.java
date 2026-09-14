@@ -10,6 +10,7 @@ import com.alibaba.fastjson2.JSON;
 import com.titanium.clause.common.constant.ClauseConstants;
 import com.titanium.clause.event.ClauseApprovedEvent;
 import com.titanium.clause.event.ClauseStatusChangedEvent;
+import com.titanium.common.kafka.KafkaPublishSupport;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,11 @@ import lombok.extern.slf4j.Slf4j;
  * 监听条款域领域事件，序列化为 JSON 后发布到 Kafka 消息总线供其它域消费。 写侧聚合已纯事件溯源，读模型投影由 CQRS 读侧
  * {@code query.handler.projection.ClauseProjectionEventHandler} 负责；本组件只做跨域外发，
  * 不再回写任何 JPA 写表（原 {@code ClauseProjection} 的双写职责已移除）。
+ * </p>
+ * <p>
+ * <b>处理组形态</b>：{@link #PROCESSING_GROUP} 以 {@code mode: tracking} + {@code dlq.enabled: true}
+ * 装配（见 application.yml）。tracking 是死信队列的前提；DLQ 让发布失败的事件由
+ * {@code DeadLetterQueueService} 定时重投而非静默丢失。
  * </p>
  */
 @Slf4j
@@ -59,6 +65,11 @@ public class ClauseKafkaEventPublisher {
      * {@code LapseNotificationMessage} 踩过的坑同源）。该契约由
      * {@code ClauseKafkaEventPublisherTest} 逐字节锁死。
      * </p>
+     * <p>
+     * 🔴 **失败会抛出**：等待 broker 确认（上限 {@code KafkaPublishSupport.SEND_TIMEOUT_SECONDS} 秒），
+     * 失败抛出 {@code KafkaPublishException} 触发死信入队。原先发后即弃 future 的写法会让失败静默丢失
+     * ——既不重试、也不留痕、也无从对账。
+     * </p>
      *
      * @param topic 目标 Kafka topic
      * @param clauseId 聚合ID，作为消息 key
@@ -66,6 +77,7 @@ public class ClauseKafkaEventPublisher {
      */
     private void publish(String topic, String clauseId, Object event) {
         log.info("发布条款事件到 Kafka, topic: {}, clauseId: {}", topic, clauseId);
-        kafkaTemplate.send(topic, clauseId, JSON.toJSONString(event));
+        String payload = JSON.toJSONString(event);
+        KafkaPublishSupport.awaitSent(() -> kafkaTemplate.send(topic, clauseId, payload), topic, clauseId);
     }
 }

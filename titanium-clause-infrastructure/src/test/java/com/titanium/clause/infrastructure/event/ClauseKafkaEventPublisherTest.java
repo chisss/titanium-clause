@@ -3,18 +3,25 @@ package com.titanium.clause.infrastructure.event;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.axonframework.config.ProcessingGroup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +29,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.SendResult;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
@@ -34,15 +42,18 @@ import com.titanium.clause.event.ClauseApprovedEvent;
 import com.titanium.clause.event.ClauseStatusChangedEvent;
 import com.titanium.clause.infrastructure.config.KafkaConfig;
 import com.titanium.clause.valueobject.ClauseId;
+import com.titanium.common.kafka.KafkaPublishException;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
 /**
  * 条款出站发布器用例
  * <p>
- * 锁死三件事：① 两条出口（状态变更 / 审批通过）共用 {@code clause-status-changed} 主题，
+ * 锁死四件事：① 两条出口（状态变更 / 审批通过）共用 {@code clause-status-changed} 主题，
  * 且分区键取条款ID（D15：须与消费端回写维度一致）；② 载荷是 JSON **对象**且携带 {@code tenantId}
  * （D16：消费线程无租户上下文，载荷是消费端判定租户归属的唯一依据）；
- * ③ 🔴 线格式——生产端 value serializer 对发布器产出的 JSON 字符串**逐字节透传**，不得二次编码。
+ * ③ 🔴 线格式——生产端 value serializer 对发布器产出的 JSON 字符串**逐字节透传**，不得二次编码；
+ * ④ 🔴 <b>发布失败必须抛出</b>——出站处理组为 tracking + DLQ 形态，Axon 只对「处理器抛出的异常」
+ * 入队死信；若失败仅记日志，事件既不重投也不留痕，等于静默丢失。
  * </p>
  */
 class ClauseKafkaEventPublisherTest {
@@ -60,6 +71,9 @@ class ClauseKafkaEventPublisherTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         kafkaTemplate = mock(KafkaTemplate.class);
+        // 默认发布成功：发布器现在会等待 broker 确认，未 stub 时 send 返回 null 会直接 NPE
+        when(kafkaTemplate.send(anyString(), anyString(), anyString()))
+                .thenReturn(CompletableFuture.completedFuture(null));
         publisher = new ClauseKafkaEventPublisher(kafkaTemplate);
     }
 
@@ -87,6 +101,32 @@ class ClauseKafkaEventPublisherTest {
 
         assertEquals(CLAUSE_ID, payload.getJSONObject("clauseId").getString("value"));
         assertEquals(TENANT_ID, payload.getString("tenantId"));
+    }
+
+    @Test
+    @DisplayName("🔴 发布失败必须抛出（不再静默丢弃），否则事件不会进死信队列、无从重投")
+    void shouldThrowWhenSendFails() {
+        CompletableFuture<SendResult<String, String>> failed =
+                CompletableFuture.failedFuture(new RuntimeException("broker unreachable"));
+        when(kafkaTemplate.send(anyString(), anyString(), anyString())).thenReturn(failed);
+
+        ClauseStatusChangedEvent event = statusChangedEvent();
+
+        KafkaPublishException exception = assertThrows(KafkaPublishException.class, () -> publisher.on(event));
+
+        assertTrue(exception.getMessage().contains(ClauseConstants.TOPIC_CLAUSE_STATUS_CHANGED), "异常须携带主题以便定位");
+        assertNotNull(exception.getCause(), "须保留底层失败原因");
+    }
+
+    @Test
+    @DisplayName("出站处理组名与 @ProcessingGroup 一致（漂移会使 DLQ 与首启位点配置同时落空）")
+    void shouldDeclareProcessingGroupConsistently() {
+        ProcessingGroup annotation = ClauseKafkaEventPublisher.class.getAnnotation(ProcessingGroup.class);
+
+        assertNotNull(annotation, "出站发布器必须声明 @ProcessingGroup");
+        assertEquals(ClauseKafkaEventPublisher.PROCESSING_GROUP, annotation.value());
+        assertEquals("clause-kafka-group", ClauseKafkaEventPublisher.PROCESSING_GROUP,
+                "组名须与 application.yml 的 axon.eventhandling.processors 键一致");
     }
 
     @Test

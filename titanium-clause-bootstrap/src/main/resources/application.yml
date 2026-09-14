@@ -33,6 +33,9 @@ spring:
     change-log: classpath:liquibase/changelog-master.xml
   kafka:
     bootstrap-servers: localhost:9092
+    # ⚠️ 本段不被 Spring 消费：本仓未引入 spring-boot-kafka（KafkaProperties 所在模块），
+    #    故这里的 key/value-serializer、acks、retries 一律不生效。生产者参数的唯一事实来源是
+    #    KafkaConfig#producerFactory（已显式置 acks=all / enable.idempotence / retries）。
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -81,6 +84,16 @@ axon:
             enabled: true
             size: 2048
         batchSize: 1
+      # 跨域出站组：tracking + DLQ，发布失败的事件由 DeadLetterQueueService 定时重投
+      clause-kafka-group:
+        mode: tracking
+        dlq:
+          enabled: true
+          max-size: 1000
+          cache:
+            enabled: true
+            size: 2048
+        batchSize: 1
   kafka:
     default-topic: clause-events
     consumer:
@@ -110,3 +123,11 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+
+# 跨域出站中继：声明哪些处理组按「事件存储即 Outbox」形态装配为 tracking + DLQ，
+# 并令其首启位点取事件流末端（避免首次部署重放全量历史事件）。
+titanium:
+  axon:
+    outbound-relay:
+      groups:
+        - clause-kafka-group

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.titanium.clause.event.ClauseApprovedEvent;
@@ -70,7 +71,7 @@ public class ClauseProjectionEventHandler {
      * 投影条款创建事件：新建读模型记录
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(ClauseCreatedEvent event) {
         log.info("[读模型投影] 条款创建: clauseId={}", event.clauseId());
 
@@ -95,7 +96,7 @@ public class ClauseProjectionEventHandler {
      * 投影条款更新事件
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(ClauseUpdatedEvent event) {
         log.info("[读模型投影] 条款更新: clauseId={}", event.clauseId());
 
@@ -112,7 +113,7 @@ public class ClauseProjectionEventHandler {
      * 投影条款状态变更事件
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(ClauseStatusChangedEvent event) {
         log.info("[读模型投影] 条款状态变更: clauseId={}, 新状态={}", event.clauseId(), event.newStatus());
 
@@ -129,7 +130,7 @@ public class ClauseProjectionEventHandler {
      * 投影条款提交审批事件
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(ClauseSubmittedForApprovalEvent event) {
         log.info("[读模型投影] 条款提交审批: clauseId={}", event.clauseId());
 
@@ -145,7 +146,7 @@ public class ClauseProjectionEventHandler {
      * 投影条款审批通过事件
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(ClauseApprovedEvent event) {
         log.info("[读模型投影] 条款审批通过: clauseId={}", event.clauseId());
 
@@ -161,7 +162,7 @@ public class ClauseProjectionEventHandler {
      * 投影条款审批驳回事件
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(ClauseRejectedEvent event) {
         log.info("[读模型投影] 条款审批驳回: clauseId={}", event.clauseId());
 
@@ -187,7 +188,7 @@ public class ClauseProjectionEventHandler {
      * </p>
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(ClauseRevisedEvent event) {
         log.info("[读模型投影] 条款修订: newClauseId={}, originalClauseId={}", event.newClauseId(),
                 event.originalClauseId());
@@ -212,7 +213,7 @@ public class ClauseProjectionEventHandler {
      * 投影条款归档事件
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(ClauseArchivedEvent event) {
         log.info("[读模型投影] 条款归档: clauseId={}", event.clauseId());
 
@@ -231,7 +232,7 @@ public class ClauseProjectionEventHandler {
      * </p>
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(ClauseDeletedEvent event) {
         log.info("[读模型投影] 条款删除: clauseId={}", event.clauseId());
 
@@ -254,7 +255,7 @@ public class ClauseProjectionEventHandler {
      * </p>
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(CoverageAddedEvent event) {
         String clauseId = event.clauseId().value();
         String coverageId = event.coverage().id() != null ? event.coverage().id().value() : null;
@@ -277,7 +278,7 @@ public class ClauseProjectionEventHandler {
      * 投影保险责任移除事件：物理删除责任读模型记录（按复合主键仅删该条款版本下的责任行）
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(CoverageRemovedEvent event) {
         String clauseId = event.clauseId().value();
         String coverageId = event.coverageId().value();
@@ -300,7 +301,7 @@ public class ClauseProjectionEventHandler {
      * </p>
      */
     @EventHandler
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void on(PremiumRuleSetEvent event) {
         String clauseId = event.clauseId().value();
         log.info("[读模型投影] 缴费规则设置: clauseId={}", clauseId);

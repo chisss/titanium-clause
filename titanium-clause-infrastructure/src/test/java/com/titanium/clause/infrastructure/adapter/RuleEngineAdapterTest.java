@@ -33,7 +33,7 @@ class RuleEngineAdapterTest {
     void shouldTranslatePassDecision() {
         RuleEngineApi api = mock(RuleEngineApi.class);
         RuleExecutionResultResponse dto = RuleExecutionResultResponse.builder().decision(RuleDecision.PASS).build();
-        when(api.execute(eq("UW_001"), any(), eq("T-1"), isNull(), isNull())).thenReturn(ApiResponse.success(dto));
+        when(api.execute(eq("UW_001"), any(), isNull(), isNull())).thenReturn(ApiResponse.success(dto));
         RuleEngineAdapter adapter = new RuleEngineAdapter(api);
 
         RuleEnginePort.RuleEvaluationResult result = adapter.execute("UW_001", Map.of("age", 30), "T-1");
@@ -47,7 +47,7 @@ class RuleEngineAdapterTest {
     void shouldTranslateRejectDecision() {
         RuleEngineApi api = mock(RuleEngineApi.class);
         RuleExecutionResultResponse dto = RuleExecutionResultResponse.builder().decision(RuleDecision.REJECT).build();
-        when(api.execute(any(), any(), any(), isNull(), isNull())).thenReturn(ApiResponse.success(dto));
+        when(api.execute(any(), any(), isNull(), isNull())).thenReturn(ApiResponse.success(dto));
         RuleEngineAdapter adapter = new RuleEngineAdapter(api);
 
         RuleEnginePort.RuleEvaluationResult result = adapter.execute("UW_001", Map.of(), "T-1");
@@ -60,7 +60,7 @@ class RuleEngineAdapterTest {
     @DisplayName("规则引擎无结论时保守放行")
     void shouldPassWhenNoResult() {
         RuleEngineApi api = mock(RuleEngineApi.class);
-        when(api.execute(any(), any(), any(), isNull(), isNull())).thenReturn(ApiResponse.success(null));
+        when(api.execute(any(), any(), isNull(), isNull())).thenReturn(ApiResponse.success(null));
         RuleEngineAdapter adapter = new RuleEngineAdapter(api);
 
         RuleEnginePort.RuleEvaluationResult result = adapter.execute("UW_001", Map.of(), "T-1");

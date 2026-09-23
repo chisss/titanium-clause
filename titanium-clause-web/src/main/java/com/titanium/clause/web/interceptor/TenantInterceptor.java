@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.titanium.clause.common.constant.ClauseConstants;
-import com.titanium.clause.common.context.TenantContext;
+import com.titanium.common.context.RequestContextHolder;
 import com.titanium.metadata.errorcode.SystemErrorCode;
 import com.titanium.metadata.exception.DomainException;
 
@@ -23,14 +23,14 @@ public class TenantInterceptor implements HandlerInterceptor {
         if (tenantId == null || tenantId.trim().isEmpty()) {
             throw new DomainException(SystemErrorCode.TENANT_HEADER_MISSING);
         }
-        // 设置租户ID到ThreadLocal
-        TenantContext.setCurrentTenant(tenantId);
+        // 写入租户ID到请求上下文
+        RequestContextHolder.setTenantId(tenantId);
         return true;
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-        // 清除ThreadLocal中的租户ID
-        TenantContext.clear();
+        // 只清租户维度（整包上下文由公共 RequestContextInterceptor 统一清理）
+        RequestContextHolder.setTenantId(null);
     }
 }

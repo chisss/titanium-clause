@@ -15,13 +15,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.titanium.clause.application.query.ClauseAppQueryService;
 import com.titanium.clause.application.service.ClauseApplicationService;
-import com.titanium.clause.common.context.TenantContext;
 import com.titanium.clause.web.assembler.CoverageAssembler;
 import com.titanium.clause.web.assembler.CoverageResponseAssembler;
 import com.titanium.clause.web.controller.ClauseController;
 import com.titanium.clause.web.handler.ClauseExceptionHandler;
 import com.titanium.clause.web.mapper.ClauseWebMapper;
 import com.titanium.clause.web.provider.ClauseApiProvider;
+import com.titanium.common.context.RequestContextHolder;
+import com.titanium.common.context.RequestContextInterceptor;
 
 class ClauseNotFoundHttpStatusTest {
 
@@ -43,13 +44,16 @@ class ClauseNotFoundHttpStatusTest {
         // 控制器/Provider 抛出 ClauseNotFoundException，由全局异常处理器统一映射为 404
         ClauseExceptionHandler exceptionHandler = new ClauseExceptionHandler();
         webMockMvc = MockMvcBuilders.standaloneSetup(clauseController).setControllerAdvice(exceptionHandler).build();
-        apiMockMvc = MockMvcBuilders.standaloneSetup(clauseApiProvider).setControllerAdvice(exceptionHandler).build();
-        TenantContext.setCurrentTenant(TENANT_ID);
+        // 契约实现已改为从请求上下文取租户（不再由入参显式传递），故须装配填充上下文的拦截器
+        apiMockMvc = MockMvcBuilders.standaloneSetup(clauseApiProvider).setControllerAdvice(exceptionHandler)
+                .addInterceptors(new RequestContextInterceptor())
+                .build();
+        RequestContextHolder.setTenantId(TENANT_ID);
     }
 
     @AfterEach
-    void clearTenantContext() {
-        TenantContext.clear();
+    void clearRequestContext() {
+        RequestContextHolder.clear();
     }
 
     @Test

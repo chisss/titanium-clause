@@ -20,6 +20,7 @@ import com.titanium.clause.query.result.ClauseQueryResult;
 import com.titanium.clause.valueobject.ClauseId;
 import com.titanium.clause.web.assembler.CoverageResponseAssembler;
 import com.titanium.clause.web.mapper.ClauseWebMapper;
+import com.titanium.common.context.RequestContextHolder;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
@@ -46,64 +47,64 @@ public class ClauseApiProvider implements ClauseApi {
     private final CoverageResponseAssembler coverageResponseAssembler;
 
     @Override
-    public ClauseResponse createClause(CreateClauseRequest request, String tenantId) {
+    public ClauseResponse createClause(CreateClauseRequest request) {
         ClauseId clauseId = clauseApplicationService.createClause(
                 request.getClauseCode(), request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
-                request.getEffectiveDate(), request.getExpiryDate(), request.getCreatedBy(), tenantId);
-        return findResponseOrThrow(clauseId.value(), tenantId);
+                request.getEffectiveDate(), request.getExpiryDate(), request.getCreatedBy(), RequestContextHolder.requireTenantId());
+        return findResponseOrThrow(clauseId.value());
     }
 
     @Override
-    public ClauseResponse updateClause(String clauseId, UpdateClauseRequest request, String tenantId) {
+    public ClauseResponse updateClause(String clauseId, UpdateClauseRequest request) {
         clauseApplicationService.updateClause(clauseId, request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
-                request.getEffectiveDate(), request.getExpiryDate(), request.getUpdatedBy(), tenantId);
-        return findResponseOrThrow(clauseId, tenantId);
+                request.getEffectiveDate(), request.getExpiryDate(), request.getUpdatedBy(), RequestContextHolder.requireTenantId());
+        return findResponseOrThrow(clauseId);
     }
 
     @Override
-    public ClauseResponse getClauseById(String clauseId, String tenantId) {
-        return findResponseOrThrow(clauseId, tenantId);
+    public ClauseResponse getClauseById(String clauseId) {
+        return findResponseOrThrow(clauseId);
     }
 
     @Override
     public PremiumRuleResponse getPremiumRuleByClauseId(
-            String clauseId, String tableCode, String version, String tenantId) {
-        return clauseAppQueryService.findPremiumRuleByClauseIdAndVersion(clauseId, tableCode, version, tenantId)
+            String clauseId, String tableCode, String version) {
+        return clauseAppQueryService.findPremiumRuleByClauseIdAndVersion(clauseId, tableCode, version, RequestContextHolder.requireTenantId())
                 .map(clauseWebMapper::toPremiumRuleResponse)
                 .orElse(null);
     }
 
     @Override
     public List<ClauseResponse> getClauses(
-            String status, String clauseType, String tenantId) {
+            String status, String clauseType) {
         List<ClauseQueryResult> results;
         if (status != null) {
-            results = clauseAppQueryService.findByStatus(ClauseEnum.ClauseStatus.fromCode(status), tenantId);
+            results = clauseAppQueryService.findByStatus(ClauseEnum.ClauseStatus.fromCode(status), RequestContextHolder.requireTenantId());
         } else if (clauseType != null) {
-            results = clauseAppQueryService.findByType(InsuranceProductType.fromCode(clauseType), tenantId);
+            results = clauseAppQueryService.findByType(InsuranceProductType.fromCode(clauseType), RequestContextHolder.requireTenantId());
         } else {
-            results = clauseAppQueryService.findAll(tenantId);
+            results = clauseAppQueryService.findAll(RequestContextHolder.requireTenantId());
         }
         return results.stream().map(clauseWebMapper::toResponse).toList();
     }
 
     @Override
-    public ClauseResponse activateClause(String clauseId, ActivateClauseRequest request, String tenantId) {
-        clauseApplicationService.activateClause(clauseId, request.getActivatedBy(), tenantId);
-        return findResponseOrThrow(clauseId, tenantId);
+    public ClauseResponse activateClause(String clauseId, ActivateClauseRequest request) {
+        clauseApplicationService.activateClause(clauseId, request.getActivatedBy(), RequestContextHolder.requireTenantId());
+        return findResponseOrThrow(clauseId);
     }
 
     @Override
-    public ClauseResponse inactivateClause(String clauseId, InactivateClauseRequest request, String tenantId) {
-        clauseApplicationService.inactivateClause(clauseId, request.getInactivatedBy(), tenantId);
-        return findResponseOrThrow(clauseId, tenantId);
+    public ClauseResponse inactivateClause(String clauseId, InactivateClauseRequest request) {
+        clauseApplicationService.inactivateClause(clauseId, request.getInactivatedBy(), RequestContextHolder.requireTenantId());
+        return findResponseOrThrow(clauseId);
     }
 
     @Override
-    public List<CoverageResponse> getCoveragesByClauseId(String clauseId, String tenantId) {
-        return clauseAppQueryService.findCoveragesByClauseId(clauseId, tenantId).stream()
+    public List<CoverageResponse> getCoveragesByClauseId(String clauseId) {
+        return clauseAppQueryService.findCoveragesByClauseId(clauseId, RequestContextHolder.requireTenantId()).stream()
                 .map(coverageResponseAssembler::toResponse)
                 .toList();
     }
@@ -111,8 +112,8 @@ public class ClauseApiProvider implements ClauseApi {
     /**
      * 按ID查询读模型并转对外 Response，未命中抛条款不存在异常（由全局异常处理器映射 404）
      */
-    private ClauseResponse findResponseOrThrow(String clauseId, String tenantId) {
-        return clauseAppQueryService.findById(clauseId, tenantId)
+    private ClauseResponse findResponseOrThrow(String clauseId) {
+        return clauseAppQueryService.findById(clauseId, RequestContextHolder.requireTenantId())
                 .map(clauseWebMapper::toResponse)
                 .orElseThrow(() -> new ClauseNotFoundException("条款不存在: " + clauseId));
     }

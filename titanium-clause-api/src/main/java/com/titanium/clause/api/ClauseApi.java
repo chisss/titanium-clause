@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.titanium.clause.api.request.ActivateClauseRequest;
@@ -39,49 +38,41 @@ public interface ClauseApi {
      * 创建条款
      *
      * @param request 创建条款 Request
-     * @param tenantId 租户ID
      * @return 条款 Response
      */
     @PostMapping
-    ClauseResponse createClause(@RequestBody CreateClauseRequest request,
-                           @RequestHeader("X-Tenant-Id") String tenantId);
+    ClauseResponse createClause(@RequestBody CreateClauseRequest request);
 
     /**
      * 更新条款
      *
      * @param clauseId 条款ID
      * @param request 更新条款 Request
-     * @param tenantId 租户ID
      * @return 条款 Response
      */
     @PutMapping("/{clauseId}")
-    ClauseResponse updateClause(@PathVariable("clauseId") String clauseId,
-                           @RequestBody UpdateClauseRequest request,
-                           @RequestHeader("X-Tenant-Id") String tenantId);
+    ClauseResponse updateClause(@PathVariable String clauseId,
+                           @RequestBody UpdateClauseRequest request);
 
     /**
      * 获取条款详情
      *
      * @param clauseId 条款ID
-     * @param tenantId 租户ID
      * @return 条款 Response
      */
     @GetMapping("/{clauseId}")
-    ClauseResponse getClauseById(@PathVariable("clauseId") String clauseId,
-                            @RequestHeader("X-Tenant-Id") String tenantId);
+    ClauseResponse getClauseById(@PathVariable String clauseId);
 
     /**
      * 获取条款列表
      *
      * @param status 状态码
      * @param clauseType 条款/险种类型码
-     * @param tenantId 租户ID
      * @return 条款 Response 列表
      */
     @GetMapping
     List<ClauseResponse> getClauses(@RequestParam(required = false) String status,
-                               @RequestParam(required = false) String clauseType,
-                               @RequestHeader("X-Tenant-Id") String tenantId);
+                               @RequestParam(required = false) String clauseType);
 
     /**
      * 查询条款的缴费规则（含四维年龄性别费率表，支持版本精确匹配）
@@ -98,40 +89,34 @@ public interface ClauseApi {
      * @param clauseId  条款ID
      * @param tableCode 费率表编码（可选，支持多版本费率表）
      * @param version   费率表版本（可选，配合 tableCode 使用）
-     * @param tenantId  租户ID
      * @return 缴费规则 Response，未配置时为 {@code null}
      */
     @GetMapping("/{clauseId}/premium-rule")
-    PremiumRuleResponse getPremiumRuleByClauseId(@PathVariable("clauseId") String clauseId,
+    PremiumRuleResponse getPremiumRuleByClauseId(@PathVariable String clauseId,
                                             @RequestParam(required = false) String tableCode,
-                                            @RequestParam(required = false) String version,
-                                            @RequestHeader("X-Tenant-Id") String tenantId);
+                                            @RequestParam(required = false) String version);
 
     /**
      * 激活条款
      *
      * @param clauseId 条款ID
      * @param request 激活条款 Request
-     * @param tenantId 租户ID
      * @return 条款 Response
      */
     @PutMapping("/{clauseId}/activate")
-    ClauseResponse activateClause(@PathVariable("clauseId") String clauseId,
-                             @RequestBody ActivateClauseRequest request,
-                             @RequestHeader("X-Tenant-Id") String tenantId);
+    ClauseResponse activateClause(@PathVariable String clauseId,
+                             @RequestBody ActivateClauseRequest request);
 
     /**
      * 停用条款
      *
      * @param clauseId 条款ID
      * @param request 停用条款 Request
-     * @param tenantId 租户ID
      * @return 条款 Response
      */
     @PutMapping("/{clauseId}/inactivate")
-    ClauseResponse inactivateClause(@PathVariable("clauseId") String clauseId,
-                               @RequestBody InactivateClauseRequest request,
-                               @RequestHeader("X-Tenant-Id") String tenantId);
+    ClauseResponse inactivateClause(@PathVariable String clauseId,
+                               @RequestBody InactivateClauseRequest request);
 
     /**
      * 查询条款下的保险责任清单（供 policy 出单装配责任快照、claim 定责调用）
@@ -142,10 +127,8 @@ public interface ClauseApi {
      * </p>
      *
      * @param clauseId 条款ID
-     * @param tenantId 租户ID
      * @return 保险责任列表，无责任时为空列表
      */
     @GetMapping("/{clauseId}/coverages")
-    List<CoverageResponse> getCoveragesByClauseId(@PathVariable("clauseId") String clauseId,
-                                             @RequestHeader("X-Tenant-Id") String tenantId);
+    List<CoverageResponse> getCoveragesByClauseId(@PathVariable String clauseId);
 }

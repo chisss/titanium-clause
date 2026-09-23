@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.titanium.clause.application.query.ClauseAppQueryService;
 import com.titanium.clause.application.service.ClauseApplicationService;
-import com.titanium.clause.common.context.TenantContext;
 import com.titanium.clause.common.enums.ApprovalType;
 import com.titanium.clause.common.exception.ClauseInvalidStatusException;
 import com.titanium.clause.common.exception.ClauseNotFoundException;
@@ -39,6 +38,7 @@ import com.titanium.clause.web.dto.lifecycle.UpdateClauseDTO;
 import com.titanium.clause.web.mapper.ClauseWebMapper;
 import com.titanium.clause.web.response.ClauseVO;
 import com.titanium.clause.web.response.CoverageVO;
+import com.titanium.common.context.RequestContextHolder;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 import com.titanium.metadata.enums.insurance.InsuranceCategory;
 import com.titanium.metadata.enums.insurance.InsuranceLine;
@@ -72,7 +72,7 @@ public class ClauseController {
      */
     @PostMapping
     public ResponseEntity<ClauseVO> createClause(@RequestBody CreateClauseDTO request) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         ClauseId clauseId = clauseApplicationService.createClause(
                 request.getClauseCode(), request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
@@ -89,7 +89,7 @@ public class ClauseController {
      */
     @GetMapping("/{clauseId}")
     public ResponseEntity<ClauseVO> getClauseById(@PathVariable String clauseId) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         return ResponseEntity.ok(findVoOrThrow(clauseId, tenantId, "条款不存在"));
     }
 
@@ -98,7 +98,7 @@ public class ClauseController {
      */
     @GetMapping("/code/{clauseCode}")
     public ResponseEntity<ClauseVO> getClauseByCode(@PathVariable String clauseCode) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         ClauseQueryResult result = clauseAppQueryService.findByCode(clauseCode, tenantId)
                 .orElseThrow(() -> new ClauseNotFoundException("条款不存在"));
         return ResponseEntity.ok(clauseWebMapper.toVO(result));
@@ -110,7 +110,7 @@ public class ClauseController {
     @PutMapping("/{clauseId}")
     public ResponseEntity<ClauseVO> updateClause(@PathVariable String clauseId,
                                                        @RequestBody UpdateClauseDTO request) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.updateClause(clauseId, request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
                 request.getEffectiveDate(), request.getExpiryDate(), request.getUpdatedBy(), tenantId);
@@ -123,7 +123,7 @@ public class ClauseController {
     @PutMapping("/{clauseId}/activate")
     public ResponseEntity<Void> activateClause(@PathVariable String clauseId,
                                                @RequestBody ActivateClauseDTO request) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.activateClause(clauseId, request.getUpdatedBy(), tenantId);
         return ResponseEntity.noContent().build();
     }
@@ -134,7 +134,7 @@ public class ClauseController {
     @PutMapping("/{clauseId}/inactivate")
     public ResponseEntity<Void> inactivateClause(@PathVariable String clauseId,
                                                  @RequestBody InactivateClauseDTO request) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.inactivateClause(clauseId, request.getUpdatedBy(), tenantId);
         return ResponseEntity.noContent().build();
     }
@@ -145,7 +145,7 @@ public class ClauseController {
     @PutMapping("/{clauseId}/submit-approval")
     public ResponseEntity<Void> submitForApproval(@PathVariable String clauseId,
                                                   @RequestBody SubmitApprovalDTO request) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.submitForApproval(clauseId, request.getSubmittedBy(), tenantId);
         return ResponseEntity.noContent().build();
     }
@@ -156,7 +156,7 @@ public class ClauseController {
     @PutMapping("/{clauseId}/approve")
     public ResponseEntity<Void> approveClause(@PathVariable String clauseId,
                                               @RequestBody ApproveClauseDTO request) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.approveClause(clauseId, ApprovalType.fromCode(request.getApprovalType()),
                 request.getApproverId(), request.getApproverName(), request.getComment(), tenantId);
         return ResponseEntity.noContent().build();
@@ -168,7 +168,7 @@ public class ClauseController {
     @PutMapping("/{clauseId}/reject")
     public ResponseEntity<Void> rejectClause(@PathVariable String clauseId,
                                              @RequestBody RejectClauseDTO request) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.rejectClause(clauseId, ApprovalType.fromCode(request.getApprovalType()),
                 request.getApproverId(), request.getApproverName(), request.getComment(), tenantId);
         return ResponseEntity.noContent().build();
@@ -180,7 +180,7 @@ public class ClauseController {
     @PostMapping("/{clauseId}/revise")
     public ResponseEntity<Map<String, String>> reviseClause(@PathVariable String clauseId,
                                                             @RequestBody ReviseClauseDTO request) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         ClauseId newClauseId = clauseApplicationService.reviseClause(clauseId, request.getRevisedBy(), tenantId);
         return new ResponseEntity<>(Map.of("newClauseId", newClauseId.value()), HttpStatus.CREATED);
     }
@@ -191,7 +191,7 @@ public class ClauseController {
     @PutMapping("/{clauseId}/archive")
     public ResponseEntity<Void> archiveClause(@PathVariable String clauseId,
                                               @RequestBody ArchiveClauseDTO request) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.archiveClause(clauseId, request.getArchivedBy(), tenantId);
         return ResponseEntity.noContent().build();
     }
@@ -201,7 +201,7 @@ public class ClauseController {
      */
     @GetMapping("/status/{status}")
     public ResponseEntity<List<ClauseVO>> getClausesByStatus(@PathVariable String status) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         List<ClauseVO> responses = clauseAppQueryService
                 .findByStatus(ClauseEnum.ClauseStatus.fromCode(status), tenantId)
                 .stream().map(clauseWebMapper::toVO).toList();
@@ -213,7 +213,7 @@ public class ClauseController {
      */
     @GetMapping("/type/{clauseType}")
     public ResponseEntity<List<ClauseVO>> getClausesByType(@PathVariable String clauseType) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         List<ClauseVO> responses = clauseAppQueryService
                 .findByType(InsuranceProductType.fromCode(clauseType), tenantId)
                 .stream().map(clauseWebMapper::toVO).toList();
@@ -231,7 +231,7 @@ public class ClauseController {
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "20") int pageSize) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         ClauseEnum.ClauseStatus statusEnum = parseStatus(status);
         List<InsuranceProductType> insuranceTypes = insuranceTypesForCategory(category);
         Page<ClauseVO> responses = clauseAppQueryService.findClauses(name, code, statusEnum, insuranceTypes, tenantId,
@@ -275,7 +275,7 @@ public class ClauseController {
      */
     @DeleteMapping("/{clauseId}")
     public ResponseEntity<Void> deleteClause(@PathVariable String clauseId) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.deleteClause(clauseId, tenantId);
         return ResponseEntity.noContent().build();
     }
@@ -290,7 +290,7 @@ public class ClauseController {
     @PostMapping("/{clauseId}/coverages")
     public ResponseEntity<Void> addCoverage(@PathVariable String clauseId,
                                             @RequestBody CoverageDTO request) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         Coverage coverage = coverageAssembler.toCoverage(request);
         clauseApplicationService.addCoverage(clauseId, coverage, request.getUpdatedBy(), tenantId);
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -302,7 +302,7 @@ public class ClauseController {
     @DeleteMapping("/{clauseId}/coverages/{coverageId}")
     public ResponseEntity<Void> removeCoverage(@PathVariable String clauseId,
                                                @PathVariable String coverageId) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.removeCoverage(clauseId, coverageId, null, tenantId);
         return ResponseEntity.noContent().build();
     }
@@ -312,7 +312,7 @@ public class ClauseController {
      */
     @GetMapping("/{clauseId}/coverages")
     public ResponseEntity<List<CoverageVO>> listCoverages(@PathVariable String clauseId) {
-        String tenantId = TenantContext.getCurrentTenant();
+        String tenantId = RequestContextHolder.getTenantId();
         List<CoverageVO> responses = clauseAppQueryService.findCoveragesByClauseId(clauseId, tenantId)
                 .stream().map(coverageAssembler::toVO).toList();
         return ResponseEntity.ok(responses);

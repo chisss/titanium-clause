@@ -14,6 +14,8 @@ import com.titanium.metadata.errorcode.SystemErrorCode;
 import com.titanium.metadata.exception.DomainException;
 import com.titanium.metadata.response.ApiResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 条款域 Web 统一异常处理器（全局兜底）
  * <p>
@@ -22,6 +24,7 @@ import com.titanium.metadata.response.ApiResponse;
  * 见全局规约 8.2）；失败工厂只接受 {@code BaseErrorCode} 强类型。
  * </p>
  */
+@Slf4j
 @RestControllerAdvice(basePackages = "com.titanium.clause.web")
 public class ClauseExceptionHandler {
 
@@ -54,12 +57,15 @@ public class ClauseExceptionHandler {
     }
 
     /**
-     * 兜底处理未预期异常（500 + SYSTEM_ERROR，不泄漏堆栈细节）
+     * 兜底处理未预期异常（500 + SYSTEM_ERROR；不泄漏堆栈与原始消息）
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception exception) {
+        // CWE-209：原始异常消息只进日志、不回显给调用方。原实现返回 exception.getMessage()，
+        // 会把内部类名 / 包名 / SQL 片段 / 下游服务地址一并泄露，为攻击者提供侦察信息。
+        log.error("[条款] 未处理异常，请求处理失败", exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(SystemErrorCode.SYSTEM_ERROR, exception.getMessage()));
+                .body(ApiResponse.error(SystemErrorCode.SYSTEM_ERROR, "系统内部错误，请稍后重试"));
     }
 
     /**

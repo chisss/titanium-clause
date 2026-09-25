@@ -45,6 +45,7 @@ import com.titanium.metadata.enums.insurance.InsuranceLine;
 import com.titanium.metadata.enums.insurance.InsuranceProductType;
 import com.titanium.metadata.errorcode.SystemErrorCode;
 import com.titanium.metadata.exception.DomainException;
+import com.titanium.metadata.response.ApiResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -72,7 +73,7 @@ public class ClauseController {
      * 创建条款
      */
     @PostMapping
-    public ResponseEntity<ClauseVO> createClause(@Valid @RequestBody CreateClauseDTO request) {
+    public ResponseEntity<ApiResponse<ClauseVO>> createClause(@Valid @RequestBody CreateClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         ClauseId clauseId = clauseApplicationService.createClause(
                 request.getClauseCode(), request.getClauseName(), request.getClauseType(),
@@ -82,162 +83,166 @@ public class ClauseController {
         // 避免同步查最终一致投影未命中而误报「创建条款失败」。租户由请求上下文补齐。
         ClauseVO response = clauseWebMapper.toCreatedVO(request, clauseId.value());
         response.setTenantId(tenantId);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        // 保留 201：创建语义属 HTTP 传输层，不并入 ApiResponse.code
+        return new ResponseEntity<>(ApiResponse.success(response), HttpStatus.CREATED);
     }
 
     /**
      * 根据ID查询条款
      */
     @GetMapping("/{clauseId}")
-    public ResponseEntity<ClauseVO> getClauseById(@PathVariable String clauseId) {
+    public ApiResponse<ClauseVO> getClauseById(@PathVariable String clauseId) {
         String tenantId = RequestContextHolder.getTenantId();
-        return ResponseEntity.ok(findVoOrThrow(clauseId, tenantId, "条款不存在"));
+        return ApiResponse.success(findVoOrThrow(clauseId, tenantId, "条款不存在"));
     }
 
     /**
      * 根据条款代码查询条款
      */
     @GetMapping("/code/{clauseCode}")
-    public ResponseEntity<ClauseVO> getClauseByCode(@PathVariable String clauseCode) {
+    public ApiResponse<ClauseVO> getClauseByCode(@PathVariable String clauseCode) {
         String tenantId = RequestContextHolder.getTenantId();
         ClauseQueryResult result = clauseAppQueryService.findByCode(clauseCode, tenantId)
-                .orElseThrow(() -> new ClauseNotFoundException("条款不存在"));
-        return ResponseEntity.ok(clauseWebMapper.toVO(result));
+             .orElseThrow(() -> new ClauseNotFoundException("条款不存在"));
+        return ApiResponse.success(clauseWebMapper.toVO(result));
     }
 
     /**
      * 更新条款
      */
     @PutMapping("/{clauseId}")
-    public ResponseEntity<ClauseVO> updateClause(@PathVariable String clauseId,
-                                                       @Valid @RequestBody UpdateClauseDTO request) {
+    public ApiResponse<ClauseVO> updateClause(@PathVariable String clauseId,
+                                                    @Valid @RequestBody UpdateClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.updateClause(clauseId, request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
                 request.getEffectiveDate(), request.getExpiryDate(), request.getUpdatedBy(), tenantId);
-        return ResponseEntity.ok(findVoOrThrow(clauseId, tenantId, "条款不存在"));
+        return ApiResponse.success(findVoOrThrow(clauseId, tenantId, "条款不存在"));
     }
 
     /**
      * 激活条款
      */
     @PutMapping("/{clauseId}/activate")
-    public ResponseEntity<Void> activateClause(@PathVariable String clauseId,
-                                               @Valid @RequestBody ActivateClauseDTO request) {
+    public ApiResponse<Void> activateClause(@PathVariable String clauseId,
+                                            @Valid @RequestBody ActivateClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.activateClause(clauseId, request.getUpdatedBy(), tenantId);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.success();
     }
 
     /**
      * 停用条款
      */
     @PutMapping("/{clauseId}/inactivate")
-    public ResponseEntity<Void> inactivateClause(@PathVariable String clauseId,
-                                                 @Valid @RequestBody InactivateClauseDTO request) {
+    public ApiResponse<Void> inactivateClause(@PathVariable String clauseId,
+                                              @Valid @RequestBody InactivateClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.inactivateClause(clauseId, request.getUpdatedBy(), tenantId);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.success();
     }
 
     /**
      * 提交条款审批
      */
     @PutMapping("/{clauseId}/submit-approval")
-    public ResponseEntity<Void> submitForApproval(@PathVariable String clauseId,
-                                                  @Valid @RequestBody SubmitApprovalDTO request) {
+    public ApiResponse<Void> submitForApproval(@PathVariable String clauseId,
+                                               @Valid @RequestBody SubmitApprovalDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.submitForApproval(clauseId, request.getSubmittedBy(), tenantId);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.success();
     }
 
     /**
      * 审批通过条款
      */
     @PutMapping("/{clauseId}/approve")
-    public ResponseEntity<Void> approveClause(@PathVariable String clauseId,
-                                              @Valid @RequestBody ApproveClauseDTO request) {
+    public ApiResponse<Void> approveClause(@PathVariable String clauseId,
+                                           @Valid @RequestBody ApproveClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.approveClause(clauseId, ApprovalType.fromCode(request.getApprovalType()),
                 request.getApproverId(), request.getApproverName(), request.getComment(), tenantId);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.success();
     }
 
     /**
      * 审批驳回条款
      */
     @PutMapping("/{clauseId}/reject")
-    public ResponseEntity<Void> rejectClause(@PathVariable String clauseId,
-                                             @Valid @RequestBody RejectClauseDTO request) {
+    public ApiResponse<Void> rejectClause(@PathVariable String clauseId,
+                                          @Valid @RequestBody RejectClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.rejectClause(clauseId, ApprovalType.fromCode(request.getApprovalType()),
                 request.getApproverId(), request.getApproverName(), request.getComment(), tenantId);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.success();
     }
 
     /**
      * 条款修订（基于当前版本创建新DRAFT版本）
      */
     @PostMapping("/{clauseId}/revise")
-    public ResponseEntity<Map<String, String>> reviseClause(@PathVariable String clauseId,
-                                                            @Valid @RequestBody ReviseClauseDTO request) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> reviseClause(
+            @PathVariable String clauseId,
+            @Valid @RequestBody ReviseClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         ClauseId newClauseId = clauseApplicationService.reviseClause(clauseId, request.getRevisedBy(), tenantId);
-        return new ResponseEntity<>(Map.of("newClauseId", newClauseId.value()), HttpStatus.CREATED);
+        // 保留 201：创建语义属 HTTP 传输层，不并入 ApiResponse.code
+        return new ResponseEntity<>(ApiResponse.success(Map.of("newClauseId", newClauseId.value())),
+                HttpStatus.CREATED);
     }
 
     /**
      * 条款归档
      */
     @PutMapping("/{clauseId}/archive")
-    public ResponseEntity<Void> archiveClause(@PathVariable String clauseId,
-                                              @Valid @RequestBody ArchiveClauseDTO request) {
+    public ApiResponse<Void> archiveClause(@PathVariable String clauseId,
+                                           @Valid @RequestBody ArchiveClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.archiveClause(clauseId, request.getArchivedBy(), tenantId);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.success();
     }
 
     /**
      * 根据状态查询条款列表
      */
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<ClauseVO>> getClausesByStatus(@PathVariable String status) {
+    public ApiResponse<List<ClauseVO>> getClausesByStatus(@PathVariable String status) {
         String tenantId = RequestContextHolder.getTenantId();
         List<ClauseVO> responses = clauseAppQueryService
-                .findByStatus(ClauseEnum.ClauseStatus.fromCode(status), tenantId)
-                .stream().map(clauseWebMapper::toVO).toList();
-        return ResponseEntity.ok(responses);
+             .findByStatus(ClauseEnum.ClauseStatus.fromCode(status), tenantId)
+             .stream().map(clauseWebMapper::toVO).toList();
+        return ApiResponse.success(responses);
     }
 
     /**
      * 根据类型查询条款列表
      */
     @GetMapping("/type/{clauseType}")
-    public ResponseEntity<List<ClauseVO>> getClausesByType(@PathVariable String clauseType) {
+    public ApiResponse<List<ClauseVO>> getClausesByType(@PathVariable String clauseType) {
         String tenantId = RequestContextHolder.getTenantId();
         List<ClauseVO> responses = clauseAppQueryService
-                .findByType(InsuranceProductType.fromCode(clauseType), tenantId)
-                .stream().map(clauseWebMapper::toVO).toList();
-        return ResponseEntity.ok(responses);
+             .findByType(InsuranceProductType.fromCode(clauseType), tenantId)
+             .stream().map(clauseWebMapper::toVO).toList();
+        return ApiResponse.success(responses);
     }
 
     /**
      * 查询所有条款
      */
     @GetMapping
-    public ResponseEntity<Page<ClauseVO>> getAllClauses(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String code,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "20") int pageSize) {
+    public ApiResponse<Page<ClauseVO>> getAllClauses(
+         @RequestParam(required = false) String name,
+         @RequestParam(required = false) String code,
+         @RequestParam(required = false) String category,
+         @RequestParam(required = false) String status,
+         @RequestParam(defaultValue = "1") int pageNum,
+         @RequestParam(defaultValue = "20") int pageSize) {
         String tenantId = RequestContextHolder.getTenantId();
         ClauseEnum.ClauseStatus statusEnum = parseStatus(status);
         List<InsuranceProductType> insuranceTypes = insuranceTypesForCategory(category);
         Page<ClauseVO> responses = clauseAppQueryService.findClauses(name, code, statusEnum, insuranceTypes, tenantId,
                 Math.max(pageNum - 1, 0), pageSize).map(clauseWebMapper::toVO);
-        return ResponseEntity.ok(responses);
+        return ApiResponse.success(responses);
     }
 
     private ClauseEnum.ClauseStatus parseStatus(String status) {
@@ -275,10 +280,10 @@ public class ClauseController {
      * 删除条款
      */
     @DeleteMapping("/{clauseId}")
-    public ResponseEntity<Void> deleteClause(@PathVariable String clauseId) {
+    public ApiResponse<Void> deleteClause(@PathVariable String clauseId) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.deleteClause(clauseId, tenantId);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.success();
     }
 
     /**
@@ -289,34 +294,36 @@ public class ClauseController {
      * </p>
      */
     @PostMapping("/{clauseId}/coverages")
-    public ResponseEntity<Void> addCoverage(@PathVariable String clauseId,
-                                            @Valid @RequestBody CoverageDTO request) {
+    public ResponseEntity<ApiResponse<Void>> addCoverage(@PathVariable String clauseId,
+                                                         @Valid @RequestBody CoverageDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         Coverage coverage = coverageAssembler.toCoverage(request);
         clauseApplicationService.addCoverage(clauseId, coverage, request.getUpdatedBy(), tenantId);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        // 保留 201：创建语义属 HTTP 传输层，不并入 ApiResponse.code；原为无 body 的 201，
+        // 信封化后带上成功信封，避免空体让调用方无从判断结果
+        return new ResponseEntity<>(ApiResponse.success(), HttpStatus.CREATED);
     }
 
     /**
      * 移除条款下的指定保险责任
      */
     @DeleteMapping("/{clauseId}/coverages/{coverageId}")
-    public ResponseEntity<Void> removeCoverage(@PathVariable String clauseId,
-                                               @PathVariable String coverageId) {
+    public ApiResponse<Void> removeCoverage(@PathVariable String clauseId,
+                                            @PathVariable String coverageId) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.removeCoverage(clauseId, coverageId, null, tenantId);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.success();
     }
 
     /**
      * 查询条款下的保险责任列表（读模型），拍平为前端展示 VO
      */
     @GetMapping("/{clauseId}/coverages")
-    public ResponseEntity<List<CoverageVO>> listCoverages(@PathVariable String clauseId) {
+    public ApiResponse<List<CoverageVO>> listCoverages(@PathVariable String clauseId) {
         String tenantId = RequestContextHolder.getTenantId();
         List<CoverageVO> responses = clauseAppQueryService.findCoveragesByClauseId(clauseId, tenantId)
-                .stream().map(coverageAssembler::toVO).toList();
-        return ResponseEntity.ok(responses);
+             .stream().map(coverageAssembler::toVO).toList();
+        return ApiResponse.success(responses);
     }
 
     /**

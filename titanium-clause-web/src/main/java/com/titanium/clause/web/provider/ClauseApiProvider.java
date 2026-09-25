@@ -23,6 +23,7 @@ import com.titanium.clause.web.mapper.ClauseWebMapper;
 import com.titanium.common.context.RequestContextHolder;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 import com.titanium.metadata.enums.insurance.InsuranceProductType;
+import com.titanium.metadata.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +35,10 @@ import lombok.RequiredArgsConstructor;
  * <b>不重复标注、不篡改</b>。职责仅为协议转换（api Request → 应用层入参、读模型结果 → 对外 Response）+ 调用
  * 应用层门面，零业务逻辑。与面向后台/端上的 {@code ClauseController} 平行收敛到同一
  * {@link ClauseApplicationService}。
+ * </p>
+ * <p>
+ * 🔴 对外统一返回 {@link ApiResponse} 信封（契约见 {@link ClauseApi}）；失败仍由全局异常处理器返回非 2xx
+ * 状态码，调用方经 Feign 感知为 {@code FeignException}。
  * </p>
  */
 @RestController
@@ -47,37 +52,37 @@ public class ClauseApiProvider implements ClauseApi {
     private final CoverageResponseAssembler coverageResponseAssembler;
 
     @Override
-    public ClauseResponse createClause(CreateClauseRequest request) {
+    public ApiResponse<ClauseResponse> createClause(CreateClauseRequest request) {
         ClauseId clauseId = clauseApplicationService.createClause(
                 request.getClauseCode(), request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
                 request.getEffectiveDate(), request.getExpiryDate(), request.getCreatedBy(), RequestContextHolder.requireTenantId());
-        return findResponseOrThrow(clauseId.value());
+        return ApiResponse.success(findResponseOrThrow(clauseId.value()));
     }
 
     @Override
-    public ClauseResponse updateClause(String clauseId, UpdateClauseRequest request) {
+    public ApiResponse<ClauseResponse> updateClause(String clauseId, UpdateClauseRequest request) {
         clauseApplicationService.updateClause(clauseId, request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
                 request.getEffectiveDate(), request.getExpiryDate(), request.getUpdatedBy(), RequestContextHolder.requireTenantId());
-        return findResponseOrThrow(clauseId);
+        return ApiResponse.success(findResponseOrThrow(clauseId));
     }
 
     @Override
-    public ClauseResponse getClauseById(String clauseId) {
-        return findResponseOrThrow(clauseId);
+    public ApiResponse<ClauseResponse> getClauseById(String clauseId) {
+        return ApiResponse.success(findResponseOrThrow(clauseId));
     }
 
     @Override
-    public PremiumRuleResponse getPremiumRuleByClauseId(
+    public ApiResponse<PremiumRuleResponse> getPremiumRuleByClauseId(
             String clauseId, String tableCode, String version) {
-        return clauseAppQueryService.findPremiumRuleByClauseIdAndVersion(clauseId, tableCode, version, RequestContextHolder.requireTenantId())
+        return ApiResponse.success(clauseAppQueryService.findPremiumRuleByClauseIdAndVersion(clauseId, tableCode, version, RequestContextHolder.requireTenantId())
                 .map(clauseWebMapper::toPremiumRuleResponse)
-                .orElse(null);
+                .orElse(null));
     }
 
     @Override
-    public List<ClauseResponse> getClauses(
+    public ApiResponse<List<ClauseResponse>> getClauses(
             String status, String clauseType) {
         List<ClauseQueryResult> results;
         if (status != null) {
@@ -87,26 +92,26 @@ public class ClauseApiProvider implements ClauseApi {
         } else {
             results = clauseAppQueryService.findAll(RequestContextHolder.requireTenantId());
         }
-        return results.stream().map(clauseWebMapper::toResponse).toList();
+        return ApiResponse.success(results.stream().map(clauseWebMapper::toResponse).toList());
     }
 
     @Override
-    public ClauseResponse activateClause(String clauseId, ActivateClauseRequest request) {
+    public ApiResponse<ClauseResponse> activateClause(String clauseId, ActivateClauseRequest request) {
         clauseApplicationService.activateClause(clauseId, request.getActivatedBy(), RequestContextHolder.requireTenantId());
-        return findResponseOrThrow(clauseId);
+        return ApiResponse.success(findResponseOrThrow(clauseId));
     }
 
     @Override
-    public ClauseResponse inactivateClause(String clauseId, InactivateClauseRequest request) {
+    public ApiResponse<ClauseResponse> inactivateClause(String clauseId, InactivateClauseRequest request) {
         clauseApplicationService.inactivateClause(clauseId, request.getInactivatedBy(), RequestContextHolder.requireTenantId());
-        return findResponseOrThrow(clauseId);
+        return ApiResponse.success(findResponseOrThrow(clauseId));
     }
 
     @Override
-    public List<CoverageResponse> getCoveragesByClauseId(String clauseId) {
-        return clauseAppQueryService.findCoveragesByClauseId(clauseId, RequestContextHolder.requireTenantId()).stream()
+    public ApiResponse<List<CoverageResponse>> getCoveragesByClauseId(String clauseId) {
+        return ApiResponse.success(clauseAppQueryService.findCoveragesByClauseId(clauseId, RequestContextHolder.requireTenantId()).stream()
                 .map(coverageResponseAssembler::toResponse)
-                .toList();
+                .toList());
     }
 
     /**

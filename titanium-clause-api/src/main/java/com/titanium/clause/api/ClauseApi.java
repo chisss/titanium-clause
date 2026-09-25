@@ -17,6 +17,7 @@ import com.titanium.clause.api.request.UpdateClauseRequest;
 import com.titanium.clause.api.response.clause.ClauseResponse;
 import com.titanium.clause.api.response.clause.CoverageResponse;
 import com.titanium.clause.api.response.rate.PremiumRuleResponse;
+import com.titanium.metadata.response.ApiResponse;
 
 /**
  * 条款聚合对外契约（Feign）
@@ -24,6 +25,12 @@ import com.titanium.clause.api.response.rate.PremiumRuleResponse;
  * 命名主键为聚合根 {@code Clause}，承载条款的跨服务远程调用。契约路径遵从内部服务远程调用规约
  * {@code /api/v1/clauses}，由 web 层 {@code ClauseApiProvider} 实现，路径不得篡改。所有方法透传
  * {@code X-Tenant-Id} 请求头贯穿多租户上下文，入参使用 Request、出参使用 Response。
+ * </p>
+ * <p>
+ * <b>🔴 统一响应信封</b>：全部方法返回 {@code ApiResponse<T>}（全域唯一封装
+ * {@code com.titanium.metadata.response.ApiResponse}），业务载荷置于 {@code data} 字段。
+ * 调用方须先判 {@code isSuccess()} 再取 {@code getData()}。失败时下游仍返回非 2xx 状态码
+ * （全局异常处理器），Feign 照旧抛 {@code FeignException}，信封化只改变成功响应体的成形。
  * </p>
  * <p>
  * 同域多个 {@code @FeignClient} 的 {@code name} 相同，必须各配唯一 {@code contextId}，否则
@@ -38,61 +45,60 @@ public interface ClauseApi {
      * 创建条款
      *
      * @param request 创建条款 Request
-     * @return 条款 Response
+     * @return 统一信封，{@code data} 为条款 Response
      */
     @PostMapping
-    ClauseResponse createClause(@RequestBody CreateClauseRequest request);
+    ApiResponse<ClauseResponse> createClause(@RequestBody CreateClauseRequest request);
 
     /**
      * 更新条款
      *
      * @param clauseId 条款ID
      * @param request 更新条款 Request
-     * @return 条款 Response
+     * @return 统一信封，{@code data} 为条款 Response
      */
     @PutMapping("/{clauseId}")
-    ClauseResponse updateClause(@PathVariable String clauseId,
+    ApiResponse<ClauseResponse> updateClause(@PathVariable String clauseId,
                            @RequestBody UpdateClauseRequest request);
 
     /**
      * 获取条款详情
      *
      * @param clauseId 条款ID
-     * @return 条款 Response
+     * @return 统一信封，{@code data} 为条款 Response；条款不存在时下游返回 404（Feign 抛异常）
      */
     @GetMapping("/{clauseId}")
-    ClauseResponse getClauseById(@PathVariable String clauseId);
+    ApiResponse<ClauseResponse> getClauseById(@PathVariable String clauseId);
 
     /**
      * 获取条款列表
      *
      * @param status 状态码
      * @param clauseType 条款/险种类型码
-     * @return 条款 Response 列表
+     * @return 统一信封，{@code data} 为条款 Response 列表
      */
     @GetMapping
-    List<ClauseResponse> getClauses(@RequestParam(required = false) String status,
+    ApiResponse<List<ClauseResponse>> getClauses(@RequestParam(required = false) String status,
                                @RequestParam(required = false) String clauseType);
 
     /**
      * 查询条款的缴费规则（含四维年龄性别费率表，支持版本精确匹配）
      * <p>
-     * billing 域保费计算与费率表查询的数据入口：经条款读模型（{@code t_premium_rule_view}）返回结构化费率，
-     * 未配置费率规则时返回 {@code null}。
+     * 经条款读模型（{@code t_premium_rule_view}）返回结构化费率，未配置费率规则时 {@code data} 为 {@code null}。
      * </p>
      * <p>
      * <b>版本查询扩展（BILL-2）</b>：{@code tableCode} 和 {@code version} 可选参数支持按费率表编码+版本精确匹配。
      * 若均为 {@code null} 则返回该条款的默认费率规则（向后兼容）；若指定 {@code tableCode} 但 {@code version} 为 {@code null}，
-     * 则返回该 tableCode 的最新版本；若均指定则精确匹配，未找到时返回 {@code null}。
+     * 则返回该 tableCode 的最新版本；若均指定则精确匹配，未找到时 {@code data} 为 {@code null}。
      * </p>
      *
      * @param clauseId  条款ID
      * @param tableCode 费率表编码（可选，支持多版本费率表）
      * @param version   费率表版本（可选，配合 tableCode 使用）
-     * @return 缴费规则 Response，未配置时为 {@code null}
+     * @return 统一信封，{@code data} 为缴费规则 Response，未配置时为 {@code null}
      */
     @GetMapping("/{clauseId}/premium-rule")
-    PremiumRuleResponse getPremiumRuleByClauseId(@PathVariable String clauseId,
+    ApiResponse<PremiumRuleResponse> getPremiumRuleByClauseId(@PathVariable String clauseId,
                                             @RequestParam(required = false) String tableCode,
                                             @RequestParam(required = false) String version);
 
@@ -101,10 +107,10 @@ public interface ClauseApi {
      *
      * @param clauseId 条款ID
      * @param request 激活条款 Request
-     * @return 条款 Response
+     * @return 统一信封，{@code data} 为条款 Response
      */
     @PutMapping("/{clauseId}/activate")
-    ClauseResponse activateClause(@PathVariable String clauseId,
+    ApiResponse<ClauseResponse> activateClause(@PathVariable String clauseId,
                              @RequestBody ActivateClauseRequest request);
 
     /**
@@ -112,10 +118,10 @@ public interface ClauseApi {
      *
      * @param clauseId 条款ID
      * @param request 停用条款 Request
-     * @return 条款 Response
+     * @return 统一信封，{@code data} 为条款 Response
      */
     @PutMapping("/{clauseId}/inactivate")
-    ClauseResponse inactivateClause(@PathVariable String clauseId,
+    ApiResponse<ClauseResponse> inactivateClause(@PathVariable String clauseId,
                                @RequestBody InactivateClauseRequest request);
 
     /**
@@ -127,8 +133,8 @@ public interface ClauseApi {
      * </p>
      *
      * @param clauseId 条款ID
-     * @return 保险责任列表，无责任时为空列表
+     * @return 统一信封，{@code data} 为保险责任列表，无责任时为空列表
      */
     @GetMapping("/{clauseId}/coverages")
-    List<CoverageResponse> getCoveragesByClauseId(@PathVariable String clauseId);
+    ApiResponse<List<CoverageResponse>> getCoveragesByClauseId(@PathVariable String clauseId);
 }

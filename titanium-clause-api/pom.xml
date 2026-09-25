@@ -22,6 +22,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- 统一响应封装 ApiResponse（全域唯一，位于轻量共享库 metadata，避免 -api 契约层引入重量级依赖） -->
+        <dependency>
+            <groupId>com.titanium</groupId>
+            <artifactId>titanium-metadata</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.titanium.clause.common.exception.ClauseException;
+import com.titanium.metadata.errorcode.BaseErrorCode;
 import com.titanium.metadata.errorcode.ClauseErrorCode;
 import com.titanium.metadata.errorcode.SystemErrorCode;
 import com.titanium.metadata.exception.DomainException;
@@ -43,8 +44,17 @@ public class ClauseExceptionHandler {
      */
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ApiResponse<Void>> handleDomainException(DomainException exception) {
-        return clauseError(exception.getErrorCode(), exception.getMessage())
-                .orElseGet(() -> systemError(exception.getErrorCode(), exception.getMessage()));
+        BaseErrorCode errorCode = exception.getErrorCode();
+        if (errorCode instanceof ClauseErrorCode clauseErrorCode) {
+            return ResponseEntity.status(statusFor(clauseErrorCode))
+                    .body(ApiResponse.error(clauseErrorCode, exception.getMessage()));
+        }
+        if (errorCode instanceof SystemErrorCode systemErrorCode) {
+            return ResponseEntity.status(statusFor(systemErrorCode))
+                    .body(ApiResponse.error(systemErrorCode, exception.getMessage()));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(SystemErrorCode.SYSTEM_ERROR, exception.getMessage()));
     }
 
     /**
@@ -70,6 +80,11 @@ public class ClauseExceptionHandler {
 
     /**
      * 按 ClauseErrorCode 查找错误码并映射 HTTP 状态：不存在→404、重复→409、其余业务错误→400
+     * <p>
+     * 仅服务于 {@link ClauseException} 分支——该异常族<b>不继承</b> {@code DomainException}，
+     * 自带 {@code String errorCode}（独立的遗留异常族，归 EXC-01 的后续任务收敛），
+     * 故此处仍需按码串反查。{@code DomainException} 分支已改为直接用强类型枚举，无反查。
+     * </p>
      */
     private Optional<ResponseEntity<ApiResponse<Void>>> clauseError(String code, String message) {
         return Arrays.stream(ClauseErrorCode.values())
@@ -77,19 +92,6 @@ public class ClauseExceptionHandler {
                 .findFirst()
                 .map(errorCode -> ResponseEntity.status(statusFor(errorCode))
                         .body(ApiResponse.<Void>error(errorCode, message)));
-    }
-
-    /**
-     * 按 SystemErrorCode 查找错误码并映射 HTTP 状态：参数/租户头缺失→400、资源不存在→404、其余→500
-     */
-    private ResponseEntity<ApiResponse<Void>> systemError(String code, String message) {
-        return Arrays.stream(SystemErrorCode.values())
-                .filter(errorCode -> errorCode.getCode().equals(code))
-                .findFirst()
-                .map(errorCode -> ResponseEntity.status(statusFor(errorCode))
-                        .body(ApiResponse.<Void>error(errorCode, message)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(ApiResponse.error(SystemErrorCode.SYSTEM_ERROR, message)));
     }
 
     private HttpStatus statusFor(ClauseErrorCode errorCode) {

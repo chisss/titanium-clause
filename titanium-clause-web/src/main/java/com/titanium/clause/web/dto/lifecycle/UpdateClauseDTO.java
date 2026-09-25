@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -14,11 +15,13 @@ public class UpdateClauseDTO {
     /**
      * 条款代码
      */
+    @Size(max = 64)
     private String clauseCode;
 
     /**
      * 条款名称
      */
+    @Size(max = 128)
     private String clauseName;
 
     /**
@@ -29,11 +32,13 @@ public class UpdateClauseDTO {
     /**
      * 条款内容
      */
+    @Size(max = 1024)
     private String content;
 
     /**
      * 条款描述
      */
+    @Size(max = 1024)
     private String description;
 
     /**
@@ -54,5 +59,6 @@ public class UpdateClauseDTO {
     /**
      * 更新人
      */
+    @Size(max = 64)
     private String updatedBy;
 }

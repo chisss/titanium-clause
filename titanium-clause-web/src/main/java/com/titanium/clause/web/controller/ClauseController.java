@@ -46,6 +46,7 @@ import com.titanium.metadata.enums.insurance.InsuranceProductType;
 import com.titanium.metadata.errorcode.SystemErrorCode;
 import com.titanium.metadata.exception.DomainException;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -71,7 +72,7 @@ public class ClauseController {
      * 创建条款
      */
     @PostMapping
-    public ResponseEntity<ClauseVO> createClause(@RequestBody CreateClauseDTO request) {
+    public ResponseEntity<ClauseVO> createClause(@Valid @RequestBody CreateClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         ClauseId clauseId = clauseApplicationService.createClause(
                 request.getClauseCode(), request.getClauseName(), request.getClauseType(),
@@ -109,7 +110,7 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}")
     public ResponseEntity<ClauseVO> updateClause(@PathVariable String clauseId,
-                                                       @RequestBody UpdateClauseDTO request) {
+                                                       @Valid @RequestBody UpdateClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.updateClause(clauseId, request.getClauseName(), request.getClauseType(),
                 request.getContent(), request.getDescription(), request.getInsuranceType(),
@@ -122,7 +123,7 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/activate")
     public ResponseEntity<Void> activateClause(@PathVariable String clauseId,
-                                               @RequestBody ActivateClauseDTO request) {
+                                               @Valid @RequestBody ActivateClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.activateClause(clauseId, request.getUpdatedBy(), tenantId);
         return ResponseEntity.noContent().build();
@@ -133,7 +134,7 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/inactivate")
     public ResponseEntity<Void> inactivateClause(@PathVariable String clauseId,
-                                                 @RequestBody InactivateClauseDTO request) {
+                                                 @Valid @RequestBody InactivateClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.inactivateClause(clauseId, request.getUpdatedBy(), tenantId);
         return ResponseEntity.noContent().build();
@@ -144,7 +145,7 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/submit-approval")
     public ResponseEntity<Void> submitForApproval(@PathVariable String clauseId,
-                                                  @RequestBody SubmitApprovalDTO request) {
+                                                  @Valid @RequestBody SubmitApprovalDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.submitForApproval(clauseId, request.getSubmittedBy(), tenantId);
         return ResponseEntity.noContent().build();
@@ -155,7 +156,7 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/approve")
     public ResponseEntity<Void> approveClause(@PathVariable String clauseId,
-                                              @RequestBody ApproveClauseDTO request) {
+                                              @Valid @RequestBody ApproveClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.approveClause(clauseId, ApprovalType.fromCode(request.getApprovalType()),
                 request.getApproverId(), request.getApproverName(), request.getComment(), tenantId);
@@ -167,7 +168,7 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/reject")
     public ResponseEntity<Void> rejectClause(@PathVariable String clauseId,
-                                             @RequestBody RejectClauseDTO request) {
+                                             @Valid @RequestBody RejectClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.rejectClause(clauseId, ApprovalType.fromCode(request.getApprovalType()),
                 request.getApproverId(), request.getApproverName(), request.getComment(), tenantId);
@@ -179,7 +180,7 @@ public class ClauseController {
      */
     @PostMapping("/{clauseId}/revise")
     public ResponseEntity<Map<String, String>> reviseClause(@PathVariable String clauseId,
-                                                            @RequestBody ReviseClauseDTO request) {
+                                                            @Valid @RequestBody ReviseClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         ClauseId newClauseId = clauseApplicationService.reviseClause(clauseId, request.getRevisedBy(), tenantId);
         return new ResponseEntity<>(Map.of("newClauseId", newClauseId.value()), HttpStatus.CREATED);
@@ -190,7 +191,7 @@ public class ClauseController {
      */
     @PutMapping("/{clauseId}/archive")
     public ResponseEntity<Void> archiveClause(@PathVariable String clauseId,
-                                              @RequestBody ArchiveClauseDTO request) {
+                                              @Valid @RequestBody ArchiveClauseDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         clauseApplicationService.archiveClause(clauseId, request.getArchivedBy(), tenantId);
         return ResponseEntity.noContent().build();
@@ -289,7 +290,7 @@ public class ClauseController {
      */
     @PostMapping("/{clauseId}/coverages")
     public ResponseEntity<Void> addCoverage(@PathVariable String clauseId,
-                                            @RequestBody CoverageDTO request) {
+                                            @Valid @RequestBody CoverageDTO request) {
         String tenantId = RequestContextHolder.getTenantId();
         Coverage coverage = coverageAssembler.toCoverage(request);
         clauseApplicationService.addCoverage(clauseId, coverage, request.getUpdatedBy(), tenantId);

@@ -1,5 +1,6 @@
 package com.titanium.clause.web.dto.lifecycle;
 
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -10,5 +11,6 @@ public class ActivateClauseDTO {
     /**
      * 更新人
      */
+    @Size(max = 64)
     private String updatedBy;
 }

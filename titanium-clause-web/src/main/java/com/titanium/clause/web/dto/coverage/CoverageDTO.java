@@ -2,6 +2,8 @@ package com.titanium.clause.web.dto.coverage;
 
 import java.math.BigDecimal;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -22,18 +24,25 @@ import lombok.Data;
 public class CoverageDTO {
 
     /** 责任编码（新增可空，由后端生成责任ID） */
+    @NotBlank
+    @Size(max = 64)
     private String coverageCode;
 
     /** 责任名称 */
+    @NotBlank
+    @Size(max = 128)
     private String coverageName;
 
     /** 责任类型 code：CRITICAL_ILLNESS/MEDICAL/ACCIDENT/DEATH */
+    @Size(max = 64)
     private String coverageType;
 
     /** 赔付触发类型 code：DEATH/CRITICAL_ILLNESS/MEDICAL_EXPENSE/... */
+    @Size(max = 64)
     private String triggerType;
 
     /** 赔付类型 code：FIXED/PROPORTIONAL/ACTUAL_LOSS/REIMBURSEMENT/PERIODIC */
+    @Size(max = 64)
     private String payoutType;
 
     /** 最高保额（责任保额上限） */
@@ -70,11 +79,13 @@ public class CoverageDTO {
     private Integer maxDaysTotal;
 
     /** 责任描述 */
+    @Size(max = 1024)
     private String description;
 
     /** 是否附加责任 */
     private Boolean isAdditional;
 
     /** 操作人 */
+    @Size(max = 64)
     private String updatedBy;
 }

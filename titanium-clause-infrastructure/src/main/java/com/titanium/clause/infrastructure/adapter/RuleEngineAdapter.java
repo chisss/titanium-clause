@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import com.titanium.clause.port.RuleEnginePort;
 import com.titanium.metadata.response.ApiResponse;
 import com.titanium.ruleengine.api.RuleEngineApi;
+import com.titanium.ruleengine.api.request.execution.RuleFacts;
 import com.titanium.ruleengine.api.response.execution.RuleExecutionResultResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -34,8 +35,8 @@ public class RuleEngineAdapter implements RuleEnginePort {
         log.info("调用规则引擎执行规则集: ruleSetCode={}, tenantId={}", ruleSetCode, tenantId);
         // 本域规则集执行目前无生产调用方，且接口语义上不承载业务单号（入参仅有规则集编码与变量），
         // 故业务上下文显式传 null——规则引擎侧审计照常落库，仅业务归属字段为空
-        ApiResponse<RuleExecutionResultResponse> response = ruleEngineApi.execute(ruleSetCode, variables,
-                null, null);
+        ApiResponse<RuleExecutionResultResponse> response = ruleEngineApi.execute(ruleSetCode,
+                RuleFacts.of(variables), null, null);
         if (response == null || response.getData() == null || response.getData().getDecision() == null) {
             // 规则引擎无结论时保守放行本地判定（不因外部不可用阻断），由调用方结合本地规则决策
             return new RuleEvaluationResult(true, null);

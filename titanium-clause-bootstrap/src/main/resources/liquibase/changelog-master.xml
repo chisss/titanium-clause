@@ -12,4 +12,6 @@
     <include file="classpath:liquibase/ddl/coverage_view_pk_202609042100_weisun_ddl.sql"/>
     <!-- 寿险责任种子改由 LifeClauseSeedInitializer 走聚合命令建立（读写模型同源），旧直插 t_coverage 孤儿表种子已移除 -->
     <include file="classpath:liquibase/ddl/clause_shedlock_202609231800_weisun_ddl.sql"/>
+    <!-- G10/g10-02：t_clause_view.insurance_type 列宽 50 → 32 统一（三级码最长 23）+ 语义注释 -->
+    <include file="classpath:liquibase/ddl/clause_view_insurance_width_202610091849_weisun_ddl.sql"/>
 </databaseChangeLog>

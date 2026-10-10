@@ -2,6 +2,7 @@ package com.titanium.clause.valueobject;
 
 import java.math.BigDecimal;
 
+import com.titanium.metadata.enums.Reserved;
 import com.titanium.metadata.enums.clause.PayoutType;
 
 /**
@@ -49,7 +50,7 @@ public record PayoutRule(
      * @param startAge          起领年龄（达此年龄开始给付，可空）
      * @param startAfterYears   保单生效后满 N 年起领（与 startAge 二选一，可空）
      * @param payoutYears       给付年限（定期年金；终身给付则为空）
-     * @param guaranteedYears   保证领取年期（被保人身故仍保证给付的年数，可空）
+     * @param guaranteedYears   保证领取年期（被保人身故仍保证给付的年数，可空；恒 null 构值且零读取，详见组件上的 {@code @Reserved}）
      * @param amountPerPeriod   每期给付金额（定额年金；与保额挂钩时可空由计算得出）
      */
     public record PeriodicPayoutTerms(
@@ -57,6 +58,7 @@ public record PayoutRule(
             Integer startAge,
             Integer startAfterYears,
             Integer payoutYears,
+            @Reserved("2026-10-10 g12-07 核对：零消费——全仓仅两处构造点且均显式传 null（clause-web CoverageAssembler.buildPayoutRule PERIODIC 分支、clause-application LifeClauseSeedInitializer 年金种子），除声明外无任何读取、未进入任何给付计算。触发条件：业务确认年金合同含保证领取约定后接入给付计算，确认前保持标注")
             Integer guaranteedYears,
             BigDecimal amountPerPeriod
     ) {

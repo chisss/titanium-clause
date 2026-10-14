@@ -1,6 +1,7 @@
 package com.titanium.clause.common.enums;
 
 import com.titanium.metadata.enums.BaseEnum;
+import com.titanium.metadata.enums.Reserved;
 
 import lombok.Getter;
 
@@ -12,8 +13,11 @@ import lombok.Getter;
  */
 @Getter
 public enum ExclusionType implements BaseEnum {
+    @Reserved("2026-10-14 g16-05 零引用登记（未见消费）：待业务核对——接入触发链路或删除；核毕摘标注+删清单行。见 docs/技术文档/枚举零引用清单.md")
     INTENTIONAL(1, "INTENTIONAL", "故意行为", "被保险人故意行为导致的损失"),
+    @Reserved("2026-10-14 g16-05 零引用登记（未见消费）：待业务核对——接入触发链路或删除；核毕摘标注+删清单行。见 docs/技术文档/枚举零引用清单.md")
     PRE_EXISTING(2, "PRE_EXISTING", "既往症", "投保前已存在的疾病或状况"),
+    @Reserved("2026-10-14 g16-05 零引用登记（未见消费）：待业务核对——接入触发链路或删除；核毕摘标注+删清单行。见 docs/技术文档/枚举零引用清单.md")
     ILLEGAL(3, "ILLEGAL", "违法行为", "违反法律法规的行为导致的损失");
 
     private final Integer enumCode;

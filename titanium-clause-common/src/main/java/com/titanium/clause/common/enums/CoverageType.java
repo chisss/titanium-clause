@@ -1,6 +1,7 @@
 package com.titanium.clause.common.enums;
 
 import com.titanium.metadata.enums.BaseEnum;
+import com.titanium.metadata.enums.Reserved;
 
 import lombok.Getter;
 
@@ -14,6 +15,7 @@ import lombok.Getter;
 public enum CoverageType implements BaseEnum {
     CRITICAL_ILLNESS(1, "CRITICAL_ILLNESS", "重疾", "重大疾病保障责任"),
     MEDICAL(2, "MEDICAL", "医疗", "医疗费用保障责任"),
+    @Reserved("2026-10-14 g16-05 零引用登记（枚举级消费）：存在 values/valueOf/自定方法/:: 调用，常量名零出现；接入时摘标注+删清单行。见 docs/技术文档/枚举零引用清单.md")
     ACCIDENT(3, "ACCIDENT", "意外", "意外伤害保障责任"),
     DEATH(4, "DEATH", "身故", "身故保障责任");
 

@@ -17,6 +17,7 @@ import com.titanium.clause.api.request.UpdateClauseRequest;
 import com.titanium.clause.api.response.clause.ClauseResponse;
 import com.titanium.clause.api.response.clause.CoverageResponse;
 import com.titanium.clause.api.response.rate.PremiumRuleResponse;
+import com.titanium.metadata.enums.Reserved;
 import com.titanium.metadata.response.ApiResponse;
 
 /**
@@ -48,6 +49,7 @@ public interface ClauseApi {
      * @return 统一信封，{@code data} 为条款 Response
      */
     @PostMapping
+    @Reserved("g16-04: 跨域零消费者（管理面经 web 层）；登记见 docs/技术文档/契约登记表.md")
     ApiResponse<ClauseResponse> createClause(@RequestBody CreateClauseRequest request);
 
     /**
@@ -58,6 +60,7 @@ public interface ClauseApi {
      * @return 统一信封，{@code data} 为条款 Response
      */
     @PutMapping("/{clauseId}")
+    @Reserved("g16-04: 跨域零消费者（管理面经 web 层）；登记见 docs/技术文档/契约登记表.md")
     ApiResponse<ClauseResponse> updateClause(@PathVariable String clauseId,
                            @RequestBody UpdateClauseRequest request);
 
@@ -78,6 +81,7 @@ public interface ClauseApi {
      * @return 统一信封，{@code data} 为条款 Response 列表
      */
     @GetMapping
+    @Reserved("g16-04: 跨域零消费者（管理面经 web 层）；登记见 docs/技术文档/契约登记表.md")
     ApiResponse<List<ClauseResponse>> getClauses(@RequestParam(required = false) String status,
                                @RequestParam(required = false) String clauseType);
 
@@ -98,6 +102,7 @@ public interface ClauseApi {
      * @return 统一信封，{@code data} 为缴费规则 Response，未配置时为 {@code null}
      */
     @GetMapping("/{clauseId}/premium-rule")
+    @Reserved("g16-04: 跨域零消费者（管理面经 web 层）；登记见 docs/技术文档/契约登记表.md")
     ApiResponse<PremiumRuleResponse> getPremiumRuleByClauseId(@PathVariable String clauseId,
                                             @RequestParam(required = false) String tableCode,
                                             @RequestParam(required = false) String version);
@@ -110,6 +115,7 @@ public interface ClauseApi {
      * @return 统一信封，{@code data} 为条款 Response
      */
     @PutMapping("/{clauseId}/activate")
+    @Reserved("g16-04: 跨域零消费者（管理面经 web 层）；登记见 docs/技术文档/契约登记表.md")
     ApiResponse<ClauseResponse> activateClause(@PathVariable String clauseId,
                              @RequestBody ActivateClauseRequest request);
 
@@ -121,6 +127,7 @@ public interface ClauseApi {
      * @return 统一信封，{@code data} 为条款 Response
      */
     @PutMapping("/{clauseId}/inactivate")
+    @Reserved("g16-04: 跨域零消费者（管理面经 web 层）；登记见 docs/技术文档/契约登记表.md")
     ApiResponse<ClauseResponse> inactivateClause(@PathVariable String clauseId,
                                @RequestBody InactivateClauseRequest request);
 

@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import org.axonframework.serialization.Revision;
+
 import com.titanium.clause.entity.ClaimRule;
 import com.titanium.clause.entity.ClauseNotification;
 import com.titanium.clause.entity.ClauseSignTemplate;
@@ -23,6 +25,7 @@ import com.titanium.metadata.enums.insurance.InsuranceProductType;
 /**
  * 条款已修订事件（新版本创建）
  */
+@Revision("1")
 public record ClauseRevisedEvent(
         ClauseId originalClauseId,
         ClauseId newClauseId,

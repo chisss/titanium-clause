@@ -3,6 +3,8 @@ package com.titanium.clause.event;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import org.axonframework.serialization.Revision;
+
 import com.titanium.clause.entity.ClaimRule;
 import com.titanium.clause.entity.ContractChangeRule;
 import com.titanium.clause.entity.Coverage;
@@ -20,6 +22,7 @@ import com.titanium.metadata.enums.insurance.InsuranceProductType;
 /**
  * 条款创建事件
  */
+@Revision("1")
 public record ClauseCreatedEvent(
         ClauseId clauseId,
         ClauseCode clauseCode,

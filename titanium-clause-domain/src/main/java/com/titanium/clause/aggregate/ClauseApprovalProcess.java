@@ -40,7 +40,7 @@ import lombok.NoArgsConstructor;
  * 仅 PENDING 状态可执行通过/驳回，终态后不可再次流转。
  * </p>
  */
-@Aggregate
+@Aggregate(snapshotTriggerDefinition = "clauseSnapshotTriggerDefinition")
 @Getter
 /** 仅供 Axon 回放使用（Lombok 生成 protected 无参构造器），业务代码禁止调用 */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

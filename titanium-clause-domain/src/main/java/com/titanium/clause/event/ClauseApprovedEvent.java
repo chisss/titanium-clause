@@ -2,6 +2,8 @@ package com.titanium.clause.event;
 
 import java.time.LocalDateTime;
 
+import org.axonframework.serialization.Revision;
+
 import com.titanium.clause.entity.ApprovalRecord;
 import com.titanium.clause.valueobject.ClauseId;
 
@@ -10,6 +12,7 @@ import com.titanium.clause.valueobject.ClauseId;
  *
  * @param tenantId 租户ID：本事件经 {@code clause-status-changed} 主题跨域外发，消费端据此判定事件归属租户
  */
+@Revision("1")
 public record ClauseApprovedEvent(
         ClauseId clauseId,
         ApprovalRecord approvalRecord,

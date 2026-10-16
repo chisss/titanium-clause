@@ -2,6 +2,8 @@ package com.titanium.clause.event;
 
 import java.time.LocalDateTime;
 
+import org.axonframework.serialization.Revision;
+
 import com.titanium.clause.valueobject.ClauseId;
 
 /**
@@ -10,6 +12,7 @@ import com.titanium.clause.valueobject.ClauseId;
  * 表示一条 DRAFT（草稿）条款被彻底删除。读侧投影据此从读模型 {@code t_clause_view} 移除对应记录。
  * </p>
  */
+@Revision("1")
 public record ClauseDeletedEvent(
         ClauseId clauseId,
         String deletedBy,

@@ -2,6 +2,8 @@ package com.titanium.clause.event;
 
 import java.time.LocalDateTime;
 
+import org.axonframework.serialization.Revision;
+
 import com.titanium.clause.valueobject.ClauseId;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 
@@ -11,6 +13,7 @@ import com.titanium.metadata.enums.clause.ClauseEnum;
  * @param clauseId 手动添加getter方法，解决Lombok注解处理问题
  * @param tenantId 租户ID：本事件经 {@code clause-status-changed} 主题跨域外发，消费端据此判定事件归属租户
  */
+@Revision("1")
 public record ClauseStatusChangedEvent(ClauseId clauseId, ClauseEnum.ClauseStatus newStatus, String updatedBy,
         LocalDateTime updatedAt, String tenantId) {
 }

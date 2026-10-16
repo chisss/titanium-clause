@@ -2,6 +2,8 @@ package com.titanium.clause.event;
 
 import java.time.LocalDateTime;
 
+import org.axonframework.serialization.Revision;
+
 import com.titanium.clause.entity.ApprovalRecord;
 
 /**
@@ -12,6 +14,7 @@ import com.titanium.clause.entity.ApprovalRecord;
  * @param approverId     审批人ID
  * @param approvedAt     审批时间
  */
+@Revision("1")
 public record ClauseApprovalApprovedEvent(
         String approvalId,
         ApprovalRecord approvalRecord,

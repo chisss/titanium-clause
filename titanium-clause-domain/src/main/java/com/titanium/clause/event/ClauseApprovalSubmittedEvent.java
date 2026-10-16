@@ -2,6 +2,8 @@ package com.titanium.clause.event;
 
 import java.time.LocalDateTime;
 
+import org.axonframework.serialization.Revision;
+
 import com.titanium.clause.valueobject.ClauseId;
 import com.titanium.clause.valueobject.Version;
 
@@ -15,6 +17,7 @@ import com.titanium.clause.valueobject.Version;
  * @param tenantId      租户ID
  * @param submittedAt   提交时间
  */
+@Revision("1")
 public record ClauseApprovalSubmittedEvent(
         String approvalId,
         ClauseId clauseId,

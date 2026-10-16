@@ -2,7 +2,6 @@ package com.titanium.clause.aggregate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -11,11 +10,12 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
+import org.axonframework.modelling.command.AggregateMember;
 import org.axonframework.spring.stereotype.Aggregate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.titanium.clause.command.ActivateClauseCommand;
-import com.titanium.clause.command.AddCoverageCommand;
-import com.titanium.clause.command.AddExclusionCommand;
 import com.titanium.clause.command.AddNotificationCommand;
 import com.titanium.clause.command.ApproveClauseCommand;
 import com.titanium.clause.command.ArchiveClauseCommand;
@@ -24,16 +24,10 @@ import com.titanium.clause.command.CreateClauseCommand;
 import com.titanium.clause.command.DeleteClauseCommand;
 import com.titanium.clause.command.InactivateClauseCommand;
 import com.titanium.clause.command.RejectClauseCommand;
-import com.titanium.clause.command.RemoveCoverageCommand;
-import com.titanium.clause.command.RemoveExclusionCommand;
 import com.titanium.clause.command.ReviseClauseCommand;
-import com.titanium.clause.command.SetClaimRuleCommand;
-import com.titanium.clause.command.SetContractChangeRuleCommand;
-import com.titanium.clause.command.SetPremiumRuleCommand;
 import com.titanium.clause.command.SetSignTemplateCommand;
 import com.titanium.clause.command.SubmitClauseForApprovalCommand;
 import com.titanium.clause.command.UpdateClauseCommand;
-import com.titanium.clause.command.UpdateCoverageCommand;
 import com.titanium.clause.common.enums.ApprovalStatus;
 import com.titanium.clause.common.exception.ClauseInvalidStatusException;
 import com.titanium.clause.common.exception.ClauseOperationNotAllowedException;
@@ -86,6 +80,11 @@ import lombok.NoArgsConstructor;
  * 条款域的核心聚合根，是保险合同的法律文本与规则载体。 负责管理条款的生命周期（创建→审批→生效→修订→归档），
  * 以及包含的规则组件（保险责任、责任免除、缴费规则、理赔规则、合同变更规则）。
  * </p>
+ * <p>
+ * 🔴 规则组件的业务状态与命令处理器已随 AXN-02 成员下沉迁至 {@link ClauseRuleComponents}
+ * （{@code @AggregateMember}，Axon 自动路由）；本根保留条款生命周期与告知/签署族处理器，
+ * 并以双监听方式维护规则组件事件的审计字段。
+ * </p>
  */
 @Aggregate
 @Getter
@@ -107,12 +106,10 @@ public class Clause extends BaseAggregate {
     private LocalDateTime               effectiveDate;
     private LocalDateTime               expiryDate;
 
-    // ===== 规则组件（聚合内实体）=====
-    private Map<CoverageId, Coverage>   coverages       = new HashMap<>();
-    private Map<ExclusionId, Exclusion> exclusions      = new HashMap<>();
-    private PremiumRule                 premiumRule;
-    private ClaimRule                   claimRule;
-    private ContractChangeRule          contractChangeRule;
+    // ===== 规则组件（聚合内成员实体，AXN-02 成员下沉）=====
+    // 状态与命令处理器在成员侧（ClauseRuleComponents）；根侧不重建同名处理器，否则 Axon 报多处理器冲突。
+    @AggregateMember
+    private ClauseRuleComponents        ruleComponents;
 
     // ===== 通知与签署 =====
     private List<ClauseNotification>    notifications   = new ArrayList<>();
@@ -162,10 +159,11 @@ public class Clause extends BaseAggregate {
         }
 
         AggregateLifecycle.apply(new ClauseUpdatedEvent(command.clauseId(), command.clauseCode(), command.clauseName(),
-                command.clauseType(), command.content(), this.status, command.description(),
-                command.insuranceType(), command.effectiveDate(), command.expiryDate(), this.coverages, this.exclusions,
-                this.premiumRule, this.claimRule, this.contractChangeRule, command.tenantId(), command.updatedBy(),
-                LocalDateTime.now()));
+                command.clauseType(), command.content(), this.status, command.description(), command.insuranceType(),
+                command.effectiveDate(), command.expiryDate(), this.ruleComponents.getCoverages(),
+                this.ruleComponents.getExclusions(), this.ruleComponents.getPremiumRule(),
+                this.ruleComponents.getClaimRule(), this.ruleComponents.getContractChangeRule(), command.tenantId(),
+                command.updatedBy(), LocalDateTime.now()));
     }
 
     /**
@@ -239,8 +237,8 @@ public class Clause extends BaseAggregate {
         if (this.status != ClauseEnum.ClauseStatus.DRAFT) {
             throw new ClauseInvalidStatusException("仅草稿状态的条款可提交审批");
         }
-        // 校验：至少有1个Coverage
-        if (this.coverages == null || this.coverages.isEmpty()) {
+        // 校验：至少有1个Coverage（规则组件状态由成员持有，经成员包级判定方法读取）
+        if (!this.ruleComponents.hasCoverages()) {
             throw new ClauseOperationNotAllowedException("提交审批前至少需要配置1项保险责任");
         }
 
@@ -300,9 +298,10 @@ public class Clause extends BaseAggregate {
         Version newVersion = this.version.nextVersion();
         ClauseRevisedEvent revisedEvent = new ClauseRevisedEvent(this.clauseId, command.newClauseId(), this.clauseCode,
                 this.clauseName, this.clauseType, this.content, this.description, this.insuranceType, newVersion,
-                this.effectiveDate, this.expiryDate, this.coverages, this.exclusions, this.premiumRule, this.claimRule,
-                this.contractChangeRule, this.notifications, this.signTemplate, this.tenantId, command.revisedBy(),
-                LocalDateTime.now());
+                this.effectiveDate, this.expiryDate, this.ruleComponents.getCoverages(),
+                this.ruleComponents.getExclusions(), this.ruleComponents.getPremiumRule(),
+                this.ruleComponents.getClaimRule(), this.ruleComponents.getContractChangeRule(), this.notifications,
+                this.signTemplate, this.tenantId, command.revisedBy(), LocalDateTime.now());
         try {
             AggregateLifecycle.createNew(Clause.class, () -> new Clause(revisedEvent));
         } catch (Exception e) {
@@ -337,88 +336,9 @@ public class Clause extends BaseAggregate {
         AggregateLifecycle.apply(new ClauseDeletedEvent(command.clauseId(), command.deletedBy(), LocalDateTime.now()));
     }
 
-    /**
-     * 添加保险责任命令处理器
-     */
-    @CommandHandler
-    public void handle(AddCoverageCommand command) {
-        validateDraftStatus("添加保险责任");
-        AggregateLifecycle.apply(new CoverageAddedEvent(command.clauseId(), command.coverage(), command.updatedBy(),
-                LocalDateTime.now()));
-    }
-
-    /**
-     * 移除保险责任命令处理器
-     */
-    @CommandHandler
-    public void handle(RemoveCoverageCommand command) {
-        validateDraftStatus("移除保险责任");
-        AggregateLifecycle.apply(new CoverageRemovedEvent(command.clauseId(), command.coverageId(), command.updatedBy(),
-                LocalDateTime.now()));
-    }
-
-    /**
-     * 更新保险责任命令处理器
-     */
-    @CommandHandler
-    public void handle(UpdateCoverageCommand command) {
-        validateDraftStatus("更新保险责任");
-        if (!this.coverages.containsKey(command.coverage().id())) {
-            throw new ClauseOperationNotAllowedException("保险责任不存在: " + command.coverage().id());
-        }
-        AggregateLifecycle.apply(new CoverageAddedEvent(command.clauseId(), command.coverage(), command.updatedBy(),
-                LocalDateTime.now()));
-    }
-
-    /**
-     * 添加责任免除命令处理器
-     */
-    @CommandHandler
-    public void handle(AddExclusionCommand command) {
-        validateDraftStatus("添加责任免除");
-        AggregateLifecycle.apply(new ExclusionAddedEvent(command.clauseId(), command.exclusion(), command.updatedBy(),
-                LocalDateTime.now()));
-    }
-
-    /**
-     * 移除责任免除命令处理器
-     */
-    @CommandHandler
-    public void handle(RemoveExclusionCommand command) {
-        validateDraftStatus("移除责任免除");
-        AggregateLifecycle.apply(new ExclusionRemovedEvent(command.clauseId(), command.exclusionId(),
-                command.updatedBy(), LocalDateTime.now()));
-    }
-
-    /**
-     * 设置缴费规则命令处理器
-     */
-    @CommandHandler
-    public void handle(SetPremiumRuleCommand command) {
-        validateDraftStatus("设置缴费规则");
-        AggregateLifecycle.apply(new PremiumRuleSetEvent(command.clauseId(), command.premiumRule(), command.updatedBy(),
-                LocalDateTime.now()));
-    }
-
-    /**
-     * 设置理赔规则命令处理器
-     */
-    @CommandHandler
-    public void handle(SetClaimRuleCommand command) {
-        validateDraftStatus("设置理赔规则");
-        AggregateLifecycle.apply(new ClaimRuleSetEvent(command.clauseId(), command.claimRule(), command.updatedBy(),
-                LocalDateTime.now()));
-    }
-
-    /**
-     * 设置合同变更规则命令处理器
-     */
-    @CommandHandler
-    public void handle(SetContractChangeRuleCommand command) {
-        validateDraftStatus("设置合同变更规则");
-        AggregateLifecycle.apply(new ContractChangeRuleSetEvent(command.clauseId(), command.contractChangeRule(),
-                command.updatedBy(), LocalDateTime.now()));
-    }
+    // 规则组件命令处理器（添加/更新/移除保险责任、添加/移除责任免除、设置缴费/理赔/合同变更规则）
+    // 已随 AXN-02 成员下沉迁至 ClauseRuleComponents（@AggregateMember，Axon 按命令类型自动路由）。
+    // 🔴 不得在本根重建同名处理器——下沉即搬迁，不是复制；双份处理器会被 Axon 判为多处理器冲突。
 
     /**
      * 添加条款告知命令处理器
@@ -456,11 +376,9 @@ public class Clause extends BaseAggregate {
         this.parentClauseId = event.parentClauseId();
         this.effectiveDate = event.effectiveDate();
         this.expiryDate = event.expiryDate();
-        this.coverages = event.coverages() != null ? new HashMap<>(event.coverages()) : new HashMap<>();
-        this.exclusions = event.exclusions() != null ? new HashMap<>(event.exclusions()) : new HashMap<>();
-        this.premiumRule = event.premiumRule();
-        this.claimRule = event.claimRule();
-        this.contractChangeRule = event.contractChangeRule();
+        // 规则组件成员在此初始化（null 集合按空表规范化、状态镜像置 DRAFT），语义与下沉前逐字一致
+        this.ruleComponents = new ClauseRuleComponents(event.coverages(), event.exclusions(), event.premiumRule(),
+                event.claimRule(), event.contractChangeRule(), ClauseEnum.ClauseStatus.DRAFT);
         this.tenantId = event.tenantId();
         this.createdBy = event.createdBy();
         this.createTime = event.createdAt();
@@ -478,12 +396,9 @@ public class Clause extends BaseAggregate {
         this.insuranceType = event.insuranceType();
         this.effectiveDate = event.effectiveDate();
         this.expiryDate = event.expiryDate();
-        this.coverages = event.coverages() != null ? new HashMap<>(event.coverages()) : this.coverages;
-        this.exclusions = event.exclusions() != null ? new HashMap<>(event.exclusions()) : this.exclusions;
-        this.premiumRule = event.premiumRule() != null ? event.premiumRule() : this.premiumRule;
-        this.claimRule = event.claimRule() != null ? event.claimRule() : this.claimRule;
-        this.contractChangeRule = event.contractChangeRule() != null ? event.contractChangeRule()
-                : this.contractChangeRule;
+        // null 字段表示该组件本次未变更、保留现值（语义与下沉前逐字一致，由成员承接）
+        this.ruleComponents.applyUpdate(event.coverages(), event.exclusions(), event.premiumRule(),
+                event.claimRule(), event.contractChangeRule());
         this.updatedBy = event.updatedBy();
         this.updateTime = event.updatedAt();
     }
@@ -491,6 +406,7 @@ public class Clause extends BaseAggregate {
     @EventSourcingHandler
     public void on(ClauseStatusChangedEvent event) {
         this.status = event.newStatus();
+        this.ruleComponents.markStatus(event.newStatus());
         this.updatedBy = event.updatedBy();
         this.updateTime = event.updatedAt();
     }
@@ -498,6 +414,7 @@ public class Clause extends BaseAggregate {
     @EventSourcingHandler
     public void on(ClauseSubmittedForApprovalEvent event) {
         this.status = ClauseEnum.ClauseStatus.PENDING_APPROVAL;
+        this.ruleComponents.markStatus(ClauseEnum.ClauseStatus.PENDING_APPROVAL);
         this.updatedBy = event.submittedBy();
         this.updateTime = event.submittedAt();
     }
@@ -510,6 +427,7 @@ public class Clause extends BaseAggregate {
         this.approvalRecords.add(event.approvalRecord());
         // 审批通过 → ACTIVE
         this.status = ClauseEnum.ClauseStatus.ACTIVE;
+        this.ruleComponents.markStatus(ClauseEnum.ClauseStatus.ACTIVE);
         this.updatedBy = event.approverId();
         this.updateTime = event.approvedAt();
     }
@@ -522,6 +440,7 @@ public class Clause extends BaseAggregate {
         this.approvalRecords.add(event.approvalRecord());
         // 驳回 → 回到DRAFT
         this.status = ClauseEnum.ClauseStatus.DRAFT;
+        this.ruleComponents.markStatus(ClauseEnum.ClauseStatus.DRAFT);
         this.updatedBy = event.rejectedBy();
         this.updateTime = event.rejectedAt();
     }
@@ -549,11 +468,9 @@ public class Clause extends BaseAggregate {
         this.version = event.newVersion();
         this.effectiveDate = event.effectiveDate();
         this.expiryDate = event.expiryDate();
-        this.coverages = event.coverages() != null ? new HashMap<>(event.coverages()) : new HashMap<>();
-        this.exclusions = event.exclusions() != null ? new HashMap<>(event.exclusions()) : new HashMap<>();
-        this.premiumRule = event.premiumRule();
-        this.claimRule = event.claimRule();
-        this.contractChangeRule = event.contractChangeRule();
+        // 规则组件成员随修订重建（继承原条款规则组件、状态镜像置 DRAFT），语义与下沉前逐字一致
+        this.ruleComponents = new ClauseRuleComponents(event.coverages(), event.exclusions(), event.premiumRule(),
+                event.claimRule(), event.contractChangeRule(), ClauseEnum.ClauseStatus.DRAFT);
         this.notifications = event.notifications() != null ? new ArrayList<>(event.notifications()) : new ArrayList<>();
         this.signTemplate = event.signTemplate();
         this.approvalRecords = new ArrayList<>();
@@ -567,6 +484,7 @@ public class Clause extends BaseAggregate {
     @EventSourcingHandler
     public void on(ClauseArchivedEvent event) {
         this.status = ClauseEnum.ClauseStatus.ARCHIVED;
+        this.ruleComponents.markStatus(ClauseEnum.ClauseStatus.ARCHIVED);
         this.updatedBy = event.archivedBy();
         this.updateTime = event.archivedAt();
     }
@@ -579,61 +497,51 @@ public class Clause extends BaseAggregate {
         AggregateLifecycle.markDeleted();
     }
 
+    /** 保险责任添加回放：审计字段维护，业务状态由成员 ClauseRuleComponents 重建（双监听为设计意图）。 */
     @EventSourcingHandler
     public void on(CoverageAddedEvent event) {
-        if (this.coverages == null) {
-            this.coverages = new HashMap<>();
-        }
-        this.coverages.put(event.coverage().id(), event.coverage());
         this.updatedBy = event.updatedBy();
         this.updateTime = event.updatedAt();
     }
 
+    /** 保险责任移除回放：审计字段维护，业务状态由成员 ClauseRuleComponents 重建（双监听为设计意图）。 */
     @EventSourcingHandler
     public void on(CoverageRemovedEvent event) {
-        if (this.coverages != null) {
-            this.coverages.remove(event.coverageId());
-        }
         this.updatedBy = event.updatedBy();
         this.updateTime = event.updatedAt();
     }
 
+    /** 责任免除添加回放：审计字段维护，业务状态由成员 ClauseRuleComponents 重建（双监听为设计意图）。 */
     @EventSourcingHandler
     public void on(ExclusionAddedEvent event) {
-        if (this.exclusions == null) {
-            this.exclusions = new HashMap<>();
-        }
-        this.exclusions.put(event.exclusion().id(), event.exclusion());
         this.updatedBy = event.updatedBy();
         this.updateTime = event.updatedAt();
     }
 
+    /** 责任免除移除回放：审计字段维护，业务状态由成员 ClauseRuleComponents 重建（双监听为设计意图）。 */
     @EventSourcingHandler
     public void on(ExclusionRemovedEvent event) {
-        if (this.exclusions != null) {
-            this.exclusions.remove(event.exclusionId());
-        }
         this.updatedBy = event.updatedBy();
         this.updateTime = event.updatedAt();
     }
 
+    /** 缴费规则设置回放：审计字段维护，业务状态由成员 ClauseRuleComponents 重建（双监听为设计意图）。 */
     @EventSourcingHandler
     public void on(PremiumRuleSetEvent event) {
-        this.premiumRule = event.premiumRule();
         this.updatedBy = event.updatedBy();
         this.updateTime = event.updatedAt();
     }
 
+    /** 理赔规则设置回放：审计字段维护，业务状态由成员 ClauseRuleComponents 重建（双监听为设计意图）。 */
     @EventSourcingHandler
     public void on(ClaimRuleSetEvent event) {
-        this.claimRule = event.claimRule();
         this.updatedBy = event.updatedBy();
         this.updateTime = event.updatedAt();
     }
 
+    /** 合同变更规则设置回放：审计字段维护，业务状态由成员 ClauseRuleComponents 重建（双监听为设计意图）。 */
     @EventSourcingHandler
     public void on(ContractChangeRuleSetEvent event) {
-        this.contractChangeRule = event.contractChangeRule();
         this.updatedBy = event.updatedBy();
         this.updateTime = event.updatedAt();
     }
@@ -673,13 +581,13 @@ public class Clause extends BaseAggregate {
             return false;
         }
 
-        for (Exclusion exclusion : exclusions.values()) {
+        for (Exclusion exclusion : this.ruleComponents.getExclusions().values()) {
             if (exclusion.isHitExclusion(claimEvent)) {
                 return false;
             }
         }
 
-        for (Coverage coverage : coverages.values()) {
+        for (Coverage coverage : this.ruleComponents.getCoverages().values()) {
             if (coverage.checkTriggerCondition(claimEvent)) {
                 return true;
             }
@@ -691,7 +599,11 @@ public class Clause extends BaseAggregate {
     // ========================== 私有辅助方法 ==========================
 
     /**
-     * 校验条款当前是否为草稿状态，仅草稿状态允许修改规则组件
+     * 校验条款当前是否为草稿状态，仅草稿状态允许修改（告知/签署族留驻命令使用）。
+     * <p>
+     * 规则组件成员的草稿态门禁在 {@link ClauseRuleComponents#validateDraftStatus} 内（读状态镜像），
+     * 两者规则逐字同源、状态来源不同。
+     * </p>
      */
     private void validateDraftStatus(String operation) {
         if (this.status != ClauseEnum.ClauseStatus.DRAFT) {
@@ -699,14 +611,38 @@ public class Clause extends BaseAggregate {
         }
     }
 
+    // 🔴 @JsonIgnore 不可删（D-501-19）：以下规则组件转发 getter 均无对应根字段，Jackson 会把它们
+    //    写进载荷（快照），反序列化时无写入面 ⇒ UnrecognizedPropertyException → 聚合无法加载。
+    //    组件状态持有者是成员 ClauseRuleComponents（随 ruleComponents 字段成对序列化往返）。
+
     /** coverages 不可变视图（DSN-02：杜绝经 getter 外泄内部集合引用，变更须经命令与事件） */
+    @JsonIgnore
     public Map<CoverageId, Coverage> getCoverages() {
-        return coverages == null ? null : Map.copyOf(coverages);
+        return ruleComponents == null ? null : ruleComponents.getCoverages();
     }
 
     /** exclusions 不可变视图（DSN-02：杜绝经 getter 外泄内部集合引用，变更须经命令与事件） */
+    @JsonIgnore
     public Map<ExclusionId, Exclusion> getExclusions() {
-        return exclusions == null ? null : Map.copyOf(exclusions);
+        return ruleComponents == null ? null : ruleComponents.getExclusions();
+    }
+
+    /** 缴费规则转发 getter（AXN-02 后由规则组件成员持有） */
+    @JsonIgnore
+    public PremiumRule getPremiumRule() {
+        return ruleComponents == null ? null : ruleComponents.getPremiumRule();
+    }
+
+    /** 理赔规则转发 getter（AXN-02 后由规则组件成员持有） */
+    @JsonIgnore
+    public ClaimRule getClaimRule() {
+        return ruleComponents == null ? null : ruleComponents.getClaimRule();
+    }
+
+    /** 合同变更规则转发 getter（AXN-02 后由规则组件成员持有） */
+    @JsonIgnore
+    public ContractChangeRule getContractChangeRule() {
+        return ruleComponents == null ? null : ruleComponents.getContractChangeRule();
     }
 
     /** notifications 不可变视图（DSN-02：杜绝经 getter 外泄内部集合引用，变更须经命令与事件） */

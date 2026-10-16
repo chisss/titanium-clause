@@ -2,7 +2,6 @@ package com.titanium.clause.valueobject;
 
 import java.io.Serializable;
 
-import com.titanium.common.util.SnowflakeIdGenerator;
 
 /**
  * 条款ID值对象
@@ -12,14 +11,6 @@ import com.titanium.common.util.SnowflakeIdGenerator;
  * 导致的反序列化失败。</p>
  */
 public record ClauseId(String value) implements Serializable {
-
-    /**
-     * 创建条款ID
-     * @return 条款ID实例
-     */
-    public static ClauseId create() {
-        return new ClauseId(SnowflakeIdGenerator.generate());
-    }
 
     /**
      * 根据字符串创建条款ID

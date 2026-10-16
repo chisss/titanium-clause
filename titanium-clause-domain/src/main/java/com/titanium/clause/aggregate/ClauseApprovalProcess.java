@@ -24,9 +24,9 @@ import com.titanium.clause.valueobject.ClauseId;
 import com.titanium.clause.valueobject.Version;
 import com.titanium.common.domain.BaseAggregate;
 
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
  * 条款审批流程聚合根
@@ -41,9 +41,9 @@ import lombok.experimental.SuperBuilder;
  * </p>
  */
 @Aggregate
-@Data
-@NoArgsConstructor
-@SuperBuilder(toBuilder = true)
+@Getter
+/** 仅供 Axon 回放使用（Lombok 生成 protected 无参构造器），业务代码禁止调用 */
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ClauseApprovalProcess extends BaseAggregate {
 
     @AggregateIdentifier
@@ -134,5 +134,10 @@ public class ClauseApprovalProcess extends BaseAggregate {
     private ApprovalRecord buildRecord(String approverId, String opinion, ApprovalStatus approvalStatus) {
         return new ApprovalRecord(UUID.randomUUID().toString().replace("-", ""), null, approverId, null,
                 approvalStatus, opinion, LocalDateTime.now());
+    }
+
+    /** approvalRecords 不可变视图（DSN-02：杜绝经 getter 外泄内部集合引用，变更须经命令与事件） */
+    public List<ApprovalRecord> getApprovalRecords() {
+        return approvalRecords == null ? null : List.copyOf(approvalRecords);
     }
 }

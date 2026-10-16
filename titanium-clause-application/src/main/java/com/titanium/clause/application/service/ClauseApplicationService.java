@@ -44,6 +44,7 @@ import com.titanium.clause.valueobject.ClauseName;
 import com.titanium.clause.valueobject.CoverageId;
 import com.titanium.clause.valueobject.ExclusionId;
 import com.titanium.clause.valueobject.Version;
+import com.titanium.common.number.IdGenerator;
 import com.titanium.metadata.enums.clause.ClauseEnum;
 import com.titanium.metadata.enums.insurance.InsuranceProductType;
 
@@ -61,6 +62,7 @@ public class ClauseApplicationService {
     private final CommandGateway        commandGateway;
     private final ClauseDomainService   clauseDomainService;
     private final ClauseViewRepository  clauseViewRepository;
+    private final IdGenerator           idGenerator;
 
     /**
      * 创建条款
@@ -76,7 +78,7 @@ public class ClauseApplicationService {
 
         clauseDomainService.validateClauseData(clauseCode, clauseName, clauseType, content, effectiveDate, expiryDate);
 
-        ClauseId clauseId = ClauseId.create();
+        ClauseId clauseId = ClauseId.fromString(idGenerator.nextIdString());
 
         CreateClauseCommand command = new CreateClauseCommand(
                 clauseId, ClauseCode.fromString(clauseCode), ClauseName.fromString(clauseName),
@@ -180,7 +182,7 @@ public class ClauseApplicationService {
         ClauseId id = ClauseId.fromString(clauseId);
         findClauseOrThrow(id, tenantId);
 
-        ClauseId newClauseId = ClauseId.create();
+        ClauseId newClauseId = ClauseId.fromString(idGenerator.nextIdString());
         commandGateway.sendAndWait(new ReviseClauseCommand(id, newClauseId, revisedBy));
 
         return newClauseId;

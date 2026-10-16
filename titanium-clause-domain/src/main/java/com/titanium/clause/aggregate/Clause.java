@@ -76,9 +76,9 @@ import com.titanium.metadata.enums.clause.ClauseEnum;
 import com.titanium.metadata.enums.insurance.InsuranceProductType;
 import com.titanium.metadata.errorcode.ClauseErrorCode;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
  * 条款聚合根
@@ -89,8 +89,8 @@ import lombok.experimental.SuperBuilder;
  */
 @Aggregate
 @Getter
-@NoArgsConstructor
-@SuperBuilder(toBuilder = true)
+/** 仅供 Axon 回放使用（Lombok 生成 protected 无参构造器），业务代码禁止调用 */
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Clause extends BaseAggregate {
 
     @AggregateIdentifier
@@ -697,5 +697,25 @@ public class Clause extends BaseAggregate {
         if (this.status != ClauseEnum.ClauseStatus.DRAFT) {
             throw new ClauseOperationNotAllowedException("仅草稿状态允许" + operation + "，当前状态: " + this.status.getName());
         }
+    }
+
+    /** coverages 不可变视图（DSN-02：杜绝经 getter 外泄内部集合引用，变更须经命令与事件） */
+    public Map<CoverageId, Coverage> getCoverages() {
+        return coverages == null ? null : Map.copyOf(coverages);
+    }
+
+    /** exclusions 不可变视图（DSN-02：杜绝经 getter 外泄内部集合引用，变更须经命令与事件） */
+    public Map<ExclusionId, Exclusion> getExclusions() {
+        return exclusions == null ? null : Map.copyOf(exclusions);
+    }
+
+    /** notifications 不可变视图（DSN-02：杜绝经 getter 外泄内部集合引用，变更须经命令与事件） */
+    public List<ClauseNotification> getNotifications() {
+        return notifications == null ? null : List.copyOf(notifications);
+    }
+
+    /** approvalRecords 不可变视图（DSN-02：杜绝经 getter 外泄内部集合引用，变更须经命令与事件） */
+    public List<ApprovalRecord> getApprovalRecords() {
+        return approvalRecords == null ? null : List.copyOf(approvalRecords);
     }
 }

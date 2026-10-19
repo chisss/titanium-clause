@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>com.titanium</groupId>
-            <artifactId>titanium-common</artifactId>
+            <artifactId>titanium-metadata</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <!-- Commons Lang3 -->
@@ -27,10 +27,6 @@
         </dependency>
 
         <!-- FastJSON2 -->
-        <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

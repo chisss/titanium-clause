@@ -25,7 +25,7 @@
         <!-- 通用内核(聚合根基类BaseAggregate) -->
         <dependency>
             <groupId>com.titanium</groupId>
-            <artifactId>titanium-common</artifactId>
+            <artifactId>titanium-kernel</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
@@ -36,10 +36,6 @@
         </dependency>
         <dependency>
             <groupId>org.axonframework</groupId>
-            <artifactId>axon-configuration</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.axonframework</groupId>
             <artifactId>axon-modelling</artifactId>
         </dependency>
         <dependency>
@@ -47,10 +43,10 @@
             <artifactId>axon-spring</artifactId>
         </dependency>
 
-        <!-- Spring Boot -->
+        <!-- Spring 上下文（仅 @Component 领域服务注解；PKG-01：domain 不引入 Boot） -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -65,7 +61,25 @@
             <artifactId>axon-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- axon-test 将 hamcrest 声明为 optional，需显式引入供事件比对使用 -->
+        <!-- 聚合根 @EventSourcingHandler 依赖（m27-01：analyze 报 used-undeclared，显式声明） -->
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-eventsourcing</artifactId>
+        </dependency>
+        <!-- 共享枚举/错误码（entity/valueobject 生产面直接使用；m27-01 起显式声明） -->
+        <dependency>
+            <groupId>com.titanium</groupId>
+            <artifactId>titanium-metadata</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+    
+        <!-- Jackson 注解（值对象/事件 @JsonIgnore 等；m27-01：原经 titanium-common 传递获得，现显式声明） -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+    
+        <!-- 测试面 assertThat/Matcher（m27-01：原经 junit 聚合构件传递获得） -->
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
@@ -75,6 +89,11 @@
 
     <build>
         <plugins>
+            <!-- m27-01/PKG-01：领域层 classpath 纯净门禁（规则见 titanium-parent pluginManagement） -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
             <!-- 禁用Spring Boot Maven Plugin的repackage目标，因为这是一个领域层模块，不需要主类 -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>

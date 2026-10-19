@@ -1,0 +1,4 @@
+Class <com.titanium.clause.api.request.ActivateClauseRequest> does reside in a package 'com.titanium.clause.api.request' in (ActivateClauseRequest.java:0)
+Class <com.titanium.clause.api.request.CreateClauseRequest> does reside in a package 'com.titanium.clause.api.request' in (CreateClauseRequest.java:0)
+Class <com.titanium.clause.api.request.InactivateClauseRequest> does reside in a package 'com.titanium.clause.api.request' in (InactivateClauseRequest.java:0)
+Class <com.titanium.clause.api.request.UpdateClauseRequest> does reside in a package 'com.titanium.clause.api.request' in (UpdateClauseRequest.java:0)
